@@ -22,8 +22,4 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: |
-            thenewfork/blocknotifier-python:staging-${{ github.sha }}
-
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }
+          tags: thenewfork/blocknotifier-python:staging-${{ github.sha }}
