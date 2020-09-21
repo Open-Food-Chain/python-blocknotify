@@ -109,15 +109,21 @@ def improt_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
     print(res.text)
 
-    #post to django
+    id = json.loads(res.text)['id']
 
-    ##TODO print res id
+    print(id)
 
     response = rpclib.sendtoaddress(rpc_connect, item_address['address'], script_version)
 
-    ##TODO store res id in database.
-
     print(response)
+
+    url = django_base_url + DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH + id
+    data={'integrity_address': item_address['address'], 'integrity_pre_tx': response}
+
+    res = requests.put(url, data=data)
+
+    print(res.json)
+
     return
 
 
