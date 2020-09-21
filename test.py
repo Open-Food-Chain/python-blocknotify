@@ -2,6 +2,7 @@ from lib import rpclib
 from slickrpc import Proxy
 import binascii
 import requests
+import subprocess
 import json
 import sys
 
@@ -18,6 +19,11 @@ this_node_pubkey = "02f2cdd772ab57eae35996c0d39ad34fe06304c4d3981ffe71a596634fa2
 this_node_wif = "UpUiqKNj43SBPe9SvYqpygZE3BS83f87GVQSV8zXt2Gr813YZ3Ah"
 
 rpc_connect = rpc_connection = Proxy("http://%s:%s@127.0.0.1:%d"%(rpc_user, rpc_password, port));
+
+
+django_base_url = "http://127.0.0.1:8777/"
+DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH = "integrity/"
+DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH= "raw/refresco/require_integrity/"
 
 blocknotify_chainsync_limit = 5
 housekeeping_address = "RS7y4zjQtcNv7inZowb8M6bH3ytS1moj9A"
@@ -41,6 +47,12 @@ script_version = 0.00010005
 general_info = rpclib.getinfo(rpc_connect);
 sync = general_info['longestchain'] - general_info['blocks']
 
+print(general_info['longestchain'])
+
+print(general_info['blocks'])
+
+print(sync)
+
 if sync >= blocknotify_chainsync_limit:
     print('the chain is not synced, try again later')
     exit()
@@ -58,7 +70,7 @@ print("the chain is synced")
 
 res = rpclib.sendtoaddress(rpc_connect, housekeeping_address, script_version)
 
-# print(res)
+print(res)
 
 # ############################
 
@@ -79,8 +91,33 @@ res = rpclib.sendtoaddress(rpc_connect, housekeeping_address, script_version)
 # batch record import database id(uuid) = $3
 ###########################
 
-def improt_raw_refresco_batch_integrity_rpe_process():
-    ### TODO:
+def improt_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
+
+    data = json.dumps(data)
+
+    signed_data = rpclib.signmessage(rpc_connect, wallet, data)
+    item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
+
+    item_address = json.loads(item_address)
+
+    print(item_address['address'])
+
+    url = django_base_url + DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH
+    data={'name': 'chris', 'integrity_address': item_address['address'], 'batch': import_id}
+
+    res = requests.post(url, data=data)
+
+    print(res.text)
+
+    #post to django
+
+    ##TODO print res id
+
+    response = rpclib.sendtoaddress(rpc_connect, item_address['address'], script_version)
+
+    ##TODO store res id in database.
+
+    print(response)
     return
 
 
@@ -90,3 +127,28 @@ def get_address():
 
 def sign_message():
     return
+
+print("start improt api")
+
+url = django_base_url + DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH
+
+res = requests.get(url)
+
+raw_json = res.text
+
+#batches_null_integrity = array(batches_null_integrity)
+
+batches_null_integrity = ""
+
+try:
+    batches_null_integrity = json.loads(raw_json)
+except Exception as e:
+    print("failed to parse to json because of", e)
+    exit()
+
+
+for batch in batches_null_integrity:
+    raw_json = batch
+    id = batch['id']
+    print("starting process for id:", id)
+    improt_raw_refresco_batch_integrity_pre_process(this_node_address, raw_json, id)
