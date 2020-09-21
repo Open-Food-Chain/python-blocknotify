@@ -24,6 +24,8 @@ rpc_connect = rpc_connection = Proxy("http://%s:%s@127.0.0.1:%d"%(rpc_user, rpc_
 django_base_url = "http://127.0.0.1:8777/"
 DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH = "integrity/"
 DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH= "raw/refresco/require_integrity/"
+DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH = "raw/refresco/require_integrity/"
+DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = "raw/refresco-integrity/"
 
 blocknotify_chainsync_limit = 5
 housekeeping_address = "RS7y4zjQtcNv7inZowb8M6bH3ytS1moj9A"
@@ -91,7 +93,7 @@ print(res)
 # batch record import database id(uuid) = $3
 ###########################
 
-def improt_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
+def import_jcf_batch_integrity_pre_process(wallet, data, import_id):
 
     data = json.dumps(data)
 
@@ -117,19 +119,72 @@ def improt_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
     print(response)
 
-    url = django_base_url + DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH + id
-    data={'integrity_address': item_address['address'], 'integrity_pre_tx': response}
+    url = django_base_url + DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH + id + "/"
+    data={'name': 'chris', 'integrity_address': item_address['address'], 'integrity_pre_tx': response}
 
     res = requests.put(url, data=data)
 
-    print(res.json)
+    print(res.text)
 
     return
 
+def get_address(wallet, data):
+    signed_data = rpclib.signmessage(rpc_connect, wallet, data)
+    item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
 
-def get_address():
-    ### TODO:
+    item_address = json.loads(item_address)['address']
+
+    return item_address
+
+def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
+
+    ANFP = data['anfp']
+    PON = data['pon']
+    BNFP = data['bnfp']
+
+    anfp_address = get_address(wallet, ANFP)
+    pon_address = get_address(wallet, PON)
+    bnfp_address = get_address(wallet, BNFP)
+
+    data = json.dumps(data)
+
+    signed_data = rpclib.signmessage(rpc_connect, wallet, data)
+    item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
+
+    item_address = json.loads(item_address)
+
+    print(item_address['address'])
+
+    url = django_base_url + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
+    data={'name': 'chris', 'integrity_address': item_address['address'], 'batch': import_id}
+
+    res = requests.post(url, data=data)
+
+    print(res.text)
+
+    id = json.loads(res.text)['id']
+
+    print(id)
+
+    response = rpclib.sendtoaddress(rpc_connect, item_address['address'], script_version)
+
+    print(response)
+
+    url = django_base_url + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + id + "/"
+    data={'name': 'chris', 'integrity_address': item_address['address'], 'integrity_pre_tx': response}
+
+    res = requests.put(url, data=data)
+
+    print(res.text)
+
+    json_object = {anfp_address: script_version, pon_address: script_version, bnfp_address: script_version}
+
+    response = rpclib.sendmany(rpc_connect, this_node_address, json_object)
+
+    print(response)
+
     return
+
 
 def sign_message():
     return
@@ -157,4 +212,33 @@ for batch in batches_null_integrity:
     raw_json = batch
     id = batch['id']
     print("starting process for id:", id)
-    improt_raw_refresco_batch_integrity_pre_process(this_node_address, raw_json, id)
+    import_jcf_batch_integrity_pre_process(this_node_address, raw_json, id)
+
+
+print("start improt api")
+
+url = django_base_url + DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
+
+res = requests.get(url)
+
+print(res.text)
+
+raw_json = res.text
+
+#batches_null_integrity = array(batches_null_integrity)
+
+batches_null_integrity = ""
+
+try:
+    batches_null_integrity = json.loads(raw_json)
+except Exception as e:
+    print("failed to parse to json because of", e)
+    exit()
+
+for batch in batches_null_integrity:
+    raw_json = batch
+    id = batch['id']
+    print("starting process for id:", id)
+    import_raw_refresco_batch_integrity_pre_process(this_node_address, raw_json, id)
+
+exit()

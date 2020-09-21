@@ -124,6 +124,14 @@ def sendrawtransaction(rpc_connection, hex):
     tx_id = rpc_connection.sendrawtransaction(hex)
     return tx_id
 
+def sendmany(rpc_connection, from_account, input_json):
+    try:
+        response = rpc_connection.sendmany(from_account, input_json)
+    except Exception as e:
+        raise Exception(e)
+    return response
+
+
 
 def gettransaction(rpc_connection, tx_id):
     transaction_info = rpc_connection.gettransaction(tx_id)
