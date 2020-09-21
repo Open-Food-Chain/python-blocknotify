@@ -1,0 +1,24 @@
+name: Python package
+
+on: [push]
+
+jobs:
+  build:
+    env:
+      REGISTRY: registry.unchain.io
+      PROJECT: thenewfork
+      REPOSITORY: blocknotify-python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - run: git pull
+      - name: Build docker image
+        run: docker build -t $REGISTRY/$PROJECT/$REPOSITORY:$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h) .
+      - name: Docker login
+        run: docker login -u 'robot$thenewfork-never-expire' -p ${{ secrets.UNCHAIN_DOCKER_REGISTRY_TOKEN }} $REGISTRY
+      - name: Push to unchain registry
+        run: docker push $REGISTRY/$PROJECT/$REPOSITORY:$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h)
