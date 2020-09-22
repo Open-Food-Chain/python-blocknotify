@@ -142,8 +142,11 @@ def import_jcf_batch_integrity_pre_process(wallet, data, import_id):
 
 
 def get_address(wallet, data):
+    print("Creating an address using %s with data %s" % (wallet, data))
     signed_data = rpclib.signmessage(rpc_connect, wallet, data)
+    print("Signed data is %s" % (signed_data))
     item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
+    print("Created address %s" % (item_address))
 
     item_address = json.loads(item_address)['address']
 
