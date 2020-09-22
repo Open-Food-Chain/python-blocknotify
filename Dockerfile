@@ -16,6 +16,7 @@ COPY run.sh /code
 COPY test.py /code
 COPY genaddressonly.php /code
 COPY lib/rpclib.py /code/lib
+COPY .env /code
 WORKDIR /code
 
-COPY ./ /code/
+#COPY ./ /code/

@@ -3,30 +3,43 @@ from slickrpc import Proxy
 import requests
 import subprocess
 import json
+import os
+from dotenv import load_dotenv
+load_dotenv(verbose=True)
 
 
 # global vars
-rpc_user = "changeme"
-rpc_password = "alsochangeme"
-port = 24708
+rpc_user = os.getenv("IJUICE_KOMODO_NODE_USERNAME")
+rpc_password = os.getenv("IJUICE_KOMODO_NODE_PASSWORD")
+port = os.getenv("IJUICE_KOMODO_NODE_RPC_PORT")
 
-komodo_node_ip = "172.29.0.2"
+komodo_node_ip = os.getenv("IJUICE_KOMODO_NODE_IPV4_ADDR")
 
-this_node_address = "RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW"
-this_node_pubkey = "02f2cdd772ab57eae35996c0d39ad34fe06304c4d3981ffe71a596634fa26f8744"
-this_node_wif = "UpUiqKNj43SBPe9SvYqpygZE3BS83f87GVQSV8zXt2Gr813YZ3Ah"
+this_node_address = os.getenv("THIS_NODE_WALLET")
+this_node_pubkey = os.getenv("THIS_NODE_PUBKEY")
+this_node_wif = os.getenv("THIS_NODE_WIF")
 
-rpc_connect = rpc_connection = Proxy("http://%s:%s@127.0.0.1:%d" % (rpc_user, rpc_password, port))
+# rpc_connect = rpc_connection = Proxy("http://%s:%s@127.0.0.1:%d" % (rpc_user, rpc_password, port))
+rpc_connect = rpc_connection = Proxy("http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
+
+blocknotify_chainsync_limit = int(os.getenv("BLOCKNOTIFY_CHAINSYNC_LIMIT"))
+housekeeping_address = os.getenv("HOUSEKEEPING_ADDRESS")
 
 
+# TODO :%s/django_base_url/IMPORT_API_BASE_URL/g
 django_base_url = "http://172.29.0.4:8777/"
-DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH = "integrity/"
-DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH = "raw/refresco/require_integrity/"
-DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH = "raw/refresco/require_integrity/"
-DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = "raw/refresco-integrity/"
-
-blocknotify_chainsync_limit = 5
-housekeeping_address = "RS7y4zjQtcNv7inZowb8M6bH3ytS1moj9A"
+# TODO THEN REMOVE above line
+IMPORT_API_HOST = str(os.getenv("IMPORT_API_HOST"))
+IMPORT_API_PORT = str(os.getenv("IMPORT_API_PORT"))
+IMPORT_API_BASE_URL = "http://" + IMPORT_API_HOST + ":" + IMPORT_API_PORT + "/"
+# integrity/
+DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH = os.getenv("DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH")
+# batch/require_integrity/
+DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH = os.getenv("DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH")
+# raw/refresco/require_integrity/
+DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH = os.getenv("DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH")
+# raw/refresco-integrity/
+DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = os.getenv("DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH")
 
 
 # check wallet management
@@ -42,7 +55,7 @@ is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
 # we send this amount to an address for housekeeping
 # update by 0.0001 (manually, if can be done in CI/CD, nice-to-have not need-to-have) (MYLO)
 # house keeping address is list.json last entry during dev
-script_version = 0.00010005
+script_version = 0.00010006
 
 general_info = rpclib.getinfo(rpc_connect)
 sync = general_info['longestchain'] - general_info['blocks']
