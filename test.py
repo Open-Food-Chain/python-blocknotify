@@ -21,7 +21,7 @@ this_node_wif = "UpUiqKNj43SBPe9SvYqpygZE3BS83f87GVQSV8zXt2Gr813YZ3Ah"
 rpc_connect = rpc_connection = Proxy("http://%s:%s@127.0.0.1:%d"%(rpc_user, rpc_password, port));
 
 
-django_base_url = "http://127.0.0.1:8777/"
+django_base_url = "http://172.29.0.4:8777/"
 DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH = "integrity/"
 DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH= "raw/refresco/require_integrity/"
 DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH = "raw/refresco/require_integrity/"
