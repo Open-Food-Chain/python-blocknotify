@@ -295,6 +295,6 @@ for batch in batches_null_integrity:
     print("starting process for id:", id)
     import_raw_refresco_batch_integrity_pre_process(this_node_address, raw_json, id)
 
-juicychain_certificate_address_creation(this_node_address, "FAKEDATA567", "66")
+# juicychain_certificate_address_creation(this_node_address, "FAKEDATA567", "66")
 
 exit()
