@@ -39,6 +39,14 @@ DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH = os.getenv("DEV_IMPORT_API_R
 DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = os.getenv("DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH")
 
 
+JUICYCHAIN_API_HOST = str(os.getenv("JUICYCHAIN_API_HOST"))
+JUICYCHAIN_API_PORT = str(os.getenv("JUICYCHAIN_API_PORT"))
+JUICYCHAIN_API_VERSION_PATH = str(os.getenv("JUICYCHAIN_API_VERSION_PATH"))
+JUICYCHAIN_API_BASE_URL = "http://" + JUICYCHAIN_API_HOST + ":" + JUICYCHAIN_API_PORT + "/" + JUICYCHAIN_API_VERSION_PATH
+
+JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE")
+JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE = os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE")
+
 # check wallet management
 is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
 
@@ -200,6 +208,37 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
     return
 
 
+def juicychain_certificate_address_creation(wallet, data, db_id):
+
+    print("## JUICYCHAIN API ##")
+
+    data = json.dumps(data)
+
+    signed_data = rpclib.signmessage(rpc_connect, wallet, data)
+    item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
+
+    item_address = json.loads(item_address)
+
+    print(item_address['address'])
+
+    url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + "66/"
+    data = {'raddress': item_address['address']}
+
+    res = requests.patch(url, data=data)  # , headers={"Content-Type": "application/json"})
+
+    print(res.text)
+
+    # id = json.loads(res.text)['id']
+
+    # print(id)
+
+    response = rpclib.sendtoaddress(rpc_connect, item_address['address'], script_version)
+
+    print(response)
+
+    return
+
+
 def sign_message():
     return
 
@@ -255,5 +294,7 @@ for batch in batches_null_integrity:
     id = batch['id']
     print("starting process for id:", id)
     import_raw_refresco_batch_integrity_pre_process(this_node_address, raw_json, id)
+
+juicychain_certificate_address_creation(this_node_address, "FAKEDATA567", "66")
 
 exit()
