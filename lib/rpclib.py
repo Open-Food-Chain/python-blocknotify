@@ -126,7 +126,7 @@ def sendrawtransaction(rpc_connection, hex):
 
 def sendmany(rpc_connection, from_account, input_json):
     try:
-        response = rpc_connection.sendmany(from_account, input_json)
+        response = rpc_connection.sendmany("", input_json)
     except Exception as e:
         raise Exception(e)
     return response

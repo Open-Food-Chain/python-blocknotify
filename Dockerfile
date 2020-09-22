@@ -17,7 +17,7 @@ COPY test.py /code
 COPY genaddressonly.php /code
 COPY lib/rpclib.py /code/lib
 COPY .env /code
-COPY BitcoinECDSA.php /code
+COPY BitcoinECDSA.php /code/BitcoinECDSA.php
 WORKDIR /code
 
 #COPY ./ /code/
