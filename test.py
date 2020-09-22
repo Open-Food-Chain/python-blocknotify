@@ -26,9 +26,6 @@ blocknotify_chainsync_limit = int(os.getenv("BLOCKNOTIFY_CHAINSYNC_LIMIT"))
 housekeeping_address = os.getenv("HOUSEKEEPING_ADDRESS")
 
 
-# TODO :%s/django_base_url/IMPORT_API_BASE_URL/g
-django_base_url = "http://172.29.0.4:8777/"
-# TODO THEN REMOVE above line
 IMPORT_API_HOST = str(os.getenv("IMPORT_API_HOST"))
 IMPORT_API_PORT = str(os.getenv("IMPORT_API_PORT"))
 IMPORT_API_BASE_URL = "http://" + IMPORT_API_HOST + ":" + IMPORT_API_PORT + "/"
@@ -116,7 +113,7 @@ def import_jcf_batch_integrity_pre_process(wallet, data, import_id):
 
     print(item_address['address'])
 
-    url = django_base_url + DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH
+    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH
     data = {'name': 'chris', 'integrity_address': item_address['address'], 'batch': import_id}
 
     res = requests.post(url, data=data)
@@ -131,7 +128,7 @@ def import_jcf_batch_integrity_pre_process(wallet, data, import_id):
 
     print(response)
 
-    url = django_base_url + DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH + id + "/"
+    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH + id + "/"
     data = {'name': 'chris', 'integrity_address': item_address['address'], 'integrity_pre_tx': response}
 
     res = requests.put(url, data=data)
@@ -172,7 +169,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
     print(item_address['address'])
 
-    url = django_base_url + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
+    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
     data = {'name': 'chris', 'integrity_address': item_address['address'], 'batch': import_id}
 
     res = requests.post(url, data=data)
@@ -187,7 +184,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
     print(response)
 
-    url = django_base_url + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + id + "/"
+    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + id + "/"
     data = {'name': 'chris', 'integrity_address': item_address['address'], 'integrity_pre_tx': response}
 
     res = requests.put(url, data=data)
@@ -209,7 +206,7 @@ def sign_message():
 
 print("start improt api")
 
-url = django_base_url + DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH
+url = IMPORT_API_BASE_URL + DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH
 
 res = requests.get(url)
 
@@ -235,7 +232,7 @@ for batch in batches_null_integrity:
 
 print("start improt api")
 
-url = django_base_url + DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
+url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
 
 res = requests.get(url)
 
