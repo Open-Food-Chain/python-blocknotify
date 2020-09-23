@@ -112,7 +112,8 @@ if (is_array($coin["PUBKEY_ADDRESS"])) {
 
 //echo "\x1B[01;37m[\x1B[01;32m "  . $coin["name"] . " \x1B[01;37m]\x1B[0m" . PHP_EOL;
 $address = $bitcoinECDSA->getAddress(); //compressed Bitcoin address
-echo "         \"address\": \"" . sprintf("%34s",$address) . "\"}" ; #. PHP_EOL;
+echo "\"address\": \"" . sprintf("%34s",$address) . "\"," ; #. PHP_EOL;
+echo "\"pubkey\": \"" . sprintf("%34s",$bitcoinECDSA->getPubKey()) . "\"}" ; #. PHP_EOL;
 }
 
 ?>

@@ -221,7 +221,7 @@ def juicychain_certificate_address_creation(wallet, data, db_id):
 
     print(item_address['address'])
 
-    url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + "66/"
+    url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + id + '/'
     data = {'raddress': item_address['address']}
 
     res = requests.patch(url, data=data)  # , headers={"Content-Type": "application/json"})
@@ -294,7 +294,6 @@ for batch in batches_null_integrity:
     id = batch['id']
     print("starting process for id:", id)
     import_raw_refresco_batch_integrity_pre_process(this_node_address, raw_json, id)
-
-# juicychain_certificate_address_creation(this_node_address, "FAKEDATA567", "66")
+    juicychain_certificate_address_creation(this_node_address, raw_josn, id)
 
 exit()

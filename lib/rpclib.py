@@ -85,6 +85,13 @@ def signrawtx(rpc_connection, tx):
         raise Exception(e)
     return signed_tx
 
+def createmultisig(rpc_connection, number, addresses):
+    try:
+        response = rpc_connection.createmultisig(number, addresses)
+    except Exception as e:
+        raise Exception(e)
+    return response
+
 def signmessage(rpc_connection, address, message):
     try:
         signature = rpc_connection.signmessage(address, message)
