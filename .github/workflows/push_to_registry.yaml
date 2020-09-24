@@ -16,9 +16,11 @@ jobs:
         with:
           python-version: '3.8'
       - run: git pull
+      - name: create docker tag
+        run: echo $(date +%Y%m%d-%H%M%S)-$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h) > IMAGE_TAG
       - name: Build docker image
-        run: docker build -t $REGISTRY/$PROJECT/$REPOSITORY:$(date +%Y%m%d-%H%M%S)-$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h) .
+        run: docker build -t :$(cat IMAGE_TAG) .
       - name: Docker login
         run: docker login -u 'robot$thenewfork-never-expire' -p ${{ secrets.UNCHAIN_DOCKER_REGISTRY_TOKEN }} $REGISTRY
       - name: Push to unchain registry
-        run: docker push $REGISTRY/$PROJECT/$REPOSITORY:$(date +%Y%m%d-%H%M%S)-$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h)
+        run: docker push $REGISTRY/$PROJECT/$REPOSITORY::$(cat IMAGE_TAG)
