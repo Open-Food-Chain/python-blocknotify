@@ -23,4 +23,4 @@ jobs:
       - name: Docker login
         run: docker login -u 'robot$thenewfork-never-expire' -p ${{ secrets.UNCHAIN_DOCKER_REGISTRY_TOKEN }} $REGISTRY
       - name: Push to unchain registry
-        run: docker push $REGISTRY/$PROJECT/$REPOSITORY::$(cat IMAGE_TAG)
+        run: docker push $REGISTRY/$PROJECT/$REPOSITORY:$(cat IMAGE_TAG)
