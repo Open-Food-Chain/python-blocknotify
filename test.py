@@ -47,16 +47,19 @@ DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH = os.getenv("DEV_IMPORT_API_JCF_BATCH_IN
 # batch/require_integrity/
 DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH = os.getenv("DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH")
 # raw/refresco/require_integrity/
-DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH = os.getenv("DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH")
+DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH = str(os.getenv("DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH"))
 # raw/refresco-integrity/
-DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = os.getenv("DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH")
+DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = str(os.getenv("DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH"))
 
 
+# LOAD JUICYCHAIN ENV
 JUICYCHAIN_API_HOST = str(os.getenv("JUICYCHAIN_API_HOST"))
 JUICYCHAIN_API_PORT = str(os.getenv("JUICYCHAIN_API_PORT"))
 JUICYCHAIN_API_VERSION_PATH = str(os.getenv("JUICYCHAIN_API_VERSION_PATH"))
 JUICYCHAIN_API_BASE_URL = "http://" + JUICYCHAIN_API_HOST + ":" + JUICYCHAIN_API_PORT + "/" + JUICYCHAIN_API_VERSION_PATH
 
+JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS"))
+JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE"))
 JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE")
 JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE = os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE")
 
@@ -73,11 +76,12 @@ is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
 # we send this amount to an address for housekeeping
 # update by 0.0001 (manually, if can be done in CI/CD, nice-to-have not need-to-have) (MYLO)
 # house keeping address is list.json last entry during dev
-script_version = 0.00010008
+script_version = 0.00010009
 
 general_info = rpclib.getinfo(rpc_connect)
 sync = general_info['longestchain'] - general_info['blocks']
 
+print("Chain info.  Longest chain, blocks, sync diff")
 print(general_info['longestchain'])
 
 print(general_info['blocks'])
@@ -88,7 +92,7 @@ if sync >= blocknotify_chainsync_limit:
     print('the chain is not synced, try again later')
     exit()
 
-print("the chain is synced")
+print("Chain is synced")
 
 # send a small amount (SCRIPT_VERSION) for HOUSEKEEPING_ADDRESS from each organization
 # ############################
@@ -129,7 +133,7 @@ def explorer_get_utxos(explorer_url, querywallet):
 
 # TODO
 # move this to housekeeping
-explorer_get_utxos(explorer_url, this_node_address)
+# explorer_get_utxos(explorer_url, this_node_address)
 
 # ##############################################################################
 
@@ -181,8 +185,8 @@ def import_jcf_batch_integrity_pre_process(wallet, data, import_id):
     return
 
 
-def get_address(wallet, data):
-    print("Creating an address using %s with data %s" % (wallet, data))
+def get_address(wallet, data, label='NoLabelOK'):
+    print("Creating a %s address using %s with data %s" % (label, wallet, data))
     signed_data = rpclib.signmessage(rpc_connect, wallet, data)
     print("Signed data is %s" % (signed_data))
     item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
@@ -195,13 +199,15 @@ def get_address(wallet, data):
 
 def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
+    print("10009 Import API - Raw Refresco Pre Process")
+
     ANFP = data['anfp']
     PON = data['pon']
     BNFP = data['bnfp']
 
-    anfp_address = get_address(wallet, ANFP)
-    pon_address = get_address(wallet, PON)
-    bnfp_address = get_address(wallet, BNFP)
+    anfp_address = get_address(wallet, ANFP, "anfp")
+    pon_address = get_address(wallet, PON, "pon")
+    bnfp_address = get_address(wallet, BNFP, "bnfp")
 
     data = json.dumps(data)
 
@@ -217,7 +223,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
     res = requests.post(url, data=data)
 
-    print(res.text)
+    print(res)
 
     id = json.loads(res.text)['id']
 
@@ -278,57 +284,54 @@ def sign_message():
     return
 
 
-print("10007 start import api")
-
-url = IMPORT_API_BASE_URL + DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH
-print ("10007 - " + url)
-
-res = requests.get(url)
-
-raw_json = res.text
-
-# batches_null_integrity = array(batches_null_integrity)
-
-batches_null_integrity = ""
-
-try:
-    batches_null_integrity = json.loads(raw_json)
-except Exception as e:
-    print("failed to parse to json because of", e)
-    print("10007 - probably nothing returned from " + url)
-
-
+print("10009 skip batch import api")
+#
+# url = IMPORT_API_BASE_URL + DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH
+# print ("10009 - " + url)
+#
+# TODO skipped, come back
+# res = requests.get(url)
+#
+# raw_json = res.text
+#
+# batches_null_integrity = ""
+#
+# try:
+#     batches_null_integrity = json.loads(raw_json)
+# except Exception as e:
+#     print("failed to parse to json because of", e)
+#     print("10007 - probably nothing returned from " + url)
+#
+#
 # TODO when data model being queried
 # for batch in batches_null_integrity:
 #    raw_json = batch
 #    id = batch['id']
 #    print("starting process for id:", id)
 #    import_jcf_batch_integrity_pre_process(this_node_address, raw_json, id)
-
-
-print("10007 start improt api")
-
+#
+#
+print("10009 start import api - raw/refresco")
+print(IMPORT_API_BASE_URL)
 url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
+print("Trying: " + url)
 
 try:
     res = requests.get(url)
 except Exception as e:
     print("something wrong", e)
-    print("10007 - url not sending nice response " + url)
+    print("10009 - url not sending nice response " + url)
 
 print(res.text)
 
 raw_json = res.text
-
-# batches_null_integrity = array(batches_null_integrity)
 
 batches_null_integrity = ""
 
 try:
     batches_null_integrity = json.loads(raw_json)
 except Exception as e:
-    print("failed to parse to json because of", e)
-    exit()
+    print("10009 failed to parse to json because of", e)
 
 for batch in batches_null_integrity:
     raw_json = batch
@@ -337,13 +340,6 @@ for batch in batches_null_integrity:
     import_raw_refresco_batch_integrity_pre_process(this_node_address, raw_json, id)
     juicychain_certificate_address_creation(this_node_address, raw_json, id)
 
-IMPORT_API_HOST = str(os.getenv("JUICYCHAIN_API_HOST"))
-IMPORT_API_PORT = str(os.getenv("JUICYCHAIN_API_PORT"))
-IMPORT_API_BASE_URL = IMPORT_API_HOST
-
-
-JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS"))
-JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE"))
 
 print("10008 start getting the address less certificates")
 
@@ -383,7 +379,7 @@ for cert in certs_no_addy:
         "identfier": cert['identifier']
     }
     raw_json = json.dumps(raw_json)
-    addy = get_address2(this_node_address, raw_json)
+    addy = get_address(this_node_address, raw_json)
     id = str(cert['id'])
     url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + id + "/"
 
