@@ -7,8 +7,13 @@ import os
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
 
-
 # global vars
+# TODO move some env vars from deployment env vars to .env
+explorer_host = os.getenv("JUICYCHAIN_EXPLORER_MAINNET_UNCHAIN")
+explorer_port = os.getenv("JUICYCHAIN_EXPLORER_MAINNET_UNCHAIN_PORT")
+explorer_url = "http://" + explorer_host + ":" + explorer_port + "/"
+print(explorer_url)
+
 rpc_user = os.getenv("IJUICE_KOMODO_NODE_USERNAME")
 rpc_password = os.getenv("IJUICE_KOMODO_NODE_PASSWORD")
 port = os.getenv("IJUICE_KOMODO_NODE_RPC_PORT")
@@ -19,7 +24,15 @@ this_node_address = os.getenv("THIS_NODE_WALLET")
 this_node_pubkey = os.getenv("THIS_NODE_PUBKEY")
 this_node_wif = os.getenv("THIS_NODE_WIF")
 
+
+# TODO
+# import funcs
+# move this to housekeeping
+# explorer_get_utxos(explorer_url, this_node_address)
+
+
 # rpc_connect = rpc_connection = Proxy("http://%s:%s@127.0.0.1:%d" % (rpc_user, rpc_password, port))
+# TODO f-string https://realpython.com/python-f-strings/
 rpc_connect = rpc_connection = Proxy("http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
 
 blocknotify_chainsync_limit = int(os.getenv("BLOCKNOTIFY_CHAINSYNC_LIMIT"))
@@ -60,7 +73,7 @@ is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
 # we send this amount to an address for housekeeping
 # update by 0.0001 (manually, if can be done in CI/CD, nice-to-have not need-to-have) (MYLO)
 # house keeping address is list.json last entry during dev
-script_version = 0.00010006
+script_version = 0.00010008
 
 general_info = rpclib.getinfo(rpc_connect)
 sync = general_info['longestchain'] - general_info['blocks']
@@ -95,6 +108,28 @@ print(res)
 # END OF HOUSEKEEPING
 
 # ##############################################################################
+
+
+#
+#
+# EXPLORER GET UTXO FOR WALLET
+
+
+# TODO f-string
+def explorer_get_utxos(explorer_url, querywallet):
+    print("10007 Get UTXO for wallet " + querywallet)
+    # INSIGHT_API_KOMODO_ADDRESS_UTXO = "insight-api-komodo/addrs/{querywallet}/utxo"
+    INSIGHT_API_KOMODO_ADDRESS_UTXO = "insight-api-komodo/addrs/" + querywallet + "/utxo"
+    # INSIGHT_API_BROADCAST_TX="insight-api-komodo/tx/send"
+    res = requests.get(explorer_url + INSIGHT_API_KOMODO_ADDRESS_UTXO)
+    print(res.text)
+    print("10007 end utxos")
+    return res.text
+
+
+# TODO
+# move this to housekeeping
+explorer_get_utxos(explorer_url, this_node_address)
 
 # ##############################################################################
 
@@ -243,9 +278,10 @@ def sign_message():
     return
 
 
-print("start improt api")
+print("10007 start import api")
 
 url = IMPORT_API_BASE_URL + DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH
+print ("10007 - " + url)
 
 res = requests.get(url)
 
@@ -259,21 +295,26 @@ try:
     batches_null_integrity = json.loads(raw_json)
 except Exception as e:
     print("failed to parse to json because of", e)
-    exit()
+    print("10007 - probably nothing returned from " + url)
 
 
-for batch in batches_null_integrity:
-    raw_json = batch
-    id = batch['id']
-    print("starting process for id:", id)
-    import_jcf_batch_integrity_pre_process(this_node_address, raw_json, id)
+# TODO when data model being queried
+# for batch in batches_null_integrity:
+#    raw_json = batch
+#    id = batch['id']
+#    print("starting process for id:", id)
+#    import_jcf_batch_integrity_pre_process(this_node_address, raw_json, id)
 
 
-print("start improt api")
+print("10007 start improt api")
 
 url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
 
-res = requests.get(url)
+try:
+    res = requests.get(url)
+except Exception as e:
+    print("something wrong", e)
+    print("10007 - url not sending nice response " + url)
 
 print(res.text)
 
@@ -294,6 +335,87 @@ for batch in batches_null_integrity:
     id = batch['id']
     print("starting process for id:", id)
     import_raw_refresco_batch_integrity_pre_process(this_node_address, raw_json, id)
-    juicychain_certificate_address_creation(this_node_address, raw_josn, id)
+    juicychain_certificate_address_creation(this_node_address, raw_json, id)
+
+IMPORT_API_HOST = str(os.getenv("JUICYCHAIN_API_HOST"))
+IMPORT_API_PORT = str(os.getenv("JUICYCHAIN_API_PORT"))
+IMPORT_API_BASE_URL = IMPORT_API_HOST
+
+
+JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS"))
+JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE"))
+
+print("10008 start getting the address less certificates")
+
+url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
+print("10008 trying " + url)
+
+
+def get_address2(wallet, data):
+    print("Creating an address using %s with data %s" % (wallet, data))
+    signed_data = rpclib.signmessage(rpc_connect, wallet, data)
+    print("Signed data is %s" % (signed_data))
+    item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
+    print("Created address %s" % (item_address))
+
+    item_address = json.loads(item_address)
+
+    return item_address
+
+
+try:
+    res = requests.get(url)
+except Exception as e:
+    raise Exception(e)
+
+certs_no_addy = res.text
+
+certs_no_addy = json.loads(certs_no_addy)
+
+
+# the issuer, issue date, expiry date, identifier (not the db id, the certificate serial number / identfier)
+
+for cert in certs_no_addy:
+    raw_json = {
+        "issuer": cert['issuer'],
+        "issue_date": cert['date_issue'],
+        "expiry_date": cert['date_expiry'],
+        "identfier": cert['identifier']
+    }
+    raw_json = json.dumps(raw_json)
+    addy = get_address2(this_node_address, raw_json)
+    id = str(cert['id'])
+    url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + id + "/"
+
+    try:
+        data = {"raddress": addy['address'], "pubkey": addy['pubkey']}
+        res = requests.patch(url, data=data)
+        txid = rpclib.sendtoaddress(rpc_connect, addy['address'], script_version * 2)
+        print("Funding tx " + txid)
+    except Exception as e:
+        raise Exception(e)
+
+    # sign a tx to housekeeping address
+    # 1. get utxos for address
+    utxos_response = explorer_get_utxos(explorer_url, addy['address'])
+    print(utxos_response)
+    to_python = json.loads(utxos_response)
+    count = 0
+    list_of_ids = []
+    list_of_vouts = []
+    amount = 0
+
+    for objects in to_python:
+        if (objects['amount']):
+            count = count + 1
+            easy_typeing2 = [objects['vout']]
+            easy_typeing = [objects['txid']]
+            list_of_ids.extend(easy_typeing)
+            list_of_vouts.extend(easy_typeing2)
+            amount = amount + objects['amount']
+
+    amount = round(amount, 10)
 
 exit()
+
+# integrity/
