@@ -39,10 +39,14 @@ array_of_utxos = []
 array_of_utxos_final = []
 amount_final = -10000000000
 
+
 def get_utxos(utxos, amount, greedy):
     global array_of_utxos
     global array_of_utxos_final
     global amount_final
+
+    print(amount)
+
 
     if len(array_of_utxos) >= len(array_of_utxos_final) and len(array_of_utxos_final) > 0:
         return False
@@ -50,15 +54,21 @@ def get_utxos(utxos, amount, greedy):
     if amount <= 0 and amount > amount_final:
         return True
 
+    flag = False
     cheap_copy = array_of_utxos
     for utxo in utxos:
-        array_of_utxos = array_of_utxos + [utxo]
-        if get_utxos(utxos, amount-utxo['amount'], greedy) == True:
-            array_of_utxos_final = array_of_utxos
-            amount_final = amount
-            if greedy == True:
-                return True
+        for uxto_in_array in array_of_utxos:
+            if uxto_in_array['txid'] == utxo['txid']:
+                flag = True
 
+        if flag == False:
+            array_of_utxos = array_of_utxos + [utxo]
+            if get_utxos(utxos, amount-utxo['amount'], greedy) == True:
+                array_of_utxos_final = array_of_utxos
+                amount_final = amount
+                if greedy == True:
+                    return True
+        flag = False
     array_of_utxos = cheap_copy
     return False
 
