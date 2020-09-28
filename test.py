@@ -399,7 +399,7 @@ for cert in certs_no_addy:
     # 1. get utxos for address
     utxos_response = explorer_get_utxos(explorer_url, addy['address'])
     print(utxos_response)
-    to_python = json.loads(res.text)
+    to_python = json.loads(utxos_response)
     count = 0
     list_of_ids = []
     list_of_vouts = []
