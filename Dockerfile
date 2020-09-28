@@ -17,7 +17,10 @@ COPY test.py /code
 COPY genaddressonly.php /code
 COPY lib/rpclib.py /code/lib
 COPY .env /code
-COPY BitcoinECDSA.php /code/BitcoinECDSA.php
+# COPY BitcoinECDSA.php /code/BitcoinECDSA.php
+RUN git clone https://github.com/DeckerSU/BitcoinECDSA.php.git /code/BitcoinECDSA.php && \
+  cd code/BitcoinECDSA.php && \
+  git checkout b4b0ca4
 WORKDIR /code
 
 #COPY ./ /code/
