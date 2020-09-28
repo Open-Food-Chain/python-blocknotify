@@ -7,8 +7,13 @@ import os
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
 
-
 # global vars
+# TODO move some env vars from deployment env vars to .env
+explorer_host = os.getenv("JUICYCHAIN_EXPLORER_MAINNET_UNCHAIN")
+explorer_port = os.getenv("JUICYCHAIN_EXPLORER_MAINNET_UNCHAIN_PORT")
+explorer_url = "http://" + explorer_host + ":" + explorer_port + "/"
+print(explorer_url)
+
 rpc_user = os.getenv("IJUICE_KOMODO_NODE_USERNAME")
 rpc_password = os.getenv("IJUICE_KOMODO_NODE_PASSWORD")
 port = os.getenv("IJUICE_KOMODO_NODE_RPC_PORT")
@@ -19,7 +24,15 @@ this_node_address = os.getenv("THIS_NODE_WALLET")
 this_node_pubkey = os.getenv("THIS_NODE_PUBKEY")
 this_node_wif = os.getenv("THIS_NODE_WIF")
 
+
+# TODO
+# import funcs
+# move this to housekeeping
+# explorer_get_utxos(explorer_url, this_node_address)
+
+
 # rpc_connect = rpc_connection = Proxy("http://%s:%s@127.0.0.1:%d" % (rpc_user, rpc_password, port))
+# TODO f-string https://realpython.com/python-f-strings/
 rpc_connect = rpc_connection = Proxy("http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
 
 blocknotify_chainsync_limit = int(os.getenv("BLOCKNOTIFY_CHAINSYNC_LIMIT"))
@@ -95,6 +108,27 @@ print(res)
 # END OF HOUSEKEEPING
 
 # ##############################################################################
+
+
+#
+#
+# EXPLORER GET UTXO FOR WALLET
+
+
+# TODO f-string
+def explorer_get_utxos(explorer_url, querywallet):
+    print("Get UTXO for wallet " + querywallet)
+    # INSIGHT_API_KOMODO_ADDRESS_UTXO = "insight-api-komodo/addrs/{querywallet}/utxo"
+    INSIGHT_API_KOMODO_ADDRESS_UTXO = "insight-api-komodo/addrs/" + querywallet + "/utxo"
+    # INSIGHT_API_BROADCAST_TX="insight-api-komodo/tx/send"
+    res = requests.get(explorer_url + INSIGHT_API_KOMODO_ADDRESS_UTXO)
+    print(res.text)
+    return
+
+
+# TODO
+# move this to housekeeping
+explorer_get_utxos(explorer_url, this_node_address)
 
 # ##############################################################################
 
@@ -262,11 +296,12 @@ except Exception as e:
     exit()
 
 
-for batch in batches_null_integrity:
-    raw_json = batch
-    id = batch['id']
-    print("starting process for id:", id)
-    import_jcf_batch_integrity_pre_process(this_node_address, raw_json, id)
+# TODO when data model being queried
+# for batch in batches_null_integrity:
+#    raw_json = batch
+#    id = batch['id']
+#    print("starting process for id:", id)
+#    import_jcf_batch_integrity_pre_process(this_node_address, raw_json, id)
 
 
 print("start improt api")
@@ -294,6 +329,6 @@ for batch in batches_null_integrity:
     id = batch['id']
     print("starting process for id:", id)
     import_raw_refresco_batch_integrity_pre_process(this_node_address, raw_json, id)
-    juicychain_certificate_address_creation(this_node_address, raw_josn, id)
+    juicychain_certificate_address_creation(this_node_address, raw_json, id)
 
 exit()
