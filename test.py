@@ -64,12 +64,20 @@ JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = os.getenv("JUICYCHAIN_API_ORGANIZATION
 JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE = os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE")
 
 # check wallet management
-is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
-
-if is_mine is False:
-    rpclib.importprivkey(rpc_connect, this_node_wif)
-
-is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
+try:
+    is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
+    if is_mine is False:
+        rpclib.importprivkey(rpc_connect, this_node_wif)
+    is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
+except Exception as e:
+    print(e)
+    print("## JUICYCHAIN_ERROR ##")
+    print("# Node is not available. Check debug.log for details")
+    print("# If node is rescanning, will take a short while")
+    print("# If changing wallet & env, rescan will occur")
+    print("# Exiting.")
+    print("##")
+    exit()
 
 # start housekeeping
 
@@ -183,6 +191,18 @@ def import_jcf_batch_integrity_pre_process(wallet, data, import_id):
     print(res.text)
 
     return
+
+
+def gen_wallet(wallet, data, label='NoLabelOK'):
+    print("Creating a %s address signing with %s and data %s" % (label, wallet, data))
+    signed_data = rpclib.signmessage(rpc_connect, wallet, data)
+    print("Signed data is %s" % (signed_data))
+    new_wallet_json = subprocess.getoutput("php genwallet.php " + signed_data)
+    print("Created wallet %s" % (new_wallet_json))
+
+    new_wallet = json.loads(new_wallet_json)
+
+    return new_wallet
 
 
 def get_address(wallet, data, label='NoLabelOK'):
@@ -379,21 +399,22 @@ for cert in certs_no_addy:
         "identfier": cert['identifier']
     }
     raw_json = json.dumps(raw_json)
-    addy = get_address(this_node_address, raw_json)
+    # addy = get_address(this_node_address, raw_json)
+    cert_wallet = gen_wallet(this_node_address, raw_json, cert['identifier'])
     id = str(cert['id'])
     url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + id + "/"
 
     try:
-        data = {"raddress": addy['address'], "pubkey": addy['pubkey']}
+        data = {"raddress": cert_wallet['address'], "pubkey": cert_wallet['pubkey']}
         res = requests.patch(url, data=data)
-        txid = rpclib.sendtoaddress(rpc_connect, addy['address'], script_version * 2)
+        txid = rpclib.sendtoaddress(rpc_connect, cert_wallet['address'], script_version * 2)
         print("Funding tx " + txid)
     except Exception as e:
         raise Exception(e)
 
     # sign a tx to housekeeping address
     # 1. get utxos for address
-    utxos_response = explorer_get_utxos(explorer_url, addy['address'])
+    utxos_response = explorer_get_utxos(explorer_url, cert_wallet['address'])
     print(utxos_response)
     to_python = json.loads(utxos_response)
     count = 0
