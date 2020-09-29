@@ -147,7 +147,7 @@ def signtx(kmd_unsigned_tx_serialized, amounts, wif):
     outputs = jsontx.get('outputs')
     locktime = jsontx.get('lockTime', 0)
     outputs_formatted = []
-    print("###### IN SIGNTX FUNCTION #####")
+    print("\n###### IN SIGNTX FUNCTION #####\n")
     print(jsontx)
     print(inputs)
     print(outputs)
@@ -158,6 +158,7 @@ def signtx(kmd_unsigned_tx_serialized, amounts, wif):
         print("Value of out before miner fee: " + str(txout['value']))
         print("Value of out: " + str(txout['value']))
 
+    print("\nOutputs formatted:\n")
     print(outputs_formatted)
 
     for txin in inputs:
@@ -170,12 +171,14 @@ def signtx(kmd_unsigned_tx_serialized, amounts, wif):
         txin['value'] = amounts[inputs.index(txin)]  # required for preimage calc
 
     tx = Transaction.from_io(inputs, outputs_formatted, locktime=locktime)
-    print("### BEGIN TX ###")
+    print("### TX before signing###")
     print(tx)
     print("### END TX ###")
     tx.sign({pubkey: (privkey, compressed)})
 
+    print("\nSigned tx:\n")
     print(tx.serialize())
+    print("Return from signtx")
     return tx.serialize()
 
 
