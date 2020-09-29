@@ -76,7 +76,7 @@ is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
 # we send this amount to an address for housekeeping
 # update by 0.0001 (manually, if can be done in CI/CD, nice-to-have not need-to-have) (MYLO)
 # house keeping address is list.json last entry during dev
-script_version = 0.00010009
+script_version = 0.00010010
 
 general_info = rpclib.getinfo(rpc_connect)
 sync = general_info['longestchain'] - general_info['blocks']
