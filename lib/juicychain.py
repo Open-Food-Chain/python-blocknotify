@@ -18,7 +18,7 @@ def connect_node(rpc_user, rpc_password, komodo_node_ip, port):
     return
 
 
-def gen_wallet(wallet, data):
+def gen_wallet0(wallet, data):
     print("10007 - Generate an address using %s with data %s" % (wallet, data))
     signed_data = rpclib.signmessage(RPC, wallet, data)
     print("10007 - Signed data is %s" % (signed_data))
@@ -191,3 +191,15 @@ def broadcast_via_explorer(explorer_url, signedtx):
         print(e)
 
     print(broadcast_res.text)
+
+
+def gen_wallet(wallet, data, label='NoLabelOK'):
+    print("Creating a %s address signing with %s and data %s" % (label, wallet, data))
+    signed_data = rpclib.signmessage(RPC, wallet, data)
+    print("Signed data is %s" % (signed_data))
+    new_wallet_json = subprocess.getoutput("php genwallet.php " + signed_data)
+    print("Created wallet %s" % (new_wallet_json))
+
+    new_wallet = json.loads(new_wallet_json)
+
+    return new_wallet
