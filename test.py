@@ -61,6 +61,8 @@ this_node_wif = os.getenv("THIS_NODE_WIF")
 # rpc_connect = rpc_connection = Proxy("http://%s:%s@127.0.0.1:%d" % (rpc_user, rpc_password, port))
 # TODO f-string https://realpython.com/python-f-strings/
 rpc_connect = rpc_connection = Proxy("http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
+certificates_rpc_connect = Proxy("http://" + IJUICE_WORKAROUND_CERTIFICATES_NODE_USERNAME + ":" + IJUICE_WORKAROUND_CERTIFICATES_NODE_PASSWORD + "@" + IJUICE_WORKAROUND_CERTIFICATES_NODE_IPV4_ADDR + ":" + port)
+location_rpc_connect = Proxy("http://" + IJUICE_WORKAROUND_LOCATION_NODE_USERNAME + ":" + IJUICE_WORKAROUND_LOCATION_NODE_PASSWORD + "@" + IJUICE_WORKAROUND_LOCATION_NODE_IPV4_ADDR + ":" + port)
 
 blocknotify_chainsync_limit = int(os.getenv("BLOCKNOTIFY_CHAINSYNC_LIMIT"))
 housekeeping_address = os.getenv("HOUSEKEEPING_ADDRESS")
