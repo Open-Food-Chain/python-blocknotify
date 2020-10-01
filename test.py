@@ -101,6 +101,7 @@ JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS = str(
 JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE"))
 JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE")
 JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE = os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE")
+JUICYCHAIN_API_ORGANIZATION_BATCH = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_BATCH"))
 
 # check wallet management
 try:
@@ -399,13 +400,48 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
         print("## ERROR IMPORT API")
         print("#")
         print("# bailing out of tx sending to BATCH_LOT")
-        print("# integrity timestamp started, but not finished")
+        print("# integrity timestamp started, but not finished sending tx")
         print("# Check balances of Organization wallets including certificate, location, etc")
         print("# Warning: Not implemented yet - resume operation")
         print("# Exiting")
         print("#")
         print("##")
         exit()
+
+    try:
+        print("Push data from import-api to juicychain-api for batch_lot")
+        # print(PDS + JDS + JDE + BBD + PC)
+        jcapi_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_BATCH
+        print(jcapi_url)
+        data = {'identifier': BNFP, 'jds': JDS, 'jde': JDE, 'date_production_start': PDS,
+                'date_best_before': BBD, 'origin_country': PC, 'raddress': bnfp_wallet['address'],
+                'pubkey': bnfp_wallet['pubkey'], 'organization': 1}
+        print(data)
+        res = requests.post(jcapi_url, data=data)  # , headers={"Content-Type": "application/json"})
+        print("POST response: " + res.text)
+        jcapi_batch_id = json.loads(res.text)['id']
+        print("BATCH ID @ JUICYCHAIN-API: " + str(jcapi_batch_id))
+
+        # TODO update import api with batch id in jcapi
+
+        # send post integrity tx
+        response = rpclib.sendtoaddress(rpc_connect, item_address['address'], script_version)
+        print("** txid ** (Timestamp integrity end): " + response)
+        url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + id + "/"
+        data = {'name': 'chris', 'integrity_address': item_address['address'],
+                'integrity_post_tx': response, 'batch_lot_raddress': bnfp_wallet['address']}
+        res = requests.put(url, data=data)
+        print(res.text)
+        print("** complete **")
+
+    except Exception as e:
+        print(e)
+        print("### ERROR IMPORT-API PUSH TO JUICYCHAIN-API")
+        print("#")
+        print("# CHECK JUICYCHAIN-API")
+        print("# Exiting")
+        print("#")
+        print("##")
 
     return
 
