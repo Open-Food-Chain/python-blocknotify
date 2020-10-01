@@ -60,9 +60,12 @@ this_node_wif = os.getenv("THIS_NODE_WIF")
 
 # rpc_connect = rpc_connection = Proxy("http://%s:%s@127.0.0.1:%d" % (rpc_user, rpc_password, port))
 # TODO f-string https://realpython.com/python-f-strings/
-rpc_connect = rpc_connection = Proxy("http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
-certificates_rpc_connect = Proxy("http://" + IJUICE_WORKAROUND_CERTIFICATES_NODE_USERNAME + ":" + IJUICE_WORKAROUND_CERTIFICATES_NODE_PASSWORD + "@" + IJUICE_WORKAROUND_CERTIFICATES_NODE_IPV4_ADDR + ":" + port)
-location_rpc_connect = Proxy("http://" + IJUICE_WORKAROUND_LOCATION_NODE_USERNAME + ":" + IJUICE_WORKAROUND_LOCATION_NODE_PASSWORD + "@" + IJUICE_WORKAROUND_LOCATION_NODE_IPV4_ADDR + ":" + port)
+rpc_connect = rpc_connection = Proxy(
+    "http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
+certificates_rpc_connect = Proxy("http://" + IJUICE_WORKAROUND_CERTIFICATES_NODE_USERNAME + ":" +
+                                 IJUICE_WORKAROUND_CERTIFICATES_NODE_PASSWORD + "@" + IJUICE_WORKAROUND_CERTIFICATES_NODE_IPV4_ADDR + ":" + port)
+location_rpc_connect = Proxy("http://" + IJUICE_WORKAROUND_LOCATION_NODE_USERNAME + ":" +
+                             IJUICE_WORKAROUND_LOCATION_NODE_PASSWORD + "@" + IJUICE_WORKAROUND_LOCATION_NODE_IPV4_ADDR + ":" + port)
 
 blocknotify_chainsync_limit = int(os.getenv("BLOCKNOTIFY_CHAINSYNC_LIMIT"))
 housekeeping_address = os.getenv("HOUSEKEEPING_ADDRESS")
@@ -74,20 +77,27 @@ IMPORT_API_BASE_URL = "http://" + IMPORT_API_HOST + ":" + IMPORT_API_PORT + "/"
 # integrity/
 DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH = os.getenv("DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH")
 # batch/require_integrity/
-DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH = os.getenv("DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH")
+DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH = os.getenv(
+    "DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH")
 # raw/refresco/require_integrity/
-DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH = str(os.getenv("DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH"))
+DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH = str(
+    os.getenv("DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH"))
 # raw/refresco-integrity/
-DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = str(os.getenv("DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH"))
+DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = str(
+    os.getenv("DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH"))
+# raw/refresco-tstx/
+DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH = str(os.getenv("DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH"))
 
 
 # LOAD JUICYCHAIN ENV
 JUICYCHAIN_API_HOST = str(os.getenv("JUICYCHAIN_API_HOST"))
 JUICYCHAIN_API_PORT = str(os.getenv("JUICYCHAIN_API_PORT"))
 JUICYCHAIN_API_VERSION_PATH = str(os.getenv("JUICYCHAIN_API_VERSION_PATH"))
-JUICYCHAIN_API_BASE_URL = "http://" + JUICYCHAIN_API_HOST + ":" + JUICYCHAIN_API_PORT + "/" + JUICYCHAIN_API_VERSION_PATH
+JUICYCHAIN_API_BASE_URL = "http://" + JUICYCHAIN_API_HOST + \
+    ":" + JUICYCHAIN_API_PORT + "/" + JUICYCHAIN_API_VERSION_PATH
 
-JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS"))
+JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS = str(
+    os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS"))
 JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE"))
 JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE")
 JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE = os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE")
@@ -111,15 +121,18 @@ except Exception as e:
 # TODO REMOVE WORKAROUND
 try:
     print("certificate workaround")
-    not_is_mine = rpclib.validateaddress(certificates_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
+    not_is_mine = rpclib.validateaddress(
+        certificates_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
     print("...location wallet is mine? " + str(not_is_mine))
     not_is_mine = rpclib.validateaddress(certificates_rpc_connect, this_node_address)['ismine']
     print("...main wallet is mine? " + str(not_is_mine))
-    is_mine = rpclib.validateaddress(certificates_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
+    is_mine = rpclib.validateaddress(certificates_rpc_connect,
+                                     WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
     if is_mine is False:
         print("cert is_mine failed, importing privkey")
         rpclib.importprivkey(certificates_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WIF)
-    is_mine = rpclib.validateaddress(certificates_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
+    is_mine = rpclib.validateaddress(certificates_rpc_connect,
+                                     WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
     print("certificates is mine: " + str(is_mine))
 except Exception as e:
     print(e)
@@ -134,15 +147,18 @@ except Exception as e:
 # TODO REMOVE WORKAROUND
 try:
     print("location workaround")
-    not_is_mine = rpclib.validateaddress(location_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
+    not_is_mine = rpclib.validateaddress(
+        location_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
     print("...certificates wallet is mine? " + str(not_is_mine))
     not_is_mine = rpclib.validateaddress(location_rpc_connect, this_node_address)['ismine']
     print("...main wallet is mine? " + str(not_is_mine))
-    is_mine = rpclib.validateaddress(location_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
+    is_mine = rpclib.validateaddress(
+        location_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
     if is_mine is False:
         print("location is_mine failed, importing privkey")
         rpclib.importprivkey(location_rpc_connect, WORKAROUND_LOCATION_NODE_WIF)
-    is_mine = rpclib.validateaddress(location_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
+    is_mine = rpclib.validateaddress(
+        location_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
     print("location is mine: " + str(is_mine))
 except Exception as e:
     print(e)
@@ -261,7 +277,8 @@ def import_jcf_batch_integrity_pre_process(wallet, data, import_id):
     print(response)
 
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH + id + "/"
-    data = {'name': 'chris', 'integrity_address': item_address['address'], 'integrity_pre_tx': response}
+    data = {'name': 'chris', 'integrity_address': item_address[
+        'address'], 'integrity_pre_tx': response}
 
     res = requests.put(url, data=data)
 
@@ -298,48 +315,97 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
     print("10009 Import API - Raw Refresco Pre Process")
 
+    PDS = data['pds']
+    JDS = data['jds']
+    JDE = data['jde']
+    BBD = data['bbd']
+    PC = data['pc']
     ANFP = data['anfp']
     PON = data['pon']
     BNFP = data['bnfp']
 
-    anfp_address = get_address(wallet, ANFP, "anfp")
-    pon_address = get_address(wallet, PON, "pon")
-    bnfp_address = get_address(wallet, BNFP, "bnfp")
+    # anfp_address = get_address(wallet, ANFP, "anfp")
+    # pon_address = get_address(wallet, PON, "pon")
+    # bnfp_address = get_address(wallet, BNFP, "bnfp")
+    anfp_wallet = gen_wallet(wallet, ANFP, "anfp")
+    pon_wallet = gen_wallet(wallet, PON, "pon")
+    bnfp_wallet = gen_wallet(wallet, BNFP, "bnfp")
 
     data = json.dumps(data)
     signed_data = rpclib.signmessage(rpc_connect, wallet, data)
+    # TODO timestamp_address rename
     item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
     item_address = json.loads(item_address)
-    print(item_address['address'])
+    print("Timestamp-integrity raddress: " + item_address['address'])
 
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
-    data = {'name': 'chris', 'integrity_address': item_address['address'], 'batch': import_id}
+    print(url)
+    data = {'name': 'chris', 'integrity_address': item_address[
+        'address'], 'batch': import_id, 'batch_lot_raddress': bnfp_wallet['address']}
+    print(data)
     res = requests.post(url, data=data)
-    print(res)
+    print("POST response: " + res.text)
     id = json.loads(res.text)['id']
-    print(id)
 
     response = rpclib.sendtoaddress(rpc_connect, item_address['address'], script_version)
-    print(response)
+    print("** txid ** (Timestamp integrity start): " + response)
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + id + "/"
-    data = {'name': 'chris', 'integrity_address': item_address['address'], 'integrity_pre_tx': response}
+    data = {'name': 'chris', 'integrity_address': item_address[
+        'address'], 'integrity_pre_tx': response, 'batch_lot_raddress': bnfp_wallet['address']}
     res = requests.put(url, data=data)
     print(res.text)
 
-    print("MAIN WALLET " + this_node_address + " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), GTIN (anfp)")
-    json_object = {anfp_address: script_version, pon_address: script_version, bnfp_address: script_version}
-    response = rpclib.sendmany(rpc_connect, this_node_address, json_object)
-    print(response)
+    try:
+        print("MAIN WALLET " + this_node_address +
+              " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), GTIN (anfp)")
+    # json_object = {anfp_address: script_version, pon_address: script_version, bnfp_address: script_version}
+        json_object = {anfp_wallet['address']: script_version, pon_wallet[
+            'address']: script_version, bnfp_wallet['address']: script_version}
+        response = rpclib.sendmany(rpc_connect, this_node_address, json_object)
+        print("** txid ** (Main org wallet sendmany BATCH_LOT/POOL_PO/GTIN): " + response)
+        tstx_url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
+        tstx_data = {'sender_raddress': this_node_address,
+                     'tsintegrity': id, 'sender_name': 'ORG WALLET', 'txid': response}
+        print(tstx_url)
+        print(tstx_data)
+        res = requests.post(tstx_url, data=tstx_data)
+        print("POST response: " + res.text)
 
-    print("CERTIFICATE WALLET " + WORKAROUND_CERTIFICATES_NODE_WALLET + " SEND TO BATCH_LOT (BNFP)")
-    certificates_resp = rpclib.sendtoaddress(certificates_rpc_connect, bnfp_address, 0.02)
-    print(certificates_resp)
+        print("CERTIFICATE WALLET " + WORKAROUND_CERTIFICATES_NODE_WALLET + " SEND TO BATCH_LOT (BNFP)")
+        certificates_txid = rpclib.sendtoaddress(certificates_rpc_connect, bnfp_wallet['address'], 0.02)
+        print("** txid ** (Certificate to batch_lot): " + certificates_txid)
+        tstx_data = {'sender_raddress': WORKAROUND_CERTIFICATES_NODE_WALLET,
+                     'tsintegrity': id, 'sender_name': 'CERTIFICATE WALLET', 'txid': certificates_txid}
+        print(tstx_url)
+        print(tstx_data)
+        res = requests.post(tstx_url, data=tstx_data)
+        print("POST response: " + res.text)
 
-    print("LOCATION WALLET " + WORKAROUND_LOCATION_NODE_WALLET + " SEND TO BATCH_LOT (BNFP)")
-    location_resp = rpclib.sendtoaddress(location_rpc_connect, bnfp_address, 0.01)
-    print(location_resp)
+        print("LOCATION WALLET " + WORKAROUND_LOCATION_NODE_WALLET + " SEND TO BATCH_LOT (BNFP)")
+        location_txid = rpclib.sendtoaddress(location_rpc_connect, bnfp_wallet['address'], 0.01)
+        print("** txid ** (Location to batch_lot): " + location_txid)
+        tstx_data = {'sender_raddress': WORKAROUND_LOCATION_NODE_WALLET,
+                     'tsintegrity': id, 'sender_name': 'LOCATION WALLET', 'txid': location_txid}
+        print(tstx_url)
+        print(tstx_data)
+        res = requests.post(tstx_url, data=tstx_data)
+        print("POST response: " + res.text)
 
-    print(response)
+        print("Push data from import-api to juicychain-api for batch_lot")
+        # print(PDS + JDS + JDE + BBD + PC)
+
+    except Exception as e:
+        print(e)
+        print("## ERROR IMPORT API")
+        print("#")
+        print("# bailing out of tx sending to BATCH_LOT")
+        print("# integrity timestamp started, but not finished")
+        print("# Check balances of Organization wallets including certificate, location, etc")
+        print("# Warning: Not implemented yet - resume operation")
+        print("# Exiting")
+        print("#")
+        print("##")
+        exit()
 
     return
 
@@ -464,7 +530,8 @@ certs_no_addy = res.text
 certs_no_addy = json.loads(certs_no_addy)
 
 
-# the issuer, issue date, expiry date, identifier (not the db id, the certificate serial number / identfier)
+# the issuer, issue date, expiry date, identifier (not the db id, the
+# certificate serial number / identfier)
 
 for cert in certs_no_addy:
     raw_json = {
