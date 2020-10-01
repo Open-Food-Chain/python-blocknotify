@@ -307,39 +307,37 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
     bnfp_address = get_address(wallet, BNFP, "bnfp")
 
     data = json.dumps(data)
-
     signed_data = rpclib.signmessage(rpc_connect, wallet, data)
     item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
-
     item_address = json.loads(item_address)
-
     print(item_address['address'])
 
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
     data = {'name': 'chris', 'integrity_address': item_address['address'], 'batch': import_id}
-
     res = requests.post(url, data=data)
-
     print(res)
-
     id = json.loads(res.text)['id']
-
     print(id)
 
     response = rpclib.sendtoaddress(rpc_connect, item_address['address'], script_version)
-
     print(response)
-
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + id + "/"
     data = {'name': 'chris', 'integrity_address': item_address['address'], 'integrity_pre_tx': response}
-
     res = requests.put(url, data=data)
-
     print(res.text)
 
+    print("MAIN WALLET " + this_node_address + " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), GTIN (anfp)")
     json_object = {anfp_address: script_version, pon_address: script_version, bnfp_address: script_version}
-
     response = rpclib.sendmany(rpc_connect, this_node_address, json_object)
+    print(response)
+
+    print("CERTIFICATE WALLET " + WORKAROUND_CERTIFICATES_NODE_WALLET + " SEND TO BATCH_LOT (BNFP)")
+    certificates_resp = rpclib.sendtoaddress(certificates_rpc_connect, bnfp_address, 0.02)
+    print(certificates_resp)
+
+    print("LOCATION WALLET " + WORKAROUND_LOCATION_NODE_WALLET + " SEND TO BATCH_LOT (BNFP)")
+    location_resp = rpclib.sendtoaddress(location_rpc_connect, bnfp_address, 0.01)
+    print(location_resp)
 
     print(response)
 
