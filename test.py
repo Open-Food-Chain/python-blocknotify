@@ -348,7 +348,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
     print("POST response: " + res.text)
     id = json.loads(res.text)['id']
 
-    response = rpclib.sendtoaddress(rpc_connect, item_address['address'], script_version)
+    response = rpclib.sendtoaddress(rpc_connect, item_address['address'], script_version * 2)
     print("** txid ** (Timestamp integrity start): " + response)
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + id + "/"
     data = {'name': 'chris', 'integrity_address': item_address[
@@ -425,7 +425,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
         # TODO update import api with batch id in jcapi
 
         # send post integrity tx
-        response = rpclib.sendtoaddress(rpc_connect, item_address['address'], script_version)
+        response = rpclib.sendtoaddress(rpc_connect, item_address['address'], script_version * 3)
         print("** txid ** (Timestamp integrity end): " + response)
         url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + id + "/"
         data = {'name': 'chris', 'integrity_address': item_address['address'],
