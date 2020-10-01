@@ -409,13 +409,17 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
         exit()
 
     try:
+        if this_node_address == 'RV5GwBpJjTpXJYB5YGxJuZapECQF8Pn6Wy':
+            JC_ORG_ID = 1
+        if this_node_address == 'RTWAtzNhLRxLot3QB2fv5oXCr5JfZhp5Fy':
+            JC_ORG_ID = 2
         print("Push data from import-api to juicychain-api for batch_lot")
         # print(PDS + JDS + JDE + BBD + PC)
         jcapi_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_BATCH
         print(jcapi_url)
         data = {'identifier': BNFP, 'jds': JDS, 'jde': JDE, 'date_production_start': PDS,
                 'date_best_before': BBD, 'origin_country': PC, 'raddress': bnfp_wallet['address'],
-                'pubkey': bnfp_wallet['pubkey'], 'organization': 1}
+                'pubkey': bnfp_wallet['pubkey'], 'organization': JC_ORG_ID}
         print(data)
         res = requests.post(jcapi_url, data=data)  # , headers={"Content-Type": "application/json"})
         print("POST response: " + res.text)
