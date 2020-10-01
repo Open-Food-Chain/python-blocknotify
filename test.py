@@ -134,9 +134,9 @@ except Exception as e:
 # TODO REMOVE WORKAROUND
 try:
     print("location workaround")
-    not_is_mine = rpclib.validateaddress(certificates_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
+    not_is_mine = rpclib.validateaddress(location_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
     print("...certificates wallet is mine? " + str(not_is_mine))
-    not_is_mine = rpclib.validateaddress(certificates_rpc_connect, this_node_address)['ismine']
+    not_is_mine = rpclib.validateaddress(location_rpc_connect, this_node_address)['ismine']
     print("...main wallet is mine? " + str(not_is_mine))
     is_mine = rpclib.validateaddress(location_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
     if is_mine is False:
