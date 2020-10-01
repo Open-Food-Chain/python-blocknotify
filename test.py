@@ -108,6 +108,44 @@ except Exception as e:
     print("##")
     exit()
 
+# TODO REMOVE WORKAROUND
+try:
+    print("certificate workaround")
+    is_mine = rpclib.validateaddress(certificates_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
+    if is_mine is False:
+        print("cert is_mine failed, importing privkey")
+        rpclib.importprivkey(certificates_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WIF)
+    is_mine = rpclib.validateaddress(certificates_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
+    print("certificates is mine: " + is_mine)
+except Exception as e:
+    print(e)
+    print("## JUICYCHAIN_ERROR ##")
+    print("# Workaround Certificates Node is not available. Check debug.log for details")
+    print("# If node is rescanning, will take a short while")
+    print("# If changing wallet & env, rescan will occur")
+    print("# Exiting.")
+    print("##")
+    exit()
+
+# TODO REMOVE WORKAROUND
+try:
+    print("location workaround")
+    is_mine = rpclib.validateaddress(location_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
+    if is_mine is False:
+        print("location is_mine failed, importing privkey")
+        rpclib.importprivkey(location_rpc_connect, WORKAROUND_LOCATION_NODE_WIF)
+    is_mine = rpclib.validateaddress(location_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
+    print("location is mine: " + is_mine)
+except Exception as e:
+    print(e)
+    print("## JUICYCHAIN_ERROR ##")
+    print("# Workaround Location Node is not available. Check debug.log for details")
+    print("# If node is rescanning, will take a short while")
+    print("# If changing wallet & env, rescan will occur")
+    print("# Exiting.")
+    print("##")
+    exit()
+
 # start housekeeping
 
 # we send this amount to an address for housekeeping
