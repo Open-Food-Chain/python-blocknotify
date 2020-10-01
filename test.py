@@ -187,6 +187,8 @@ print("Chain is synced")
 # send SCRIPT_VERSION, increment by 0.00000001 for each update
 
 res = rpclib.sendtoaddress(rpc_connect, housekeeping_address, script_version)
+res = rpclib.sendtoaddress(certificates_rpc_connect, housekeeping_address, (script_version + 0.000001))
+res = rpclib.sendtoaddress(location_rpc_connect, housekeeping_address, (script_version + 0.000002))
 
 print(res)
 
