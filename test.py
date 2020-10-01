@@ -4,8 +4,35 @@ import requests
 import subprocess
 import json
 import os
+from lib.juicychain_workaround_env import IJUICE_WORKAROUND_LOCATION_NODE_IPV4_ADDR
+from lib.juicychain_workaround_env import IJUICE_WORKAROUND_LOCATION_NODE_USERNAME
+from lib.juicychain_workaround_env import IJUICE_WORKAROUND_LOCATION_NODE_PASSWORD
+from lib.juicychain_workaround_env import WORKAROUND_LOCATION_NODE_WIF
+from lib.juicychain_workaround_env import WORKAROUND_LOCATION_NODE_WALLET
+from lib.juicychain_workaround_env import WORKAROUND_LOCATION_NODE_PUBKEY
+from lib.juicychain_workaround_env import IJUICE_WORKAROUND_CERTIFICATES_NODE_IPV4_ADDR
+from lib.juicychain_workaround_env import IJUICE_WORKAROUND_CERTIFICATES_NODE_USERNAME
+from lib.juicychain_workaround_env import IJUICE_WORKAROUND_CERTIFICATES_NODE_PASSWORD
+from lib.juicychain_workaround_env import WORKAROUND_CERTIFICATES_NODE_WIF
+from lib.juicychain_workaround_env import WORKAROUND_CERTIFICATES_NODE_WALLET
+from lib.juicychain_workaround_env import WORKAROUND_CERTIFICATES_NODE_PUBKEY
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
+
+print("Workaround vars")
+print(IJUICE_WORKAROUND_LOCATION_NODE_IPV4_ADDR)
+print(IJUICE_WORKAROUND_LOCATION_NODE_USERNAME)
+print(IJUICE_WORKAROUND_LOCATION_NODE_PASSWORD)
+print(WORKAROUND_LOCATION_NODE_WIF)
+print(WORKAROUND_LOCATION_NODE_WALLET)
+print(WORKAROUND_LOCATION_NODE_PUBKEY)
+print(IJUICE_WORKAROUND_CERTIFICATES_NODE_IPV4_ADDR)
+print(IJUICE_WORKAROUND_CERTIFICATES_NODE_USERNAME)
+print(IJUICE_WORKAROUND_CERTIFICATES_NODE_PASSWORD)
+print(WORKAROUND_CERTIFICATES_NODE_WIF)
+print(WORKAROUND_CERTIFICATES_NODE_WALLET)
+print(WORKAROUND_CERTIFICATES_NODE_PUBKEY)
+print()
 
 # global vars
 # TODO move some env vars from deployment env vars to .env

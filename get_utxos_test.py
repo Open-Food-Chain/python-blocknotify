@@ -13,8 +13,9 @@ load_dotenv(verbose=True)
 # now ready to hack at code
 
 for EXPLORER_URL in ["https://rick.explorer.dexstats.info/", "https://morty.explorer.dexstats.info/"]:
-    THIS_NODE_WALLET = "RRT896bgjzjFqxH1i3bUKyXwr22mjdvzhh"
-    THIS_NODE_WIF = "Uqd27fBgxWbZwwdJVqiSz8eXVBxikfPQsEb7QriC2Trzy5Lkx48y"
+    # for EXPLORER_URL in ["http://seed.juicydev.coingateways.com:24711/"]:
+    THIS_NODE_WALLET = "RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW"
+    THIS_NODE_WIF = "UpUiqKNj43SBPe9SvYqpygZE3BS83f87GVQSV8zXt2Gr813YZ3Ah"
 
     print("\n#1# Connect Node\n")
     juicychain.connect_node(RPC_USER, RPC_PASSWORD, KOMODO_NODE, RPC_PORT)
@@ -23,9 +24,11 @@ for EXPLORER_URL in ["https://rick.explorer.dexstats.info/", "https://morty.expl
     utxos_json = juicychain.explorer_get_utxos(EXPLORER_URL, THIS_NODE_WALLET)
 
     print("\n#3# Create raw tx\n")
-    to_address = "RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW"
+    to_address = "R9nKgtqNHFbQjqrhhYdU5hcKaCpqqx7F6C"
     num_utxo = 1
-    rawtx_info = juicychain.createrawtx3(utxos_json, num_utxo, to_address)
+    fee = 0.00005
+    # rawtx_info = juicychain.createrawtx3(utxos_json, num_utxo, to_address)
+    rawtx_info = juicychain.createrawtx4(utxos_json, num_utxo, to_address, fee)
     print(rawtx_info[0]['rawtx'])
 # this is an array: rawtx_info['rawtx', [array utxo amounts req for sig]]
     print("\n#4# Decode unsigned raw tx\n")
