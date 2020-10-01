@@ -116,7 +116,7 @@ try:
         print("cert is_mine failed, importing privkey")
         rpclib.importprivkey(certificates_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WIF)
     is_mine = rpclib.validateaddress(certificates_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
-    print("certificates is mine: " + is_mine)
+    print("certificates is mine: " + str(is_mine))
 except Exception as e:
     print(e)
     print("## JUICYCHAIN_ERROR ##")
@@ -135,7 +135,7 @@ try:
         print("location is_mine failed, importing privkey")
         rpclib.importprivkey(location_rpc_connect, WORKAROUND_LOCATION_NODE_WIF)
     is_mine = rpclib.validateaddress(location_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
-    print("location is mine: " + is_mine)
+    print("location is mine: " + str(is_mine))
 except Exception as e:
     print(e)
     print("## JUICYCHAIN_ERROR ##")
