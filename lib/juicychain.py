@@ -134,6 +134,35 @@ def createrawtx3(utxos_json, num_utxo, to_address):
     return rawtx_info
 
 
+def createrawtx4(utxos_json, num_utxo, to_address, fee):
+    rawtx_info = []  # return this with rawtx & amounts
+    utxos = json.loads(utxos_json)
+    utxos.reverse()
+    count = 0
+
+    txids = []
+    vouts = []
+    amounts = []
+    amount = 0
+
+    for objects in utxos:
+        if (objects['amount'] > 0.01) and count < num_utxo:
+            count = count + 1
+            easy_typeing2 = [objects['vout']]
+            easy_typeing = [objects['txid']]
+            txids.extend(easy_typeing)
+            vouts.extend(easy_typeing2)
+            amount = amount + objects['amount']
+            amounts.extend([objects['satoshis']])
+
+    amount = round(amount, 10)
+
+    rawtx = createrawtx(txids, vouts, to_address, (amount - fee))
+    rawtx_info.append({'rawtx': rawtx})
+    rawtx_info.append({'amounts': amounts})
+    return rawtx_info
+
+
 def decoderawtx(tx):
         return rpclib.decoderawtransaction(RPC, tx)
 
