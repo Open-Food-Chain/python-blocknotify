@@ -33,7 +33,7 @@ komodo_node_ip = os.getenv("IJUICE_KOMODO_NODE_IPV4_ADDR")
 
 rpc_connect = rpc_connection = Proxy("http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
 
-url = "http://seed.juicydev.coingateways.com:24711/insight-api-komodo/addrs/"+ address +"/utxo"
+url = "https://blockchain-explorer.thenewfork.staging.do.unchain.io/insight-api-komodo/addrs/"+ address +"/utxo"
 
 array_of_utxos = []
 array_of_utxos_final = []
@@ -44,8 +44,6 @@ def get_utxos(utxos, amount, greedy):
     global array_of_utxos
     global array_of_utxos_final
     global amount_final
-
-    print(amount)
 
 
     if len(array_of_utxos) >= len(array_of_utxos_final) and len(array_of_utxos_final) > 0:
@@ -79,6 +77,12 @@ except Exception as e:
 
 to_python = json.loads(res.text)
 
-get_utxos(to_python, amount, greedy)
+final = []
+
+for utxo in to_python:
+    if utxo['confirmations'] > 10:
+        final = final + [utxo]
+
+get_utxos(final, amount, greedy)
 
 print(array_of_utxos_final)

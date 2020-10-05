@@ -26,36 +26,50 @@ num_utxo = int(sys.argv[3])
 time_in_sec = int(sys.argv[4])
 
 while True:
-    for EXPLORER_URL in ["http://seed.juicydev.coingateways.com:24711/"]:
+    stop = False
+    for EXPLORER_URL in ["https://blockchain-explorer.thenewfork.staging.do.unchain.io/"]:
 
         print("\n#1# Connect Node\n")
         juicychain.connect_node(RPC_USER, RPC_PASSWORD, KOMODO_NODE, RPC_PORT)
 
         print("\n#2# Get UTXOs\n")
         utxos_json = juicychain.explorer_get_utxos(EXPLORER_URL, THIS_NODE_WALLET)
+        final = []
+        try:
+            utxos_json = json.loads(utxos_json)
+            for utxo in utxos_json:
+                if utxo['confirmations'] > 10:
+                    final = final + [utxo]
 
-        print("\n#3# Create raw tx\n")
-        to_address = "RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW"
-        num_utxo = 50
-        rawtx_info = juicychain.createrawtx3(utxos_json, num_utxo, to_address)
-        print(rawtx_info[0]['rawtx'])
-    # this is an array: rawtx_info['rawtx', [array utxo amounts req for sig]]
-        print("\n#4# Decode unsigned raw tx\n")
-        decoded = juicychain.decoderawtx(rawtx_info[0]['rawtx'])
-        print()
-        print("#######")
-        print(json.dumps(decoded, indent=2))
-        print("#######")
-        print()
+            utxos_json = final
+            utxos_json = json.dumps(utxos_json)
+        except Exception as e:
+            stop = True
+            print(e)
 
-        print("\n#5# Sign tx\n")
-        signedtx = juicychain.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], THIS_NODE_WIF)
-        print(signedtx)
-        decoded = juicychain.decoderawtx(signedtx)
-        print("#######")
-        print("signed")
-        print(decoded)
+        if stop == False:
+            print("\n#3# Create raw tx\n")
+            to_address = "RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW"
+            num_utxo = 50
+            rawtx_info = juicychain.createrawtx3(utxos_json, num_utxo, to_address)
+            print(rawtx_info[0]['rawtx'])
+        # this is an array: rawtx_info['rawtx', [array utxo amounts req for sig]]
+            print("\n#4# Decode unsigned raw tx\n")
+            decoded = juicychain.decoderawtx(rawtx_info[0]['rawtx'])
+            print()
+            print("#######")
+            print(json.dumps(decoded, indent=2))
+            print("#######")
+            print()
 
-        txid = juicychain.broadcast_via_explorer(EXPLORER_URL, signedtx)
-        print(txid)
+            print("\n#5# Sign tx\n")
+            signedtx = juicychain.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], THIS_NODE_WIF)
+            print(signedtx)
+            decoded = juicychain.decoderawtx(signedtx)
+            print("#######")
+            print("signed")
+            print(decoded)
+
+            txid = juicychain.broadcast_via_explorer(EXPLORER_URL, signedtx)
+            print(txid)
     time.sleep(time_in_sec)
