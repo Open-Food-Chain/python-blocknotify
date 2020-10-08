@@ -70,8 +70,8 @@ def explorer_get_utxos(explorer_url, querywallet):
     except Exception as e:
         raise Exception(e)
     vouts = json.loads(res.text)
-    for vout in vouts:
-        print(vout['txid'] + " " + str(vout['vout']) + " " + str(vout['amount']) + " " + str(vout['satoshis']))
+    #for vout in vouts:
+        #print(vout['txid'] + " " + str(vout['vout']) + " " + str(vout['amount']) + " " + str(vout['satoshis']))
     return res.text
 
 

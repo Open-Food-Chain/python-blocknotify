@@ -28,12 +28,25 @@ greedy = bool(sys.argv[3])
 #this_node_pubkey = os.getenv("THIS_NODE_PUBKEY")
 #this_node_wif = os.getenv("THIS_NODE_WIF")
 
+def get_utxos_api(address):
+    komodo_node_ip = os.getenv("IJUICE_KOMODO_NODE_IPV4_ADDR")
 
-komodo_node_ip = os.getenv("IJUICE_KOMODO_NODE_IPV4_ADDR")
+    rpc_connect = rpc_connection = Proxy("http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
 
-rpc_connect = rpc_connection = Proxy("http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
+    url = "https://blockchain-explorer.thenewfork.staging.do.unchain.io/insight-api-komodo/addrs/"+ address +"/utxo"
 
-url = "http://seed.juicydev.coingateways.com:24711/insight-api-komodo/addrs/"+ address +"/utxo"
+    try:
+        res = requests.get(url)
+    except Exception as e:
+        print(e)
+
+    try:
+        to_python = json.loads(res.text)
+    except Exception as e:
+        print(e)
+        exit()
+
+    return to_python
 
 array_of_utxos = []
 array_of_utxos_final = []
@@ -72,13 +85,8 @@ def get_utxos(utxos, amount, greedy):
     array_of_utxos = cheap_copy
     return False
 
-try:
-    res = requests.get(url)
-except Exception as e:
-    print(e)
 
-to_python = json.loads(res.text)
 
-get_utxos(to_python, amount, greedy)
+get_utxos(get_utxos_api(address), amount, greedy)
 
 print(array_of_utxos_final)

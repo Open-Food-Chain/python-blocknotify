@@ -1,111 +1,75 @@
-from lib import rpclib
-from slickrpc import Proxy
-from lib import transaction, bitcoin, util
-from lib.util import bfh, bh2u
-from lib.transaction import Transaction
+from lib.juicychain_env import KOMODO_NODE
+from lib.juicychain_env import RPC_USER
+from lib.juicychain_env import RPC_PASSWORD
+from lib.juicychain_env import RPC_PORT
+# from lib.juicychain_env import THIS_NODE_WALLET
+# from lib.juicychain_env import EXPLORER_URL
+# load all needed vars at top of file only
 
-import requests
-import subprocess
-import json
-import os
-
+from lib import juicychain
 from dotenv import load_dotenv
+import json
+import time
+import sys
+
 load_dotenv(verbose=True)
+# now ready to hack at code
 
-IMPORT_API_HOST = str(os.getenv("IMPORT_API_HOST"))
-IMPORT_API_PORT = str(os.getenv("IMPORT_API_PORT"))
-IMPORT_API_BASE_URL =  IMPORT_API_HOST
+# THIS_NODE_WALLET = "RS7y4zjQtcNv7inZowb8M6bH3ytS1moj9A"
+# THIS_NODE_WIF =  "Uv2jzAFb6UttFYmCWGRyuMxafDHNie15eFe7KYXuvgDzfgWancks"
+# num_utxo = 50
+# time_in_sec =  1800
 
-rpc_user = os.getenv("IJUICE_KOMODO_NODE_USERNAME")
-rpc_password = os.getenv("IJUICE_KOMODO_NODE_PASSWORD")
-port = os.getenv("IJUICE_KOMODO_NODE_RPC_PORT")
+THIS_NODE_WALLET = sys.argv[1]
+THIS_NODE_WIF = sys.argv[2]
+num_utxo = int(sys.argv[3])
+time_in_sec = int(sys.argv[4])
 
-address = "RS7y4zjQtcNv7inZowb8M6bH3ytS1moj9A"
-privkey = "Uv2jzAFb6UttFYmCWGRyuMxafDHNie15eFe7KYXuvgDzfgWancks"
+while True:
+    stop = False
+    for EXPLORER_URL in ["https://blockchain-explorer.thenewfork.staging.do.unchain.io/"]:
 
-#this_node_pubkey = os.getenv("THIS_NODE_PUBKEY")
-#this_node_wif = os.getenv("THIS_NODE_WIF")
+        print("\n#1# Connect Node\n")
+        juicychain.connect_node(RPC_USER, RPC_PASSWORD, KOMODO_NODE, RPC_PORT)
 
-komodo_node_ip = os.getenv("IJUICE_KOMODO_NODE_IPV4_ADDR")
+        print("\n#2# Get UTXOs\n")
+        utxos_json = juicychain.explorer_get_utxos(EXPLORER_URL, THIS_NODE_WALLET)
+        final = []
+        try:
+            utxos_json = json.loads(utxos_json)
+            for utxo in utxos_json:
+                if utxo['confirmations'] > 10:
+                    final = final + [utxo]
 
-rpc_connect = rpc_connection = Proxy("http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
+            utxos_json = final
+            utxos_json = json.dumps(utxos_json)
+        except Exception as e:
+            stop = True
+            print(e)
 
-url = "http://seed.juicydev.coingateways.com:24711/insight-api-komodo/addrs/"+ address +"/utxo"
+        if stop == False:
+            print("\n#3# Create raw tx\n")
+            to_address = "RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW"
+            num_utxo = 50
+            rawtx_info = juicychain.createrawtx3(utxos_json, num_utxo, to_address)
+            print(rawtx_info[0]['rawtx'])
+        # this is an array: rawtx_info['rawtx', [array utxo amounts req for sig]]
+            print("\n#4# Decode unsigned raw tx\n")
+            decoded = juicychain.decoderawtx(rawtx_info[0]['rawtx'])
+            print()
+            print("#######")
+            print(json.dumps(decoded, indent=2))
+            print("#######")
+            print()
 
+            print("\n#5# Sign tx\n")
+            signedtx = juicychain.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], THIS_NODE_WIF)
+            print(signedtx)
+            decoded = juicychain.decoderawtx(signedtx)
+            print("#######")
+            print("signed")
+            print(decoded)
 
-def sign_raw_tx(wif, kmd_unsigned_tx_serialized):
-    txin_type, privkey, compressed = bitcoin.deserialize_privkey(wif)
-    pubkey = bitcoin.public_key_from_private_key(privkey, compressed)
-
-    jsontx = transaction.deserialize(kmd_unsigned_tx_serialized)
-    inputs = jsontx.get('inputs')
-    outputs = jsontx.get('outputs')
-    locktime = jsontx.get('lockTime', 0)
-    outputs_formatted = []
-
-    for txout in outputs:
-      outputs_formatted.append([txout['type'], txout['address'], txout['value']])
-
-    for txin in inputs:
-      txin['type'] = txin_type
-      txin['x_pubkeys'] = [pubkey]
-      txin['pubkeys'] = [pubkey]
-      txin['signatures'] = [None]
-      txin['num_sig'] = 1
-      txin['address'] = bitcoin.address_from_private_key(wif)
-      txin['value'] = 2500000000 # required for preimage calc
-
-    tx = Transaction.from_io(inputs, outputs_formatted, locktime=locktime)
-    tx.sign({pubkey:(privkey, compressed)})
-
-    return tx.serialize()
-
-
-try:
-    res = requests.get(url)
-except Exception as e:
-    print(e)
-
-to_python = json.loads(res.text)
-
-count = 0
-
-list_of_ids = []
-list_of_vouts = []
-amount = 0
-
-for objects in to_python:
-    if (objects['amount'] < 0.01) and count < 10:
-        count = count + 1
-        easy_typeing2 = [objects['vout']]
-        easy_typeing = [objects['txid']]
-        list_of_ids.extend(easy_typeing)
-        list_of_vouts.extend(easy_typeing2)
-        amount = amount + objects['amount']
-
-amount = round(amount, 10)
-
-res = rpclib.createrawtransaction(rpc_connect, list_of_ids, list_of_vouts, address, amount)
-
-decoded = rpclib.decoderawtransaction(rpc_connect, res)
-
-print(decoded)
-
-print("--------------------------------------------------------------")
-
-final_res = sign_raw_tx(privkey,res)
-
-decoded = rpclib.decoderawtransaction(rpc_connect, final_res)
-
-print(decoded)
-
-params = { 'rawtx':final_res }
-
-url = "http://seed.juicydev.coingateways.com:24711/insight-api-komodo/tx/send"
-
-try:
-    res = requests.post(url, data=params)
-except Exception as e:
-    print(e)
-
-print(res.text)
+            txid = juicychain.broadcast_via_explorer(EXPLORER_URL, signedtx)
+            print(txid)
+    time.sleep(time_in_sec)
