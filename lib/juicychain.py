@@ -15,7 +15,7 @@ def connect_node(rpc_user, rpc_password, komodo_node_ip, port):
     global RPC
     print("Connecting to: " + komodo_node_ip + ":" + port)
     RPC = Proxy("http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
-    return
+    return True
 
 
 def gen_wallet0(wallet, data):
