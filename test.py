@@ -103,73 +103,100 @@ JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = os.getenv("JUICYCHAIN_API_ORGANIZATION
 JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE = os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE")
 JUICYCHAIN_API_ORGANIZATION_BATCH = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_BATCH"))
 
-# check wallet management
-try:
-    is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
-    if is_mine is False:
-        rpclib.importprivkey(rpc_connect, this_node_wif)
-    is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
-except Exception as e:
-    print(e)
-    print("## JUICYCHAIN_ERROR ##")
-    print("# Node is not available. Check debug.log for details")
-    print("# If node is rescanning, will take a short while")
-    print("# If changing wallet & env, rescan will occur")
-    print("# Exiting.")
-    print("##")
-    exit()
+def ismywallet():
+    # check wallet management
+    try:
+        is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
+        if is_mine is False:
+            rpclib.importprivkey(rpc_connect, this_node_wif)
+        is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
+    except Exception as e:
+        print(e)
+        print("## JUICYCHAIN_ERROR ##")
+        print("# Node is not available. Check debug.log for details")
+        print("# If node is rescanning, will take a short while")
+        print("# If changing wallet & env, rescan will occur")
+        print("# Exiting.")
+        print("##")
+        exit()
 
-# TODO REMOVE WORKAROUND
-try:
-    print("certificate workaround")
-    not_is_mine = rpclib.validateaddress(
-        certificates_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
-    print("...location wallet is mine? " + str(not_is_mine))
-    not_is_mine = rpclib.validateaddress(certificates_rpc_connect, this_node_address)['ismine']
-    print("...main wallet is mine? " + str(not_is_mine))
-    is_mine = rpclib.validateaddress(certificates_rpc_connect,
-                                     WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
-    if is_mine is False:
-        print("cert is_mine failed, importing privkey")
-        rpclib.importprivkey(certificates_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WIF)
-    is_mine = rpclib.validateaddress(certificates_rpc_connect,
-                                     WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
-    print("certificates is mine: " + str(is_mine))
-except Exception as e:
-    print(e)
-    print("## JUICYCHAIN_ERROR ##")
-    print("# Workaround Certificates Node is not available. Check debug.log for details")
-    print("# If node is rescanning, will take a short while")
-    print("# If changing wallet & env, rescan will occur")
-    print("# Exiting.")
-    print("##")
-    exit()
+def workaround():
+    # TODO REMOVE WORKAROUND
+    try:
+        print("certificate workaround")
+        not_is_mine = rpclib.validateaddress(
+            certificates_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
+        print("...location wallet is mine? " + str(not_is_mine))
+        not_is_mine = rpclib.validateaddress(certificates_rpc_connect, this_node_address)['ismine']
+        print("...main wallet is mine? " + str(not_is_mine))
+        is_mine = rpclib.validateaddress(certificates_rpc_connect,
+                                         WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
+        if is_mine is False:
+            print("cert is_mine failed, importing privkey")
+            rpclib.importprivkey(certificates_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WIF)
+        is_mine = rpclib.validateaddress(certificates_rpc_connect,
+                                         WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
+        print("certificates is mine: " + str(is_mine))
+    except Exception as e:
+        print(e)
+        print("## JUICYCHAIN_ERROR ##")
+        print("# Workaround Certificates Node is not available. Check debug.log for details")
+        print("# If node is rescanning, will take a short while")
+        print("# If changing wallet & env, rescan will occur")
+        print("# Exiting.")
+        print("##")
+        exit()
 
-# TODO REMOVE WORKAROUND
-try:
-    print("location workaround")
-    not_is_mine = rpclib.validateaddress(
-        location_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
-    print("...certificates wallet is mine? " + str(not_is_mine))
-    not_is_mine = rpclib.validateaddress(location_rpc_connect, this_node_address)['ismine']
-    print("...main wallet is mine? " + str(not_is_mine))
-    is_mine = rpclib.validateaddress(
-        location_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
-    if is_mine is False:
-        print("location is_mine failed, importing privkey")
-        rpclib.importprivkey(location_rpc_connect, WORKAROUND_LOCATION_NODE_WIF)
-    is_mine = rpclib.validateaddress(
-        location_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
-    print("location is mine: " + str(is_mine))
-except Exception as e:
-    print(e)
-    print("## JUICYCHAIN_ERROR ##")
-    print("# Workaround Location Node is not available. Check debug.log for details")
-    print("# If node is rescanning, will take a short while")
-    print("# If changing wallet & env, rescan will occur")
-    print("# Exiting.")
-    print("##")
-    exit()
+def locateWorkAround():
+    # TODO REMOVE WORKAROUND
+    try:
+        print("location workaround")
+        not_is_mine = rpclib.validateaddress(
+            location_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
+        print("...certificates wallet is mine? " + str(not_is_mine))
+        not_is_mine = rpclib.validateaddress(location_rpc_connect, this_node_address)['ismine']
+        print("...main wallet is mine? " + str(not_is_mine))
+        is_mine = rpclib.validateaddress(
+            location_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
+        if is_mine is False:
+            print("location is_mine failed, importing privkey")
+            rpclib.importprivkey(location_rpc_connect, WORKAROUND_LOCATION_NODE_WIF)
+        is_mine = rpclib.validateaddress(
+            location_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
+        print("location is mine: " + str(is_mine))
+    except Exception as e:
+        print(e)
+        print("## JUICYCHAIN_ERROR ##")
+        print("# Workaround Location Node is not available. Check debug.log for details")
+        print("# If node is rescanning, will take a short while")
+        print("# If changing wallet & env, rescan will occur")
+        print("# Exiting.")
+        print("##")
+        exit()
+
+def checksync():
+    general_info = rpclib.getinfo(rpc_connect)
+    sync = general_info['longestchain'] - general_info['blocks']
+
+    print("Chain info.  Longest chain, blocks, sync diff")
+    print(general_info['longestchain'])
+
+    print(general_info['blocks'])
+
+    print(sync)
+
+    if sync >= blocknotify_chainsync_limit:
+        print('the chain is not synced, try again later')
+        exit()
+
+    print("Chain is synced")
+
+
+ismywallet()
+workaround()
+locateWorkAround()
+checksync()
+
 
 # start housekeeping
 
@@ -178,21 +205,6 @@ except Exception as e:
 # house keeping address is list.json last entry during dev
 script_version = 0.00010010
 
-general_info = rpclib.getinfo(rpc_connect)
-sync = general_info['longestchain'] - general_info['blocks']
-
-print("Chain info.  Longest chain, blocks, sync diff")
-print(general_info['longestchain'])
-
-print(general_info['blocks'])
-
-print(sync)
-
-if sync >= blocknotify_chainsync_limit:
-    print('the chain is not synced, try again later')
-    exit()
-
-print("Chain is synced")
 
 # send a small amount (SCRIPT_VERSION) for HOUSEKEEPING_ADDRESS from each organization
 # ############################
@@ -485,68 +497,65 @@ def sign_message():
     return
 
 
-print("10009 skip batch import api")
-#
-# url = IMPORT_API_BASE_URL + DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH
-# print ("10009 - " + url)
-#
-# TODO skipped, come back
-# res = requests.get(url)
-#
-# raw_json = res.text
-#
-# batches_null_integrity = ""
-#
-# try:
-#     batches_null_integrity = json.loads(raw_json)
-# except Exception as e:
-#     print("failed to parse to json because of", e)
-#     print("10007 - probably nothing returned from " + url)
-#
-#
-# TODO when data model being queried
-# for batch in batches_null_integrity:
-#    raw_json = batch
-#    id = batch['id']
-#    print("starting process for id:", id)
-#    import_jcf_batch_integrity_pre_process(this_node_address, raw_json, id)
-#
-#
-print("10009 start import api - raw/refresco")
-print(IMPORT_API_BASE_URL)
-url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
-print("Trying: " + url)
+def getBatchesNullIntegrity():
+    print("10009 skip batch import api")
+    #
+    # url = IMPORT_API_BASE_URL + DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH
+    # print ("10009 - " + url)
+    #
+    # TODO skipped, come back
+    # res = requests.get(url)
+    #
+    # raw_json = res.text
+    #
+    # batches_null_integrity = ""
+    #
+    # try:
+    #     batches_null_integrity = json.loads(raw_json)
+    # except Exception as e:
+    #     print("failed to parse to json because of", e)
+    #     print("10007 - probably nothing returned from " + url)
+    #
+    #
+    # TODO when data model being queried
+    # for batch in batches_null_integrity:
+    #    raw_json = batch
+    #    id = batch['id']
+    #    print("starting process for id:", id)
+    #    import_jcf_batch_integrity_pre_process(this_node_address, raw_json, id)
+    #
+    #
+    print("10009 start import api - raw/refresco")
+    print(IMPORT_API_BASE_URL)
+    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
+    print("Trying: " + url)
 
-try:
-    res = requests.get(url)
-except Exception as e:
-    print("something wrong", e)
-    print("10009 - url not sending nice response " + url)
+    try:
+        res = requests.get(url)
+    except Exception as e:
+        print("something wrong", e)
+        print("10009 - url not sending nice response " + url)
 
-print(res.text)
+    print(res.text)
 
-raw_json = res.text
+    raw_json = res.text
 
-batches_null_integrity = ""
+    batches_null_integrity = ""
 
-try:
-    batches_null_integrity = json.loads(raw_json)
-except Exception as e:
-    print("10009 failed to parse to json because of", e)
+    try:
+        batches_null_integrity = json.loads(raw_json)
+    except Exception as e:
+        print("10009 failed to parse to json because of", e)
 
-for batch in batches_null_integrity:
-    raw_json = batch
-    id = batch['id']
-    print("starting process for id:", id)
-    import_raw_refresco_batch_integrity_pre_process(this_node_address, raw_json, id)
-    juicychain_certificate_address_creation(this_node_address, raw_json, id)
+    return batches_null_integrity
 
-
-print("10008 start getting the address less certificates")
-
-url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
-print("10008 trying " + url)
-
+def modifyBatchesNullIntegrity( batches_null_integrity ):
+    for batch in batches_null_integrity:
+        raw_json = batch
+        id = batch['id']
+        print("starting process for id:", id)
+        import_raw_refresco_batch_integrity_pre_process(this_node_address, raw_json, id)
+        juicychain_certificate_address_creation(this_node_address, raw_json, id)
 
 def get_address2(wallet, data):
     print("Creating an address using %s with data %s" % (wallet, data))
@@ -559,61 +568,77 @@ def get_address2(wallet, data):
 
     return item_address
 
+def getCertsNoAddy():
+    print("10008 start getting the address less certificates")
 
-try:
-    res = requests.get(url)
-except Exception as e:
-    raise Exception(e)
 
-certs_no_addy = res.text
+    url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
+    print("10008 trying " + url)
 
-certs_no_addy = json.loads(certs_no_addy)
+
+
+    try:
+        res = requests.get(url)
+    except Exception as e:
+        raise Exception(e)
+
+    certs_no_addy = res.text
+
+    return certs_no_addy = json.loads(certs_no_addy)
+
+def giveCertsAddy(certs_no_addy):
+    for cert in certs_no_addy:
+        raw_json = {
+            "issuer": cert['issuer'],
+            "issue_date": cert['date_issue'],
+            "expiry_date": cert['date_expiry'],
+            "identfier": cert['identifier']
+        }
+        raw_json = json.dumps(raw_json)
+        # addy = get_address(this_node_address, raw_json)
+        cert_wallet = gen_wallet(this_node_address, raw_json, cert['identifier'])
+        id = str(cert['id'])
+        url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + id + "/"
+
+        try:
+            data = {"raddress": cert_wallet['address'], "pubkey": cert_wallet['pubkey']}
+            res = requests.patch(url, data=data)
+            txid = rpclib.sendtoaddress(rpc_connect, cert_wallet['address'], script_version * 2)
+            print("Funding tx " + txid)
+        except Exception as e:
+            raise Exception(e)
+
+        # sign a tx to housekeeping address
+        # 1. get utxos for address
+        utxos_response = explorer_get_utxos(explorer_url, cert_wallet['address'])
+        print(utxos_response)
+        to_python = json.loads(utxos_response)
+        count = 0
+        list_of_ids = []
+        list_of_vouts = []
+        amount = 0
+
+        for objects in to_python:
+            if (objects['amount']):
+                count = count + 1
+                easy_typeing2 = [objects['vout']]
+                easy_typeing = [objects['txid']]
+                list_of_ids.extend(easy_typeing)
+                list_of_vouts.extend(easy_typeing2)
+                amount = amount + objects['amount']
+
+        amount = round(amount, 10)
+
+
+batches_null_integrity = getBatchesNullIntegrity()
+modifyBatchesNullIntegrity(batches_null_integrity)
+certs_no_addy = getCertsNoAddy()
+giveCertsAddy(certs_no_addy)
 
 
 # the issuer, issue date, expiry date, identifier (not the db id, the
 # certificate serial number / identfier)
 
-for cert in certs_no_addy:
-    raw_json = {
-        "issuer": cert['issuer'],
-        "issue_date": cert['date_issue'],
-        "expiry_date": cert['date_expiry'],
-        "identfier": cert['identifier']
-    }
-    raw_json = json.dumps(raw_json)
-    # addy = get_address(this_node_address, raw_json)
-    cert_wallet = gen_wallet(this_node_address, raw_json, cert['identifier'])
-    id = str(cert['id'])
-    url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + id + "/"
-
-    try:
-        data = {"raddress": cert_wallet['address'], "pubkey": cert_wallet['pubkey']}
-        res = requests.patch(url, data=data)
-        txid = rpclib.sendtoaddress(rpc_connect, cert_wallet['address'], script_version * 2)
-        print("Funding tx " + txid)
-    except Exception as e:
-        raise Exception(e)
-
-    # sign a tx to housekeeping address
-    # 1. get utxos for address
-    utxos_response = explorer_get_utxos(explorer_url, cert_wallet['address'])
-    print(utxos_response)
-    to_python = json.loads(utxos_response)
-    count = 0
-    list_of_ids = []
-    list_of_vouts = []
-    amount = 0
-
-    for objects in to_python:
-        if (objects['amount']):
-            count = count + 1
-            easy_typeing2 = [objects['vout']]
-            easy_typeing = [objects['txid']]
-            list_of_ids.extend(easy_typeing)
-            list_of_vouts.extend(easy_typeing2)
-            amount = amount + objects['amount']
-
-    amount = round(amount, 10)
 
 exit()
 
