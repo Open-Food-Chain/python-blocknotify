@@ -3,6 +3,7 @@ from slickrpc import Proxy
 import requests
 import subprocess
 import json
+import pytest
 import os
 from lib.juicychain_workaround_env import IJUICE_WORKAROUND_LOCATION_NODE_IPV4_ADDR
 from lib.juicychain_workaround_env import IJUICE_WORKAROUND_LOCATION_NODE_USERNAME
@@ -110,6 +111,7 @@ def ismywallet():
         if is_mine is False:
             rpclib.importprivkey(rpc_connect, this_node_wif)
         is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
+        return is_mine
     except Exception as e:
         print(e)
         print("## JUICYCHAIN_ERROR ##")
@@ -137,6 +139,7 @@ def workaround():
         is_mine = rpclib.validateaddress(certificates_rpc_connect,
                                          WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
         print("certificates is mine: " + str(is_mine))
+        return is_mine
     except Exception as e:
         print(e)
         print("## JUICYCHAIN_ERROR ##")
@@ -145,7 +148,8 @@ def workaround():
         print("# If changing wallet & env, rescan will occur")
         print("# Exiting.")
         print("##")
-        exit()
+        return False
+        #exit()
 
 def locateWorkAround():
     # TODO REMOVE WORKAROUND
@@ -164,6 +168,7 @@ def locateWorkAround():
         is_mine = rpclib.validateaddress(
             location_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
         print("location is mine: " + str(is_mine))
+        return is_mine
     except Exception as e:
         print(e)
         print("## JUICYCHAIN_ERROR ##")
@@ -172,7 +177,8 @@ def locateWorkAround():
         print("# If changing wallet & env, rescan will occur")
         print("# Exiting.")
         print("##")
-        exit()
+        return False
+        #exit()
 
 def checksync():
     general_info = rpclib.getinfo(rpc_connect)
@@ -184,6 +190,7 @@ def checksync():
     print(general_info['blocks'])
 
     print(sync)
+    return sync
 
     if sync >= blocknotify_chainsync_limit:
         print('the chain is not synced, try again later')
@@ -193,8 +200,10 @@ def checksync():
 
 
 ismywallet()
+
 workaround()
 locateWorkAround()
+
 checksync()
 
 
@@ -584,7 +593,9 @@ def getCertsNoAddy():
 
     certs_no_addy = res.text
 
-    return certs_no_addy = json.loads(certs_no_addy)
+    certs_no_addy = json.loads(certs_no_addy)
+
+    return certs_no_addy
 
 def giveCertsAddy(certs_no_addy):
     for cert in certs_no_addy:
@@ -594,6 +605,7 @@ def giveCertsAddy(certs_no_addy):
             "expiry_date": cert['date_expiry'],
             "identfier": cert['identifier']
         }
+
         raw_json = json.dumps(raw_json)
         # addy = get_address(this_node_address, raw_json)
         cert_wallet = gen_wallet(this_node_address, raw_json, cert['identifier'])
@@ -605,6 +617,7 @@ def giveCertsAddy(certs_no_addy):
             res = requests.patch(url, data=data)
             txid = rpclib.sendtoaddress(rpc_connect, cert_wallet['address'], script_version * 2)
             print("Funding tx " + txid)
+
         except Exception as e:
             raise Exception(e)
 
@@ -612,7 +625,9 @@ def giveCertsAddy(certs_no_addy):
         # 1. get utxos for address
         utxos_response = explorer_get_utxos(explorer_url, cert_wallet['address'])
         print(utxos_response)
+
         to_python = json.loads(utxos_response)
+
         count = 0
         list_of_ids = []
         list_of_vouts = []
@@ -640,6 +655,22 @@ giveCertsAddy(certs_no_addy)
 # certificate serial number / identfier)
 
 
-exit()
-
 # integrity/
+
+
+#TEST FUNCTIONS
+def test_workaround():
+    test = workaround()
+    assert test == True
+
+def test_locate_workaround():
+    test = locateWorkAround()
+    assert test == True
+
+def test_isMy():
+    test = ismywallet()
+    assert test == True
+
+def test_checksync():
+    test = checksync()
+    assert type(10) == type(test)
