@@ -1,0 +1,5 @@
+#!/bin/bash
+# cd /opt/komodo/blocknotify-python
+#source .venv/bin/activate
+php genwallet.php ${1}
+#deactivate

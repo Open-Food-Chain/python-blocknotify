@@ -16,6 +16,7 @@ COPY run.sh /code
 COPY test.py /code
 COPY genaddressonly.php /code
 COPY genwallet.php /code
+COPY new_org_wallet /code
 COPY lib/rpclib.py /code/lib
 COPY lib/juicychain.py /code/lib
 COPY lib/juicychain_env.py /code/lib
