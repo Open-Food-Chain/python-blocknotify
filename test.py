@@ -271,7 +271,7 @@ def explorer_get_utxos(explorer_url, querywallet):
 # batch record import database id(uuid) = $3
 ###########################
 
-
+##TODO test
 def import_jcf_batch_integrity_pre_process(wallet, data, import_id):
 
     data = json.dumps(data)
@@ -320,19 +320,7 @@ def gen_wallet(wallet, data, label='NoLabelOK'):
 
     return new_wallet
 
-
-def get_address(wallet, data, label='NoLabelOK'):
-    print("Creating a %s address using %s with data %s" % (label, wallet, data))
-    signed_data = rpclib.signmessage(rpc_connect, wallet, data)
-    print("Signed data is %s" % (signed_data))
-    item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
-    print("Created address %s" % (item_address))
-
-    item_address = json.loads(item_address)['address']
-
-    return item_address
-
-
+##TODO what does this do?
 def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
     print("10009 Import API - Raw Refresco Pre Process")
@@ -470,7 +458,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
     return
 
-
+##TODO refector so we can test without changeng db
 def juicychain_certificate_address_creation(wallet, data, db_id):
 
     print("## JUICYCHAIN API ##")
@@ -499,11 +487,7 @@ def juicychain_certificate_address_creation(wallet, data, db_id):
 
     print(response)
 
-    return
-
-
-def sign_message():
-    return
+    return item_address['address']
 
 
 def getBatchesNullIntegrity():
@@ -566,16 +550,7 @@ def modifyBatchesNullIntegrity( batches_null_integrity ):
         import_raw_refresco_batch_integrity_pre_process(this_node_address, raw_json, id)
         juicychain_certificate_address_creation(this_node_address, raw_json, id)
 
-def get_address2(wallet, data):
-    print("Creating an address using %s with data %s" % (wallet, data))
-    signed_data = rpclib.signmessage(rpc_connect, wallet, data)
-    print("Signed data is %s" % (signed_data))
-    item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
-    print("Created address %s" % (item_address))
 
-    item_address = json.loads(item_address)
-
-    return item_address
 
 def getCertsNoAddy():
     print("10008 start getting the address less certificates")
@@ -597,6 +572,7 @@ def getCertsNoAddy():
 
     return certs_no_addy
 
+##todo test
 def giveCertsAddy(certs_no_addy):
     for cert in certs_no_addy:
         raw_json = {
@@ -657,12 +633,19 @@ giveCertsAddy(certs_no_addy)
 
 # integrity/
 
+def is_json(myjson):
+  try:
+    json_object = json.loads(myjson)
+  except ValueError as e:
+    return False
+  return True
 
 #TEST FUNCTIONS
+#@pytest.mark.skip
 def test_workaround():
     test = workaround()
     assert test == True
-
+#@pytest.mark.skip
 def test_locate_workaround():
     test = locateWorkAround()
     assert test == True
@@ -674,3 +657,24 @@ def test_isMy():
 def test_checksync():
     test = checksync()
     assert type(10) == type(test)
+
+#@pytest.mark.skip
+def test_explorer_get_utxos():
+    try:
+        test = explorer_get_utxos(explorer_url, "RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW");
+        assert is_json(test) == True
+    except Exception as e:
+        assert e == True
+
+def test_gen_Wallet():
+    test = gen_wallet(this_node_address, "testtest")
+    assert type("test") == type(test['address'])
+    assert test['address'][0] == 'R'
+
+def test_getCertsNoAddy():
+    test = getCertsNoAddy()
+    assert type(test) == type(['this', 'is', 'an', 'test', 'array'])
+
+def test_getBatchesNullIntegrity():
+    test = getBatchesNullIntegrity()
+    assert type(test) == type(['this', 'is', 'an', 'test', 'array'])
