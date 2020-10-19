@@ -271,7 +271,7 @@ def explorer_get_utxos(explorer_url, querywallet):
 # batch record import database id(uuid) = $3
 ###########################
 
-##TODO test
+
 def import_jcf_batch_integrity_pre_process(wallet, data, import_id):
 
     data = json.dumps(data)
@@ -306,7 +306,7 @@ def import_jcf_batch_integrity_pre_process(wallet, data, import_id):
 
     print(res.text)
 
-    return
+    return res.text
 
 
 def gen_wallet(wallet, data, label='NoLabelOK'):
@@ -320,6 +320,35 @@ def gen_wallet(wallet, data, label='NoLabelOK'):
 
     return new_wallet
 
+def sendtoaddressWrapper(address, multiplyer):
+    response = rpclib.sendtoaddress(rpc_connect, address, script_version * multiplyer)
+    return response
+
+def sendtomanyWrapper(addy, json_object):
+    response = rpclib.sendmany(rpc_connect, addy, json_object)
+    return response
+
+def workaroundsendWrapper(connectione, wallet, amount):
+    certificates_txid = rpclib.sendtoaddress(connectione, wallet, amount)
+    return certificates_txid
+
+def postWrapper(url, data):
+    res = requests.post(url, data=data)
+    if(res.status_code == 200):
+        return res.text
+    else:
+        obj = json.dumps({ "error": res.reason })
+        return obj
+
+def putWrapper(url, data):
+    res = requests.put(url, data=data)
+
+
+    if(res.status_code == 200):
+        return res.text
+    else:
+        obj = json.dumps({ "error": res.reason })
+        return obj
 ##TODO what does this do?
 def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
@@ -334,36 +363,41 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
     PON = data['pon']
     BNFP = data['bnfp']
 
-    # anfp_address = get_address(wallet, ANFP, "anfp")
-    # pon_address = get_address(wallet, PON, "pon")
-    # bnfp_address = get_address(wallet, BNFP, "bnfp")
     anfp_wallet = gen_wallet(wallet, ANFP, "anfp")
     pon_wallet = gen_wallet(wallet, PON, "pon")
     bnfp_wallet = gen_wallet(wallet, BNFP, "bnfp")
 
     data = json.dumps(data)
-    signed_data = rpclib.signmessage(rpc_connect, wallet, data)
-    # TODO timestamp_address rename
-    item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
-    item_address = json.loads(item_address)
+
+    item_address = gen_wallet(wallet, data)
+
     print("Timestamp-integrity raddress: " + item_address['address'])
 
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
+
     print(url)
+
     data = {'name': 'chris', 'integrity_address': item_address[
         'address'], 'batch': import_id, 'batch_lot_raddress': bnfp_wallet['address']}
+
     print(data)
-    res = requests.post(url, data=data)
-    print("POST response: " + res.text)
+
+    res = putWrapper(url, data)
+
+    print("PUT response: " + res)
+
+
     id = json.loads(res.text)['id']
 
-    response = rpclib.sendtoaddress(rpc_connect, item_address['address'], script_version * 2)
+    respomse = sendtoaddressWrapper(item_address['address'], 2)
+
     print("** txid ** (Timestamp integrity start): " + response)
+
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + id + "/"
     data = {'name': 'chris', 'integrity_address': item_address[
         'address'], 'integrity_pre_tx': response, 'batch_lot_raddress': bnfp_wallet['address']}
-    res = requests.put(url, data=data)
-    print(res.text)
+
+    res = postWrapper(url, data)
 
     try:
         print("MAIN WALLET " + this_node_address +
@@ -371,35 +405,45 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
     # json_object = {anfp_address: script_version, pon_address: script_version, bnfp_address: script_version}
         json_object = {anfp_wallet['address']: script_version, pon_wallet[
             'address']: script_version, bnfp_wallet['address']: script_version}
-        response = rpclib.sendmany(rpc_connect, this_node_address, json_object)
+
+        response = sendtomanyWrapper(this_node_address, json_object)
+
         print("** txid ** (Main org wallet sendmany BATCH_LOT/POOL_PO/GTIN): " + response)
         tstx_url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
         tstx_data = {'sender_raddress': this_node_address,
                      'tsintegrity': id, 'sender_name': 'ORG WALLET', 'txid': response}
         print(tstx_url)
         print(tstx_data)
-        res = requests.post(tstx_url, data=tstx_data)
-        print("POST response: " + res.text)
+
+        res = postWrapper(tstx_url, tstx_data)
+
+        print("POST response: " + res)
 
         print("CERTIFICATE WALLET " + WORKAROUND_CERTIFICATES_NODE_WALLET + " SEND TO BATCH_LOT (BNFP)")
-        certificates_txid = rpclib.sendtoaddress(certificates_rpc_connect, bnfp_wallet['address'], 0.02)
+
+        certificates_txid = workaroundsendWrapper(certificates_rpc_connect, bnfp_wallet['address'], 0.02)
+
         print("** txid ** (Certificate to batch_lot): " + certificates_txid)
         tstx_data = {'sender_raddress': WORKAROUND_CERTIFICATES_NODE_WALLET,
                      'tsintegrity': id, 'sender_name': 'CERTIFICATE WALLET', 'txid': certificates_txid}
         print(tstx_url)
         print(tstx_data)
-        res = requests.post(tstx_url, data=tstx_data)
-        print("POST response: " + res.text)
+
+        res = postWrapper(tstx_url, tstx_data)
+
+        print("POST response: " + res)
 
         print("LOCATION WALLET " + WORKAROUND_LOCATION_NODE_WALLET + " SEND TO BATCH_LOT (BNFP)")
-        location_txid = rpclib.sendtoaddress(location_rpc_connect, bnfp_wallet['address'], 0.01)
+        location_txid = workaroundsendWrapper(location_rpc_connect, bnfp_wallet['address'], 0.01)
         print("** txid ** (Location to batch_lot): " + location_txid)
         tstx_data = {'sender_raddress': WORKAROUND_LOCATION_NODE_WALLET,
                      'tsintegrity': id, 'sender_name': 'LOCATION WALLET', 'txid': location_txid}
         print(tstx_url)
         print(tstx_data)
-        res = requests.post(tstx_url, data=tstx_data)
-        print("POST response: " + res.text)
+
+        res = postWrapper(tstx_url, tstx_data)
+
+        print("POST response: " + res)
 
         print("Push data from import-api to juicychain-api for batch_lot")
         # print(PDS + JDS + JDE + BBD + PC)
@@ -423,6 +467,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
         if this_node_address == 'RTWAtzNhLRxLot3QB2fv5oXCr5JfZhp5Fy':
             JC_ORG_ID = 2
         print("Push data from import-api to juicychain-api for batch_lot")
+
         # print(PDS + JDS + JDE + BBD + PC)
         jcapi_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_BATCH
         print(jcapi_url)
@@ -430,8 +475,10 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
                 'date_best_before': BBD, 'origin_country': PC, 'raddress': bnfp_wallet['address'],
                 'pubkey': bnfp_wallet['pubkey'], 'organization': JC_ORG_ID}
         print(data)
-        res = requests.post(jcapi_url, data=data)  # , headers={"Content-Type": "application/json"})
-        print("POST response: " + res.text)
+
+        res = postWrapper(jcapi_url, data=data)  # , headers={"Content-Type": "application/json"})
+
+        print("POST response: " + res)
         jcapi_batch_id = json.loads(res.text)['id']
         print("BATCH ID @ JUICYCHAIN-API: " + str(jcapi_batch_id))
 
@@ -443,8 +490,10 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
         url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + id + "/"
         data = {'name': 'chris', 'integrity_address': item_address['address'],
                 'integrity_post_tx': response, 'batch_lot_raddress': bnfp_wallet['address']}
-        res = requests.put(url, data=data)
-        print(res.text)
+
+        res = putWrapper(url, data=data)
+
+        print(res)
         print("** complete **")
 
     except Exception as e:
@@ -458,7 +507,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
     return
 
-##TODO refector so we can test without changeng db
+
 def juicychain_certificate_address_creation(wallet, data, db_id):
 
     print("## JUICYCHAIN API ##")
@@ -572,7 +621,7 @@ def getCertsNoAddy():
 
     return certs_no_addy
 
-##todo test
+
 def giveCertsAddy(certs_no_addy):
     for cert in certs_no_addy:
         raw_json = {
@@ -641,7 +690,7 @@ def is_json(myjson):
   return True
 
 #TEST FUNCTIONS
-#@pytest.mark.skip
+#x@pytest.mark.skip
 def test_workaround():
     test = workaround()
     assert test == True
@@ -678,3 +727,38 @@ def test_getCertsNoAddy():
 def test_getBatchesNullIntegrity():
     test = getBatchesNullIntegrity()
     assert type(test) == type(['this', 'is', 'an', 'test', 'array'])
+
+def test_import_jcf_batch_integrity_pre_process():
+    data = { 'this': 'is', 'test': 'data'}
+    test = import_jcf_batch_integrity_pre_process(this_node_address, data, "001")
+    assert is_json(test) == True
+
+def test_sendtoaddressWrapper():
+    test = sendtoaddressWrapper(this_node_address, 1)
+    assert not (" " in test)
+
+def test_sendtomanyWrapper():
+    json_object = { this_node_address:script_version }
+    test = sendtomanyWrapper(this_node_address, json_object)
+    print(test)
+    assert not (" " in test)
+
+def test_workaroundsendWrapper():
+    test = workaroundsendWrapper(certificates_rpc_connect, this_node_address, 1)
+    assert is_json(test) == True
+
+def test_postWrapperr():
+    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
+    data = {'sender_raddress': this_node_address,
+                 'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
+
+    test = postWrapper(url, data)
+    assert is_json(test) == True
+
+def test_putWrapperr():
+    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
+    data = {'sender_raddress': this_node_address,
+                 'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
+
+    test = putWrapper(url, data)
+    assert is_json(test) == True
