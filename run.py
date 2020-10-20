@@ -274,6 +274,16 @@ def putWrapper(url, data):
         return obj
 
 
+def patchWrapper(url, data):
+    res = requests.patch(url, data=data)
+
+    if(res.status_code == 200):
+        return res.text
+    else:
+        obj = json.dumps({"error": res.reason})
+        return obj
+
+
 def getWrapper(url):
     res = requests.get(url)
 
@@ -555,6 +565,7 @@ def giveCertsAddy(certs_no_addy):
         }
 
         raw_json = json.dumps(raw_json)
+        print("giveCertsAddy json: " + raw_json)
         # addy = get_address(this_node_address, raw_json)
         cert_wallet = gen_wallet(this_node_address, raw_json, cert['identifier'])
         id = str(cert['id'])
@@ -571,18 +582,32 @@ def giveCertsAddy(certs_no_addy):
             raise Exception(e)
 
 
-def getCertificateForTest():
-    pass
+def offlineWalletGenerator_fromObjectData_certificate(objectData):
+    obj = {
+        "issuer": objectData['issuer'],
+        "issue_date": objectData['date_issue'],
+        "expiry_date": objectData['date_expiry'],
+        "identfier": objectData['identifier']
+    }
+    raw_json = json.dumps(obj)
+    print("offlineWalletGenerator object data as json: " + raw_json)
+
+    log_label = objectData['identifier']
+    offline_wallet = gen_wallet(this_node_address, raw_json, log_label)
+
+    return offline_wallet
 
 
-def getWalletFromCertificateData(certificate_data):
-    pass
+def getCertificateForTest(url):
+    return getWrapper(url)
 
 
 def offline_wallet_send_housekeeping():
-    certificate = getCertificateForTest()
-    print(certificate)
-    offline_wallet = getWalletFromCertificateData(certificate)
+    test_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + "8/"
+    certificate = json.loads(getCertificateForTest(test_url))
+    offline_wallet = offlineWalletGenerator_fromObjectData_certificate(certificate)
+    print("Certificate " + json.dumps(certificate) + " generates this wallet: " + json.dumps(offline_wallet))
+    print(offline_wallet)
     # sign a tx to housekeeping address
     # 1. get utxos for address
     print("\n#2# Get UTXOs\n")
@@ -609,7 +634,20 @@ def offline_wallet_send_housekeeping():
 batches_null_integrity = getBatchesNullIntegrity()
 modifyBatchesNullIntegrity(batches_null_integrity)
 certs_no_addy = getCertsNoAddy()
-giveCertsAddy(certs_no_addy)
+
+for cert in certs_no_addy:
+    offline_wallet = offlineWalletGenerator_fromObjectData_certificate(cert)
+    url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + str(cert['id']) + "/"
+    data = {"raddress": offline_wallet['address'], "pubkey": offline_wallet['pubkey']}
+    patchWrapper(url, data=data)
+    # TODO try/block
+    txid = rpclib.sendtoaddress(rpc_connect, offline_wallet['address'], script_version * 2)
+    print("Funding tx " + txid)
+    # TODO add fundingtx, check for unfunded offline wallets
+
+
+# giveCertsAddy(certs_no_addy)
+offline_wallet_send_housekeeping()
 
 
 # the issuer, issue date, expiry date, identifier (not the db id, the
