@@ -659,28 +659,29 @@ def giveCertsAddy(certs_no_addy):
         except Exception as e:
             raise Exception(e)
 
-        # sign a tx to housekeeping address
-        # 1. get utxos for address
-        utxos_response = explorer_get_utxos(explorer_url, cert_wallet['address'])
-        print(utxos_response)
 
-        to_python = json.loads(utxos_response)
+def offline_wallet_send_housekeeping(offline_wallet):
+    # sign a tx to housekeeping address
+    # 1. get utxos for address
+    print("\n#2# Get UTXOs\n")
+    utxos_json = juicychain.explorer_get_utxos(EXPLORER_URL, offline_wallet['address'])
+    to_python = json.loads(utxos_json)
 
-        count = 0
-        list_of_ids = []
-        list_of_vouts = []
-        amount = 0
+    count = 0
+    list_of_ids = []
+    list_of_vouts = []
+    amount = 0
 
-        for objects in to_python:
-            if (objects['amount']):
-                count = count + 1
-                easy_typeing2 = [objects['vout']]
-                easy_typeing = [objects['txid']]
-                list_of_ids.extend(easy_typeing)
-                list_of_vouts.extend(easy_typeing2)
-                amount = amount + objects['amount']
+    for objects in to_python:
+        if (objects['amount']):
+            count = count + 1
+            easy_typeing2 = [objects['vout']]
+            easy_typeing = [objects['txid']]
+            list_of_ids.extend(easy_typeing)
+            list_of_vouts.extend(easy_typeing2)
+            amount = amount + objects['amount']
 
-        amount = round(amount, 10)
+    amount = round(amount, 10)
 
 
 batches_null_integrity = getBatchesNullIntegrity()
