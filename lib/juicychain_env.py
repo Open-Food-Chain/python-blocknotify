@@ -2,6 +2,12 @@ from dotenv import load_dotenv
 import os
 load_dotenv(verbose=True)
 
+MULTI_1X = 1
+MULTI_2X = 2
+MULTI_3X = 3
+MULTI_4X = 4
+MULTI_5X = 5
+
 # explorer
 JUICYCHAIN_EXPLORER_MAINNET_UNCHAIN = str(os.getenv("JUICYCHAIN_EXPLORER_MAINNET_UNCHAIN"))
 JUICYCHAIN_EXPLORER_MAINNET_UNCHAIN_PORT = str(os.getenv("JUICYCHAIN_EXPLORER_MAINNET_UNCHAIN_PORT"))
@@ -9,6 +15,7 @@ EXPLORER_URL = "http://" + JUICYCHAIN_EXPLORER_MAINNET_UNCHAIN + ":" + JUICYCHAI
 
 # this node wallet
 THIS_NODE_WALLET = str(os.getenv("THIS_NODE_WALLET"))
+THIS_NODE_ADDRESS = str(os.getenv("THIS_NODE_WALLET"))
 THIS_NODE_WIF = str(os.getenv("THIS_NODE_WIF"))
 THIS_NODE_PUBKEY = str(os.getenv("THIS_NODE_PUBKEY"))
 

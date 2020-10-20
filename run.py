@@ -6,12 +6,18 @@ import json
 # import pytest
 # import os
 from lib import juicychain
+from lib.juicychain_env import MULTI_1X
+from lib.juicychain_env import MULTI_2X
+from lib.juicychain_env import MULTI_3X
+from lib.juicychain_env import MULTI_4X
+from lib.juicychain_env import MULTI_5X
 from lib.juicychain_env import KOMODO_NODE
 from lib.juicychain_env import RPC_USER
 from lib.juicychain_env import RPC_PASSWORD
 from lib.juicychain_env import RPC_PORT
 from lib.juicychain_env import EXPLORER_URL
 from lib.juicychain_env import IMPORT_API_BASE_URL
+from lib.juicychain_env import THIS_NODE_ADDRESS
 from lib.juicychain_env import THIS_NODE_WALLET
 from lib.juicychain_env import THIS_NODE_PUBKEY
 from lib.juicychain_env import THIS_NODE_WIF
@@ -30,11 +36,15 @@ from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
 
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
+SCRIPT_VERSION = 0.00010021
+script_version = SCRIPT_VERSION
+
 juicychain.connect_node(RPC_USER, RPC_PASSWORD, KOMODO_NODE, RPC_PORT)
 
 # global vars
 # TODO lowercase vars should be deprecated, in favour of import vars from juicychain_env
 rpc_user = RPC_USER
+# rpc_user = "wrong"
 rpc_password = RPC_PASSWORD
 port = RPC_PORT
 komodo_node_ip = KOMODO_NODE
@@ -42,7 +52,6 @@ this_node_address = THIS_NODE_WALLET
 this_node_pubkey = THIS_NODE_PUBKEY
 this_node_wif = THIS_NODE_WIF
 blocknotify_chainsync_limit = BLOCKNOTIFY_CHAINSYNC_LIMIT
-housekeeping_address = HOUSEKEEPING_ADDRESS
 
 
 # rpc_connect = rpc_connection = Proxy("http://%s:%s@127.0.0.1:%d" % (rpc_user, rpc_password, port))
@@ -51,82 +60,12 @@ rpc_connect = rpc_connection = Proxy(
     "http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
 
 
-def ismywallet():
-    # check wallet management
-    try:
-        is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
-        if is_mine is False:
-            rpclib.importprivkey(rpc_connect, this_node_wif)
-        is_mine = rpclib.validateaddress(rpc_connect, this_node_address)['ismine']
-        return is_mine
-    except Exception as e:
-        print(e)
-        print("## JUICYCHAIN_ERROR ##")
-        print("# Node is not available. Check debug.log for details")
-        print("# If node is rescanning, will take a short while")
-        print("# If changing wallet & env, rescan will occur")
-        print("# Exiting.")
-        print("##")
-        exit()
+juicychain.ismywallet(THIS_NODE_ADDRESS, THIS_NODE_WIF)
+juicychain.checksync(BLOCKNOTIFY_CHAINSYNC_LIMIT)
+hk_txid = juicychain.sendtoaddressWrapper(HOUSEKEEPING_ADDRESS, SCRIPT_VERSION, MULTI_1X)
+print(hk_txid)
 
 
-def checksync():
-    general_info = rpclib.getinfo(rpc_connect)
-    sync = general_info['longestchain'] - general_info['blocks']
-
-    print("Chain info.  Longest chain, blocks, sync diff")
-    print(general_info['longestchain'])
-
-    print(general_info['blocks'])
-
-    print(sync)
-    return sync
-
-    if sync >= blocknotify_chainsync_limit:
-        print('the chain is not synced, try again later')
-        exit()
-
-    print("Chain is synced")
-
-
-ismywallet()
-
-checksync()
-
-
-# start housekeeping
-
-# we send this amount to an address for housekeeping
-# update by 0.0001 (manually, if can be done in CI/CD, nice-to-have not need-to-have) (MYLO)
-# house keeping address is list.json last entry during dev
-script_version = 0.00010010
-
-
-# send a small amount (SCRIPT_VERSION) for HOUSEKEEPING_ADDRESS from each organization
-# ############################
-# info: for external documentation then remove from here
-# one explorer url to check is
-# IJUICE  http://seed.juicydev.coingateways.com:24711/address/RS7y4zjQtcNv7inZowb8M6bH3ytS1moj9A
-# JAMJUICE  http://seed.juicydev.coingateways.com:64422/address/RS7y4zjQtcNv7inZowb8M6bH3ytS1moj9A
-# POS95   http://seed.juicydev.coingateways.com:54343/address/RS7y4zjQtcNv7inZowb8M6bH3ytS1moj9A
-# ############################
-# send SCRIPT_VERSION, increment by 0.00000001 for each update
-
-res = rpclib.sendtoaddress(rpc_connect, housekeeping_address, script_version)
-# res = rpclib.sendtoaddress(certificates_rpc_connect, housekeeping_address, 0.01)
-# res = rpclib.sendtoaddress(location_rpc_connect, housekeeping_address, 0.02)
-
-print(res)
-
-# ############################
-
-# END OF HOUSEKEEPING
-
-# ##############################################################################
-
-
-#
-#
 # EXPLORER GET UTXO FOR WALLET
 
 
@@ -205,12 +144,6 @@ def gen_wallet(wallet, data, label='NoLabelOK'):
     return new_wallet
 
 
-def sendtoaddressWrapper(address, multiplyer):
-    response = rpclib.sendtoaddress(rpc_connect, address, script_version * multiplyer)
-    # response is txid
-    return response
-
-
 def sendtomanyWrapper(addy, json_object):
     response = rpclib.sendmany(rpc_connect, addy, json_object)
     # response is txid
@@ -256,7 +189,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
     id = json.loads(res.text)['id']
 
-    response = sendtoaddressWrapper(item_address['address'], 2)
+    response = juicychain.sendtoaddressWrapper(item_address['address'], SCRIPT_VERSION, MULTI_2X)
 
     print("** txid ** (Timestamp integrity start): " + response)
 

@@ -18,6 +18,50 @@ def connect_node(rpc_user, rpc_password, komodo_node_ip, port):
     return True
 
 
+def sendtoaddressWrapper(address, amount, amount_multiplier):
+    response = rpclib.sendtoaddress(RPC, address, amount * amount_multiplier)
+    # response is txid
+    return response
+
+
+def checksync(blocknotify_chainsync_limit):
+    general_info = rpclib.getinfo(RPC)
+    sync = general_info['longestchain'] - general_info['blocks']
+
+    print("Chain info.  Longest chain, blocks, sync diff")
+    print(general_info['longestchain'])
+
+    print(general_info['blocks'])
+
+    print(sync)
+
+    if sync >= blocknotify_chainsync_limit:
+        print('the chain is not synced, try again later')
+        exit()
+
+    print("Chain is synced")
+    return sync
+
+
+def ismywallet(check_address, check_wif):
+    # check wallet management
+    try:
+        is_mine = rpclib.validateaddress(RPC, check_address)['ismine']
+        if is_mine is False:
+            rpclib.importprivkey(RPC, check_wif)
+        is_mine = rpclib.validateaddress(RPC, check_address)['ismine']
+        return is_mine
+    except Exception as e:
+        print(e)
+        print("## JUICYCHAIN_ERROR ##")
+        print("# Node is not available. Check debug.log for details")
+        print("# If node is rescanning, will take a short while")
+        print("# If changing wallet & env, rescan will occur")
+        print("# Exiting.")
+        print("##")
+        exit()
+
+
 def gen_wallet0(wallet, data):
     print("10007 - Generate an address using %s with data %s" % (wallet, data))
     signed_data = rpclib.signmessage(RPC, wallet, data)
