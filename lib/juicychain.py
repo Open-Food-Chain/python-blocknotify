@@ -192,7 +192,7 @@ def createrawtx4(utxos_json, num_utxo, to_address, fee):
     amount = 0
 
     for objects in utxos:
-        if (objects['amount'] > 0.01) and count < num_utxo:
+        if (objects['amount'] > 0.00005) and count < num_utxo:
             count = count + 1
             easy_typeing2 = [objects['vout']]
             easy_typeing = [objects['txid']]
@@ -202,6 +202,8 @@ def createrawtx4(utxos_json, num_utxo, to_address, fee):
             amounts.extend([objects['satoshis']])
 
     amount = round(amount, 10)
+    print("AMOUNT")
+    print(amount)
 
     rawtx = createrawtx(txids, vouts, to_address, (amount - fee))
     rawtx_info.append({'rawtx': rawtx})

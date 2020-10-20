@@ -404,7 +404,7 @@ def getCertificateForTest(url):
 
 
 def offline_wallet_send_housekeeping():
-    test_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + "8/"
+    test_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + "7/"
     certificate = json.loads(getCertificateForTest(test_url))
     offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(THIS_NODE_ADDRESS, certificate)
     print(offline_wallet)
@@ -413,6 +413,7 @@ def offline_wallet_send_housekeeping():
     print("\n#2# Get UTXOs\n")
     utxos_json = juicychain.explorer_get_utxos(EXPLORER_URL, offline_wallet['address'])
     to_python = json.loads(utxos_json)
+    print(to_python)
 
     count = 0
     list_of_ids = []
@@ -429,6 +430,34 @@ def offline_wallet_send_housekeeping():
             amount = amount + objects['amount']
 
     amount = round(amount, 10)
+
+    print("\n#3# Create raw tx\n")
+    to_address = HOUSEKEEPING_ADDRESS
+    num_utxo = 1
+    fee = 0.00005
+    # rawtx_info = juicychain.createrawtx3(utxos_json, num_utxo, to_address)
+    rawtx_info = juicychain.createrawtx4(utxos_json, num_utxo, to_address, fee)
+    print(rawtx_info[0]['rawtx'])
+# this is an array: rawtx_info['rawtx', [array utxo amounts req for sig]]
+    print("\n#4# Decode unsigned raw tx\n")
+    decoded = juicychain.decoderawtx(rawtx_info[0]['rawtx'])
+    print()
+    print("#######")
+    print(json.dumps(decoded, indent=2))
+    print("#######")
+    print()
+
+    print("\n#5# Sign tx\n")
+    signedtx = juicychain.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], offline_wallet['wif'])
+    print(signedtx)
+    decoded = juicychain.decoderawtx(signedtx)
+    print("#######")
+    print("signed")
+    print(decoded)
+    print()
+
+    txid = juicychain.broadcast_via_explorer(EXPLORER_URL, signedtx)
+    print(txid)
 
 
 batches_null_integrity = getBatchesNullIntegrity()
