@@ -10,36 +10,11 @@ from lib.juicychain_env import KOMODO_NODE
 from lib.juicychain_env import RPC_USER
 from lib.juicychain_env import RPC_PASSWORD
 from lib.juicychain_env import RPC_PORT
-from lib.juicychain_workaround_env import IJUICE_WORKAROUND_LOCATION_NODE_IPV4_ADDR
-from lib.juicychain_workaround_env import IJUICE_WORKAROUND_LOCATION_NODE_USERNAME
-from lib.juicychain_workaround_env import IJUICE_WORKAROUND_LOCATION_NODE_PASSWORD
-from lib.juicychain_workaround_env import WORKAROUND_LOCATION_NODE_WIF
-from lib.juicychain_workaround_env import WORKAROUND_LOCATION_NODE_WALLET
-from lib.juicychain_workaround_env import WORKAROUND_LOCATION_NODE_PUBKEY
-from lib.juicychain_workaround_env import IJUICE_WORKAROUND_CERTIFICATES_NODE_IPV4_ADDR
-from lib.juicychain_workaround_env import IJUICE_WORKAROUND_CERTIFICATES_NODE_USERNAME
-from lib.juicychain_workaround_env import IJUICE_WORKAROUND_CERTIFICATES_NODE_PASSWORD
-from lib.juicychain_workaround_env import WORKAROUND_CERTIFICATES_NODE_WIF
-from lib.juicychain_workaround_env import WORKAROUND_CERTIFICATES_NODE_WALLET
-from lib.juicychain_workaround_env import WORKAROUND_CERTIFICATES_NODE_PUBKEY
+from lib.juicychain_env import EXPLORER_URL
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
 print("\n#after_demo_1# Connect Node\n")
 juicychain.connect_node(RPC_USER, RPC_PASSWORD, KOMODO_NODE, RPC_PORT)
-print("Workaround vars")
-print(IJUICE_WORKAROUND_LOCATION_NODE_IPV4_ADDR)
-print(IJUICE_WORKAROUND_LOCATION_NODE_USERNAME)
-print(IJUICE_WORKAROUND_LOCATION_NODE_PASSWORD)
-print(WORKAROUND_LOCATION_NODE_WIF)
-print(WORKAROUND_LOCATION_NODE_WALLET)
-print(WORKAROUND_LOCATION_NODE_PUBKEY)
-print(IJUICE_WORKAROUND_CERTIFICATES_NODE_IPV4_ADDR)
-print(IJUICE_WORKAROUND_CERTIFICATES_NODE_USERNAME)
-print(IJUICE_WORKAROUND_CERTIFICATES_NODE_PASSWORD)
-print(WORKAROUND_CERTIFICATES_NODE_WIF)
-print(WORKAROUND_CERTIFICATES_NODE_WALLET)
-print(WORKAROUND_CERTIFICATES_NODE_PUBKEY)
-print()
 
 # global vars
 # TODO move some env vars from deployment env vars to .env
@@ -48,11 +23,11 @@ explorer_port = os.getenv("JUICYCHAIN_EXPLORER_MAINNET_UNCHAIN_PORT")
 explorer_url = "http://" + explorer_host + ":" + explorer_port + "/"
 print(explorer_url)
 
-rpc_user = os.getenv("IJUICE_KOMODO_NODE_USERNAME")
-rpc_password = os.getenv("IJUICE_KOMODO_NODE_PASSWORD")
-port = os.getenv("IJUICE_KOMODO_NODE_RPC_PORT")
+rpc_user = RPC_USER
+rpc_password = RPC_PASSWORD
+port = RPC_PORT
 
-komodo_node_ip = os.getenv("IJUICE_KOMODO_NODE_IPV4_ADDR")
+komodo_node_ip = KOMODO_NODE
 
 this_node_address = os.getenv("THIS_NODE_WALLET")
 this_node_pubkey = os.getenv("THIS_NODE_PUBKEY")
@@ -69,10 +44,6 @@ this_node_wif = os.getenv("THIS_NODE_WIF")
 # TODO f-string https://realpython.com/python-f-strings/
 rpc_connect = rpc_connection = Proxy(
     "http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
-certificates_rpc_connect = Proxy("http://" + IJUICE_WORKAROUND_CERTIFICATES_NODE_USERNAME + ":" +
-                                 IJUICE_WORKAROUND_CERTIFICATES_NODE_PASSWORD + "@" + IJUICE_WORKAROUND_CERTIFICATES_NODE_IPV4_ADDR + ":" + port)
-location_rpc_connect = Proxy("http://" + IJUICE_WORKAROUND_LOCATION_NODE_USERNAME + ":" +
-                             IJUICE_WORKAROUND_LOCATION_NODE_PASSWORD + "@" + IJUICE_WORKAROUND_LOCATION_NODE_IPV4_ADDR + ":" + port)
 
 blocknotify_chainsync_limit = int(os.getenv("BLOCKNOTIFY_CHAINSYNC_LIMIT"))
 housekeeping_address = os.getenv("HOUSEKEEPING_ADDRESS")
@@ -130,66 +101,6 @@ def ismywallet():
         exit()
 
 
-def workaround():
-    # TODO REMOVE WORKAROUND
-    try:
-        print("certificate workaround")
-        not_is_mine = rpclib.validateaddress(
-            certificates_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
-        print("...location wallet is mine? " + str(not_is_mine))
-        not_is_mine = rpclib.validateaddress(certificates_rpc_connect, this_node_address)['ismine']
-        print("...main wallet is mine? " + str(not_is_mine))
-        is_mine = rpclib.validateaddress(certificates_rpc_connect,
-                                         WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
-        if is_mine is False:
-            print("cert is_mine failed, importing privkey")
-            rpclib.importprivkey(certificates_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WIF)
-        is_mine = rpclib.validateaddress(certificates_rpc_connect,
-                                         WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
-        print("certificates is mine: " + str(is_mine))
-        return is_mine
-    except Exception as e:
-        print(e)
-        print("## JUICYCHAIN_ERROR ##")
-        print("# Workaround Certificates Node is not available. Check debug.log for details")
-        print("# If node is rescanning, will take a short while")
-        print("# If changing wallet & env, rescan will occur")
-        print("# Exiting.")
-        print("##")
-        return False
-        # exit()
-
-
-def locateWorkAround():
-    # TODO REMOVE WORKAROUND
-    try:
-        print("location workaround")
-        not_is_mine = rpclib.validateaddress(
-            location_rpc_connect, WORKAROUND_CERTIFICATES_NODE_WALLET)['ismine']
-        print("...certificates wallet is mine? " + str(not_is_mine))
-        not_is_mine = rpclib.validateaddress(location_rpc_connect, this_node_address)['ismine']
-        print("...main wallet is mine? " + str(not_is_mine))
-        is_mine = rpclib.validateaddress(
-            location_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
-        if is_mine is False:
-            print("location is_mine failed, importing privkey")
-            rpclib.importprivkey(location_rpc_connect, WORKAROUND_LOCATION_NODE_WIF)
-        is_mine = rpclib.validateaddress(
-            location_rpc_connect, WORKAROUND_LOCATION_NODE_WALLET)['ismine']
-        print("location is mine: " + str(is_mine))
-        return is_mine
-    except Exception as e:
-        print(e)
-        print("## JUICYCHAIN_ERROR ##")
-        print("# Workaround Location Node is not available. Check debug.log for details")
-        print("# If node is rescanning, will take a short while")
-        print("# If changing wallet & env, rescan will occur")
-        print("# Exiting.")
-        print("##")
-        return False
-        # exit()
-
-
 def checksync():
     general_info = rpclib.getinfo(rpc_connect)
     sync = general_info['longestchain'] - general_info['blocks']
@@ -211,9 +122,6 @@ def checksync():
 
 ismywallet()
 
-workaround()
-locateWorkAround()
-
 checksync()
 
 
@@ -230,6 +138,7 @@ script_version = 0.00010010
 # info: for external documentation then remove from here
 # one explorer url to check is
 # IJUICE  http://seed.juicydev.coingateways.com:24711/address/RS7y4zjQtcNv7inZowb8M6bH3ytS1moj9A
+# JAMJUICE  http://seed.juicydev.coingateways.com:64422/address/RS7y4zjQtcNv7inZowb8M6bH3ytS1moj9A
 # POS95   http://seed.juicydev.coingateways.com:54343/address/RS7y4zjQtcNv7inZowb8M6bH3ytS1moj9A
 # ############################
 # send SCRIPT_VERSION, increment by 0.00000001 for each update
@@ -417,10 +326,10 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
     try:
         print("MAIN WALLET " + this_node_address +
               " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), GTIN (anfp)")
-    # json_object = {anfp_address: script_version, pon_address: script_version, bnfp_address: script_version}
         json_object = {anfp_wallet['address']: script_version, pon_wallet[
             'address']: script_version, bnfp_wallet['address']: script_version}
 
+        # TODO rename to sendmany_txid
         response = sendtomanyWrapper(this_node_address, json_object)
 
         print("** txid ** (Main org wallet sendmany BATCH_LOT/POOL_PO/GTIN): " + response)
@@ -434,25 +343,17 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
         print("POST response: " + res)
 
-        print("CERTIFICATE WALLET " + WORKAROUND_CERTIFICATES_NODE_WALLET + " SEND TO BATCH_LOT (BNFP)")
-
-        certificates_txid = workaroundsendWrapper(certificates_rpc_connect, bnfp_wallet['address'], 0.02)
+        # TODO offline wallets
+        # TODO get_utxos
+        # TODO create tx
+        # TODO sign tx
+        # TODO broadcast
+        # certificates_txid = workaroundsendWrapper(certificates_rpc_connect, bnfp_wallet['address'], 0.02)
+        certificates_txid = "WIP"
 
         print("** txid ** (Certificate to batch_lot): " + certificates_txid)
-        tstx_data = {'sender_raddress': WORKAROUND_CERTIFICATES_NODE_WALLET,
+        tstx_data = {'sender_raddress': "**WIP**",
                      'tsintegrity': id, 'sender_name': 'CERTIFICATE WALLET', 'txid': certificates_txid}
-        print(tstx_url)
-        print(tstx_data)
-
-        res = postWrapper(tstx_url, tstx_data)
-
-        print("POST response: " + res)
-
-        print("LOCATION WALLET " + WORKAROUND_LOCATION_NODE_WALLET + " SEND TO BATCH_LOT (BNFP)")
-        location_txid = workaroundsendWrapper(location_rpc_connect, bnfp_wallet['address'], 0.01)
-        print("** txid ** (Location to batch_lot): " + location_txid)
-        tstx_data = {'sender_raddress': WORKAROUND_LOCATION_NODE_WALLET,
-                     'tsintegrity': id, 'sender_name': 'LOCATION WALLET', 'txid': location_txid}
         print(tstx_url)
         print(tstx_data)
 
@@ -707,17 +608,8 @@ def is_json(myjson):
 
 
 # TEST FUNCTIONS
-# @pytest.mark.skip
-def test_workaround():
-    test = workaround()
-    assert test == True
-
 
 # @pytest.mark.skip
-def test_locate_workaround():
-    test = locateWorkAround()
-    assert test == True
-
 
 def test_isMy():
     test = ismywallet()
@@ -770,11 +662,6 @@ def test_sendtomanyWrapper():
     test = sendtomanyWrapper(this_node_address, json_object)
     print(test)
     assert not (" " in test)
-
-
-def test_workaroundsendWrapper():
-    test = workaroundsendWrapper(certificates_rpc_connect, this_node_address, 1)
-    assert is_json(test) == True
 
 
 def test_postWrapperr():
