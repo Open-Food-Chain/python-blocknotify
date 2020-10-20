@@ -70,7 +70,7 @@ print(hk_txid)
 
 
 # TODO f-string
-def explorer_get_utxos(EXPLORER_URL, querywallet):
+def iexplorer_get_utxos(EXPLORER_URL, querywallet):
     print("10007 Get UTXO for wallet " + querywallet)
     # INSIGHT_API_KOMODO_ADDRESS_UTXO = "insight-api-komodo/addrs/{querywallet}/utxo"
     INSIGHT_API_KOMODO_ADDRESS_UTXO = "insight-api-komodo/addrs/" + querywallet + "/utxo"
@@ -171,11 +171,11 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
     print(data)
 
-    res = juicychain.putWrapper(url, data)
+    res = juicychain.postWrapper(url, data)
 
-    print("PUT response: " + res)
+    print("POST response: " + res)
 
-    id = json.loads(res.text)['id']
+    id = json.loads(res)['id']
 
     response = juicychain.sendtoaddressWrapper(item_address['address'], SCRIPT_VERSION, MULTI_2X)
 
@@ -185,7 +185,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
     data = {'name': 'chris', 'integrity_address': item_address[
         'address'], 'integrity_pre_tx': response, 'batch_lot_raddress': bnfp_wallet['address']}
 
-    res = juicychain.postWrapper(url, data)
+    res = juicychain.putWrapper(url, data)
 
     try:
         print("MAIN WALLET " + this_node_address +
@@ -320,43 +320,15 @@ def juicychain_certificate_address_creation(wallet, data, db_id):
 
 
 def getBatchesNullIntegrity():
-    print("10009 skip batch import api")
-    #
-    # url = IMPORT_API_BASE_URL + DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH
-    # print ("10009 - " + url)
-    #
-    # TODO skipped, come back
-    # res = requests.get(url)
-    #
-    # raw_json = res.text
-    #
-    # batches_null_integrity = ""
-    #
-    # try:
-    #     batches_null_integrity = json.loads(raw_json)
-    # except Exception as e:
-    #     print("failed to parse to json because of", e)
-    #     print("10007 - probably nothing returned from " + url)
-    #
-    #
-    # TODO when data model being queried
-    # for batch in batches_null_integrity:
-    #    raw_json = batch
-    #    id = batch['id']
-    #    print("starting process for id:", id)
-    #    import_jcf_batch_integrity_pre_process(this_node_address, raw_json, id)
-    #
-    #
     print("10009 start import api - raw/refresco")
-    print(IMPORT_API_BASE_URL)
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
     print("Trying: " + url)
 
     try:
         res = requests.get(url)
     except Exception as e:
-        print("something wrong", e)
-        print("10009 - url not sending nice response " + url)
+        print("###### REQUIRE INTEGRITY URL ERROR: ", e)
+        print("20201020 - url not sending nice response " + url)
 
     print(res.text)
 
@@ -369,6 +341,7 @@ def getBatchesNullIntegrity():
     except Exception as e:
         print("10009 failed to parse to json because of", e)
 
+    print("New batch requires timestamping: " + str(len(batches_null_integrity)))
     return batches_null_integrity
 
 

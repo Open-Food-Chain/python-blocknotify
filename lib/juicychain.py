@@ -303,7 +303,7 @@ def offlineWalletGenerator_fromObjectData_certificate(signing_wallet, objectData
 
 def postWrapper(url, data):
     res = requests.post(url, data=data)
-    if(res.status_code == 200):
+    if(res.status_code == 200 | res.status_code == 201):
         return res.text
     else:
         obj = json.dumps({"error": res.reason})
