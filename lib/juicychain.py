@@ -69,9 +69,9 @@ def explorer_get_utxos(explorer_url, querywallet):
         res = requests.get(explorer_url + INSIGHT_API_KOMODO_ADDRESS_UTXO)
     except Exception as e:
         raise Exception(e)
-    vouts = json.loads(res.text)
-    #for vout in vouts:
-        #print(vout['txid'] + " " + str(vout['vout']) + " " + str(vout['amount']) + " " + str(vout['satoshis']))
+    # vouts = json.loads(res.text)
+    # for vout in vouts:
+        # print(vout['txid'] + " " + str(vout['vout']) + " " + str(vout['amount']) + " " + str(vout['satoshis']))
     return res.text
 
 
@@ -235,3 +235,61 @@ def gen_wallet(wallet, data, label='NoLabelOK'):
     new_wallet = json.loads(new_wallet_json)
 
     return new_wallet
+
+
+def postWrapper(url, data):
+    res = requests.post(url, data=data)
+    if(res.status_code == 200):
+        return res.text
+    else:
+        obj = json.dumps({"error": res.reason})
+        return obj
+
+
+def putWrapper(url, data):
+    res = requests.put(url, data=data)
+
+    if(res.status_code == 200):
+        return res.text
+    else:
+        obj = json.dumps({"error": res.reason})
+        return obj
+
+
+def patchWrapper(url, data):
+    res = requests.patch(url, data=data)
+
+    if(res.status_code == 200):
+        return res.text
+    else:
+        obj = json.dumps({"error": res.reason})
+        return obj
+
+
+def getWrapper(url):
+    res = requests.get(url)
+
+    if(res.status_code == 200):
+        return res.text
+    else:
+        obj = json.dumps({"error": res.reason})
+        return obj
+
+
+def test_postWrapperr():
+    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
+    data = {'sender_raddress': this_node_address,
+            'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
+
+    test = postWrapper(url, data)
+    assert is_json(test) == True
+
+
+def test_putWrapperr():
+    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
+    data = {'sender_raddress': this_node_address,
+            'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
+
+    test = putWrapper(url, data)
+    assert is_json(test) == True
+
