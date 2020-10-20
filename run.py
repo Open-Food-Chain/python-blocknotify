@@ -274,6 +274,16 @@ def putWrapper(url, data):
         return obj
 
 
+def getWrapper(url):
+    res = requests.get(url)
+
+    if(res.status_code == 200):
+        return res.text
+    else:
+        obj = json.dumps({"error": res.reason})
+        return obj
+
+
 # TODO what does this do?
 def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
@@ -561,7 +571,18 @@ def giveCertsAddy(certs_no_addy):
             raise Exception(e)
 
 
-def offline_wallet_send_housekeeping(offline_wallet):
+def getCertificateForTest():
+    pass
+
+
+def getWalletFromCertificateData(certificate_data):
+    pass
+
+
+def offline_wallet_send_housekeeping():
+    certificate = getCertificateForTest()
+    print(certificate)
+    offline_wallet = getWalletFromCertificateData(certificate)
     # sign a tx to housekeeping address
     # 1. get utxos for address
     print("\n#2# Get UTXOs\n")
