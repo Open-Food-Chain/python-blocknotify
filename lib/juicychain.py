@@ -19,7 +19,9 @@ def connect_node(rpc_user, rpc_password, komodo_node_ip, port):
 
 
 def sendtoaddressWrapper(address, amount, amount_multiplier):
-    response = rpclib.sendtoaddress(RPC, address, amount * amount_multiplier)
+    print("Sending to " + address)
+    send_amount = round(amount * amount_multiplier, 10)  # rounding 10??
+    response = rpclib.sendtoaddress(RPC, address, send_amount)
     # response is txid
     return response
 
@@ -279,6 +281,22 @@ def gen_wallet(wallet, data, label='NoLabelOK'):
     new_wallet = json.loads(new_wallet_json)
 
     return new_wallet
+
+
+def offlineWalletGenerator_fromObjectData_certificate(signing_wallet, objectData):
+    obj = {
+        "issuer": objectData['issuer'],
+        "issue_date": objectData['date_issue'],
+        "expiry_date": objectData['date_expiry'],
+        "identfier": objectData['identifier']
+    }
+    raw_json = json.dumps(obj)
+    print("libjuicychain->offlineWalletGenerator object data as json: " + raw_json)
+
+    log_label = objectData['identifier']
+    offline_wallet = gen_wallet(signing_wallet, raw_json, log_label)
+
+    return offline_wallet
 
 
 def postWrapper(url, data):

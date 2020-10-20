@@ -62,7 +62,7 @@ rpc_connect = rpc_connection = Proxy(
 
 juicychain.ismywallet(THIS_NODE_ADDRESS, THIS_NODE_WIF)
 juicychain.checksync(BLOCKNOTIFY_CHAINSYNC_LIMIT)
-hk_txid = juicychain.sendtoaddressWrapper(HOUSEKEEPING_ADDRESS, SCRIPT_VERSION, MULTI_1X)
+hk_txid = juicychain.sendtoaddressWrapper(HOUSEKEEPING_ADDRESS, SCRIPT_VERSION, MULTI_2X)
 print(hk_txid)
 
 
@@ -132,18 +132,6 @@ def import_jcf_batch_integrity_pre_process(wallet, data, import_id):
     return res.text
 
 
-def gen_wallet(wallet, data, label='NoLabelOK'):
-    print("Creating a %s address signing with %s and data %s" % (label, wallet, data))
-    signed_data = rpclib.signmessage(rpc_connect, wallet, data)
-    print("Signed data is %s" % (signed_data))
-    new_wallet_json = subprocess.getoutput("php genwallet.php " + signed_data)
-    print("Created wallet %s" % (new_wallet_json))
-
-    new_wallet = json.loads(new_wallet_json)
-
-    return new_wallet
-
-
 def sendtomanyWrapper(addy, json_object):
     response = rpclib.sendmany(rpc_connect, addy, json_object)
     # response is txid
@@ -164,13 +152,13 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
     PON = data['pon']
     BNFP = data['bnfp']
 
-    anfp_wallet = gen_wallet(wallet, ANFP, "anfp")
-    pon_wallet = gen_wallet(wallet, PON, "pon")
-    bnfp_wallet = gen_wallet(wallet, BNFP, "bnfp")
+    anfp_wallet = juicychain.gen_wallet(wallet, ANFP, "anfp")
+    pon_wallet = juicychain.gen_wallet(wallet, PON, "pon")
+    bnfp_wallet = juicychain.gen_wallet(wallet, BNFP, "bnfp")
 
     data = json.dumps(data)
 
-    item_address = gen_wallet(wallet, data)
+    item_address = juicychain.gen_wallet(wallet, data)
 
     print("Timestamp-integrity raddress: " + item_address['address'])
 
@@ -411,22 +399,6 @@ def getCertsNoAddy():
     return certs_no_addy
 
 
-def offlineWalletGenerator_fromObjectData_certificate(objectData):
-    obj = {
-        "issuer": objectData['issuer'],
-        "issue_date": objectData['date_issue'],
-        "expiry_date": objectData['date_expiry'],
-        "identfier": objectData['identifier']
-    }
-    raw_json = json.dumps(obj)
-    print("libjuicychain->offlineWalletGenerator object data as json: " + raw_json)
-
-    log_label = objectData['identifier']
-    offline_wallet = gen_wallet(this_node_address, raw_json, log_label)
-
-    return offline_wallet
-
-
 def getCertificateForTest(url):
     return juicychain.getWrapper(url)
 
@@ -434,7 +406,7 @@ def getCertificateForTest(url):
 def offline_wallet_send_housekeeping():
     test_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + "8/"
     certificate = json.loads(getCertificateForTest(test_url))
-    offline_wallet = offlineWalletGenerator_fromObjectData_certificate(certificate)
+    offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(THIS_NODE_ADDRESS, certificate)
     print(offline_wallet)
     # sign a tx to housekeeping address
     # 1. get utxos for address
@@ -464,7 +436,7 @@ modifyBatchesNullIntegrity(batches_null_integrity)
 certs_no_addy = getCertsNoAddy()
 
 for cert in certs_no_addy:
-    offline_wallet = offlineWalletGenerator_fromObjectData_certificate(cert)
+    offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(THIS_NODE_ADDRESS, cert)
     url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + str(cert['id']) + "/"
     data = {"raddress": offline_wallet['address'], "pubkey": offline_wallet['pubkey']}
     juicychain.patchWrapper(url, data=data)
