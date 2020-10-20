@@ -411,33 +411,6 @@ def getCertsNoAddy():
     return certs_no_addy
 
 
-def giveCertsAddy(certs_no_addy):
-    for cert in certs_no_addy:
-        raw_json = {
-            "issuer": cert['issuer'],
-            "issue_date": cert['date_issue'],
-            "expiry_date": cert['date_expiry'],
-            "identfier": cert['identifier']
-        }
-
-        raw_json = json.dumps(raw_json)
-        print("giveCertsAddy json: " + raw_json)
-        # addy = get_address(this_node_address, raw_json)
-        cert_wallet = gen_wallet(this_node_address, raw_json, cert['identifier'])
-        id = str(cert['id'])
-        url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + id + "/"
-
-        try:
-            data = {"raddress": cert_wallet['address'], "pubkey": cert_wallet['pubkey']}
-            res = requests.patch(url, data=data)
-            print(res)
-            txid = rpclib.sendtoaddress(rpc_connect, cert_wallet['address'], script_version * 2)
-            print("Funding tx " + txid)
-
-        except Exception as e:
-            raise Exception(e)
-
-
 def offlineWalletGenerator_fromObjectData_certificate(objectData):
     obj = {
         "issuer": objectData['issuer'],
@@ -462,7 +435,6 @@ def offline_wallet_send_housekeeping():
     test_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + "8/"
     certificate = json.loads(getCertificateForTest(test_url))
     offline_wallet = offlineWalletGenerator_fromObjectData_certificate(certificate)
-    print("Certificate " + json.dumps(certificate) + " generates this wallet: " + json.dumps(offline_wallet))
     print(offline_wallet)
     # sign a tx to housekeeping address
     # 1. get utxos for address
@@ -497,12 +469,11 @@ for cert in certs_no_addy:
     data = {"raddress": offline_wallet['address'], "pubkey": offline_wallet['pubkey']}
     juicychain.patchWrapper(url, data=data)
     # TODO try/block
-    txid = rpclib.sendtoaddress(rpc_connect, offline_wallet['address'], script_version * 2)
+    txid = juicychain.sendtoaddressWrapper(offline_wallet['address'], SCRIPT_VERSION, MULTI_5X)
     print("Funding tx " + txid)
     # TODO add fundingtx, check for unfunded offline wallets
 
 
-# giveCertsAddy(certs_no_addy)
 offline_wallet_send_housekeeping()
 
 
