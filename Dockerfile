@@ -12,8 +12,10 @@ COPY requirements.txt ./
 RUN pip install -r requirements.txt
 RUN mkdir /code
 RUN mkdir /code/lib
+RUN git clone https://github.com/DeckerSU/BitcoinECDSA.php.git /code/BitcoinECDSA.php && \
+  cd code/BitcoinECDSA.php && \
+  git checkout b4b0ca4
 COPY run.sh /code
-COPY test.py /code
 COPY genaddressonly.php /code
 COPY genwallet.php /code
 COPY new_org_wallet /code
@@ -22,10 +24,7 @@ COPY lib/juicychain.py /code/lib
 COPY lib/juicychain_env.py /code/lib
 COPY lib/juicychain_workaround_env.py /code/lib
 COPY .env /code
-# COPY BitcoinECDSA.php /code/BitcoinECDSA.php
-RUN git clone https://github.com/DeckerSU/BitcoinECDSA.php.git /code/BitcoinECDSA.php && \
-  cd code/BitcoinECDSA.php && \
-  git checkout b4b0ca4
+COPY run.py /code
 WORKDIR /code
 
 #COPY ./ /code/
