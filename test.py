@@ -5,6 +5,11 @@ import subprocess
 import json
 import pytest
 import os
+from lib import juicychain
+from lib.juicychain_env import KOMODO_NODE
+from lib.juicychain_env import RPC_USER
+from lib.juicychain_env import RPC_PASSWORD
+from lib.juicychain_env import RPC_PORT
 from lib.juicychain_workaround_env import IJUICE_WORKAROUND_LOCATION_NODE_IPV4_ADDR
 from lib.juicychain_workaround_env import IJUICE_WORKAROUND_LOCATION_NODE_USERNAME
 from lib.juicychain_workaround_env import IJUICE_WORKAROUND_LOCATION_NODE_PASSWORD
@@ -19,7 +24,8 @@ from lib.juicychain_workaround_env import WORKAROUND_CERTIFICATES_NODE_WALLET
 from lib.juicychain_workaround_env import WORKAROUND_CERTIFICATES_NODE_PUBKEY
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
-
+print("\n#after_demo_1# Connect Node\n")
+juicychain.connect_node(RPC_USER, RPC_PASSWORD, KOMODO_NODE, RPC_PORT)
 print("Workaround vars")
 print(IJUICE_WORKAROUND_LOCATION_NODE_IPV4_ADDR)
 print(IJUICE_WORKAROUND_LOCATION_NODE_USERNAME)
@@ -104,6 +110,7 @@ JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = os.getenv("JUICYCHAIN_API_ORGANIZATION
 JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE = os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE")
 JUICYCHAIN_API_ORGANIZATION_BATCH = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_BATCH"))
 
+
 def ismywallet():
     # check wallet management
     try:
@@ -121,6 +128,7 @@ def ismywallet():
         print("# Exiting.")
         print("##")
         exit()
+
 
 def workaround():
     # TODO REMOVE WORKAROUND
@@ -149,7 +157,8 @@ def workaround():
         print("# Exiting.")
         print("##")
         return False
-        #exit()
+        # exit()
+
 
 def locateWorkAround():
     # TODO REMOVE WORKAROUND
@@ -178,7 +187,8 @@ def locateWorkAround():
         print("# Exiting.")
         print("##")
         return False
-        #exit()
+        # exit()
+
 
 def checksync():
     general_info = rpclib.getinfo(rpc_connect)
@@ -320,36 +330,42 @@ def gen_wallet(wallet, data, label='NoLabelOK'):
 
     return new_wallet
 
+
 def sendtoaddressWrapper(address, multiplyer):
     response = rpclib.sendtoaddress(rpc_connect, address, script_version * multiplyer)
     return response
+
 
 def sendtomanyWrapper(addy, json_object):
     response = rpclib.sendmany(rpc_connect, addy, json_object)
     return response
 
+
 def workaroundsendWrapper(connectione, wallet, amount):
     certificates_txid = rpclib.sendtoaddress(connectione, wallet, amount)
     return certificates_txid
+
 
 def postWrapper(url, data):
     res = requests.post(url, data=data)
     if(res.status_code == 200):
         return res.text
     else:
-        obj = json.dumps({ "error": res.reason })
+        obj = json.dumps({"error": res.reason})
         return obj
+
 
 def putWrapper(url, data):
     res = requests.put(url, data=data)
 
-
     if(res.status_code == 200):
         return res.text
     else:
-        obj = json.dumps({ "error": res.reason })
+        obj = json.dumps({"error": res.reason})
         return obj
-##TODO what does this do?
+
+
+# TODO what does this do?
 def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
     print("10009 Import API - Raw Refresco Pre Process")
@@ -386,10 +402,9 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
     print("PUT response: " + res)
 
-
     id = json.loads(res.text)['id']
 
-    respomse = sendtoaddressWrapper(item_address['address'], 2)
+    response = sendtoaddressWrapper(item_address['address'], 2)
 
     print("** txid ** (Timestamp integrity start): " + response)
 
@@ -591,7 +606,8 @@ def getBatchesNullIntegrity():
 
     return batches_null_integrity
 
-def modifyBatchesNullIntegrity( batches_null_integrity ):
+
+def modifyBatchesNullIntegrity(batches_null_integrity):
     for batch in batches_null_integrity:
         raw_json = batch
         id = batch['id']
@@ -600,15 +616,11 @@ def modifyBatchesNullIntegrity( batches_null_integrity ):
         juicychain_certificate_address_creation(this_node_address, raw_json, id)
 
 
-
 def getCertsNoAddy():
     print("10008 start getting the address less certificates")
 
-
     url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
     print("10008 trying " + url)
-
-
 
     try:
         res = requests.get(url)
@@ -640,6 +652,7 @@ def giveCertsAddy(certs_no_addy):
         try:
             data = {"raddress": cert_wallet['address'], "pubkey": cert_wallet['pubkey']}
             res = requests.patch(url, data=data)
+            print(res)
             txid = rpclib.sendtoaddress(rpc_connect, cert_wallet['address'], script_version * 2)
             print("Funding tx " + txid)
 
@@ -683,82 +696,99 @@ giveCertsAddy(certs_no_addy)
 # integrity/
 
 def is_json(myjson):
-  try:
-    json_object = json.loads(myjson)
-  except ValueError as e:
-    return False
-  return True
+    try:
+        # json_object = json.loads(myjson)
+        json.loads(myjson)
+    except ValueError as e:
+        print(e)
+        return False
+    return True
 
-#TEST FUNCTIONS
-#x@pytest.mark.skip
+
+# TEST FUNCTIONS
+# @pytest.mark.skip
 def test_workaround():
     test = workaround()
     assert test == True
-#@pytest.mark.skip
+
+
+# @pytest.mark.skip
 def test_locate_workaround():
     test = locateWorkAround()
     assert test == True
+
 
 def test_isMy():
     test = ismywallet()
     assert test == True
 
+
 def test_checksync():
     test = checksync()
     assert type(10) == type(test)
 
-#@pytest.mark.skip
+
+# @pytest.mark.skip
 def test_explorer_get_utxos():
     try:
-        test = explorer_get_utxos(explorer_url, "RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW");
+        test = explorer_get_utxos(explorer_url, "RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW")
         assert is_json(test) == True
     except Exception as e:
         assert e == True
+
 
 def test_gen_Wallet():
     test = gen_wallet(this_node_address, "testtest")
     assert type("test") == type(test['address'])
     assert test['address'][0] == 'R'
 
+
 def test_getCertsNoAddy():
     test = getCertsNoAddy()
     assert type(test) == type(['this', 'is', 'an', 'test', 'array'])
+
 
 def test_getBatchesNullIntegrity():
     test = getBatchesNullIntegrity()
     assert type(test) == type(['this', 'is', 'an', 'test', 'array'])
 
+
 def test_import_jcf_batch_integrity_pre_process():
-    data = { 'this': 'is', 'test': 'data'}
+    data = {'this': 'is', 'test': 'data'}
     test = import_jcf_batch_integrity_pre_process(this_node_address, data, "001")
     assert is_json(test) == True
+
 
 def test_sendtoaddressWrapper():
     test = sendtoaddressWrapper(this_node_address, 1)
     assert not (" " in test)
 
+
 def test_sendtomanyWrapper():
-    json_object = { this_node_address:script_version }
+    json_object = {this_node_address: script_version}
     test = sendtomanyWrapper(this_node_address, json_object)
     print(test)
     assert not (" " in test)
+
 
 def test_workaroundsendWrapper():
     test = workaroundsendWrapper(certificates_rpc_connect, this_node_address, 1)
     assert is_json(test) == True
 
+
 def test_postWrapperr():
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
     data = {'sender_raddress': this_node_address,
-                 'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
+            'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
 
     test = postWrapper(url, data)
     assert is_json(test) == True
 
+
 def test_putWrapperr():
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
     data = {'sender_raddress': this_node_address,
-                 'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
+            'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
 
     test = putWrapper(url, data)
     assert is_json(test) == True
