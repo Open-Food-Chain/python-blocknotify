@@ -3,8 +3,8 @@ from slickrpc import Proxy
 import requests
 import subprocess
 import json
-import pytest
-import os
+# import pytest
+# import os
 from lib import juicychain
 from lib.juicychain_env import KOMODO_NODE
 from lib.juicychain_env import RPC_USER
@@ -12,69 +12,43 @@ from lib.juicychain_env import RPC_PASSWORD
 from lib.juicychain_env import RPC_PORT
 from lib.juicychain_env import EXPLORER_URL
 from lib.juicychain_env import IMPORT_API_BASE_URL
+from lib.juicychain_env import THIS_NODE_WALLET
+from lib.juicychain_env import THIS_NODE_PUBKEY
+from lib.juicychain_env import THIS_NODE_WIF
+from lib.juicychain_env import BLOCKNOTIFY_CHAINSYNC_LIMIT
+from lib.juicychain_env import HOUSEKEEPING_ADDRESS
+from lib.juicychain_env import DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH
+# from lib.juicychain_env import DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH
+from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
+from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
+from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
+from lib.juicychain_env import JUICYCHAIN_API_BASE_URL
+from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
+from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE
+# from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE
+from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
 
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
-print("\n#after_demo_1# Connect Node\n")
 juicychain.connect_node(RPC_USER, RPC_PASSWORD, KOMODO_NODE, RPC_PORT)
 
 # global vars
-# TODO move some env vars from deployment env vars to .env
-
+# TODO lowercase vars should be deprecated, in favour of import vars from juicychain_env
 rpc_user = RPC_USER
 rpc_password = RPC_PASSWORD
 port = RPC_PORT
-
 komodo_node_ip = KOMODO_NODE
-
-this_node_address = os.getenv("THIS_NODE_WALLET")
-this_node_pubkey = os.getenv("THIS_NODE_PUBKEY")
-this_node_wif = os.getenv("THIS_NODE_WIF")
-
-
-# TODO
-# import funcs
-# move this to housekeeping
-# explorer_get_utxos(explorer_url, this_node_address)
+this_node_address = THIS_NODE_WALLET
+this_node_pubkey = THIS_NODE_PUBKEY
+this_node_wif = THIS_NODE_WIF
+blocknotify_chainsync_limit = BLOCKNOTIFY_CHAINSYNC_LIMIT
+housekeeping_address = HOUSEKEEPING_ADDRESS
 
 
 # rpc_connect = rpc_connection = Proxy("http://%s:%s@127.0.0.1:%d" % (rpc_user, rpc_password, port))
 # TODO f-string https://realpython.com/python-f-strings/
 rpc_connect = rpc_connection = Proxy(
     "http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
-
-blocknotify_chainsync_limit = int(os.getenv("BLOCKNOTIFY_CHAINSYNC_LIMIT"))
-housekeeping_address = os.getenv("HOUSEKEEPING_ADDRESS")
-
-
-# integrity/
-DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH = os.getenv("DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH")
-# batch/require_integrity/
-DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH = os.getenv(
-    "DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH")
-# raw/refresco/require_integrity/
-DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH = str(
-    os.getenv("DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH"))
-# raw/refresco-integrity/
-DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = str(
-    os.getenv("DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH"))
-# raw/refresco-tstx/
-DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH = str(os.getenv("DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH"))
-
-
-# LOAD JUICYCHAIN ENV
-JUICYCHAIN_API_HOST = str(os.getenv("JUICYCHAIN_API_HOST"))
-JUICYCHAIN_API_PORT = str(os.getenv("JUICYCHAIN_API_PORT"))
-JUICYCHAIN_API_VERSION_PATH = str(os.getenv("JUICYCHAIN_API_VERSION_PATH"))
-JUICYCHAIN_API_BASE_URL = "http://" + JUICYCHAIN_API_HOST + \
-    ":" + JUICYCHAIN_API_PORT + "/" + JUICYCHAIN_API_VERSION_PATH
-
-JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS = str(
-    os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS"))
-JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE"))
-JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE")
-JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE = os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE")
-JUICYCHAIN_API_ORGANIZATION_BATCH = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_BATCH"))
 
 
 def ismywallet():
@@ -167,10 +141,6 @@ def explorer_get_utxos(EXPLORER_URL, querywallet):
     print("10007 end utxos")
     return res.text
 
-
-# TODO
-# move this to housekeeping
-# explorer_get_utxos(explorer_url, this_node_address)
 
 # ##############################################################################
 
