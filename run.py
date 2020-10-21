@@ -208,12 +208,24 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
         print("POST response: " + res)
 
         # TODO offline wallets
+        test_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + "8/"
+        certificate = json.loads(getCertificateForTest(test_url))
+        offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(THIS_NODE_ADDRESS, certificate)
         # TODO get_utxos
+        utxos_json = juicychain.explorer_get_utxos(EXPLORER_URL, offline_wallet['address'])
+        utxos_obj = json.loads(utxos_json)
+        amount = juicychain.utxo_bundle_amount(utxos_obj)
+        print("(Not sending this amount atm) Amount of utxo bundle: " + str(amount))
         # TODO create tx
+        to_address = bnfp_wallet['address']
+        num_utxo = 1
+        fee = 0.00005
+        rawtx_info = juicychain.createrawtx4(utxos_json, num_utxo, to_address, fee)
         # TODO sign tx
+        signedtx = juicychain.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], offline_wallet['wif'])
         # TODO broadcast
+        certificates_txid = juicychain.broadcast_via_explorer(EXPLORER_URL, signedtx)
         # certificates_txid = workaroundsendWrapper(certificates_rpc_connect, bnfp_wallet['address'], 0.02)
-        certificates_txid = "WIP"
 
         print("** txid ** (Certificate to batch_lot): " + certificates_txid)
         tstx_data = {'sender_raddress': "**WIP**",

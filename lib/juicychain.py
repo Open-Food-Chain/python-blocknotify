@@ -301,6 +301,25 @@ def offlineWalletGenerator_fromObjectData_certificate(signing_wallet, objectData
     return offline_wallet
 
 
+def utxo_bundle_amount(utxos_obj):
+    count = 0
+    list_of_ids = []
+    list_of_vouts = []
+    amount = 0
+
+    for objects in utxos_obj:
+        if (objects['amount']):
+            count = count + 1
+            easy_typeing2 = [objects['vout']]
+            easy_typeing = [objects['txid']]
+            list_of_ids.extend(easy_typeing)
+            list_of_vouts.extend(easy_typeing2)
+            amount = amount + objects['amount']
+
+    amount = round(amount, 10)
+    return amount
+
+
 def postWrapper(url, data):
     res = requests.post(url, data=data)
     if(res.status_code == 200 | res.status_code == 201):
