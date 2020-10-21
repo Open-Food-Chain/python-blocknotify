@@ -50,56 +50,6 @@ juicychain.checksync(BLOCKNOTIFY_CHAINSYNC_LIMIT)
 hk_txid = juicychain.sendtoaddressWrapper(HOUSEKEEPING_ADDRESS, SCRIPT_VERSION, MULTI_2X)
 print(hk_txid)
 
-# ##############################################################################
-
-# START JCF IMPORT API INTEGRITY CHECKS
-
-# JCF is the only part of script that refers to BATCH.
-# development of new partners can use RAW_REFRESCO-like variables
-
-###########################
-# organization R-address = $1
-# raw_json import data in base64 = $2
-# batch record import database id(uuid) = $3
-###########################
-
-
-def import_jcf_batch_integrity_pre_process(wallet, data, import_id):
-
-    data = json.dumps(data)
-
-    signed_data = rpclib.signmessage(rpc_connect, wallet, data)
-    item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
-
-    item_address = json.loads(item_address)
-
-    print(item_address['address'])
-
-    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH
-    data = {'name': 'chris', 'integrity_address': item_address['address'], 'batch': import_id}
-
-    res = requests.post(url, data=data)
-
-    print(res.text)
-
-    id = json.loads(res.text)['id']
-
-    print(id)
-
-    response = rpclib.sendtoaddress(rpc_connect, item_address['address'], SCRIPT_VERSION)
-
-    print(response)
-
-    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH + id + "/"
-    data = {'name': 'chris', 'integrity_address': item_address[
-        'address'], 'integrity_pre_tx': response}
-
-    res = requests.put(url, data=data)
-
-    print(res.text)
-
-    return res.text
-
 
 def sendtomanyWrapper(addy, json_object):
     response = rpclib.sendmany(rpc_connect, addy, json_object)
