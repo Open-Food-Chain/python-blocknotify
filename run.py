@@ -1,10 +1,7 @@
-import requests
-import subprocess
 import json
 # import pytest
 # import os
 from lib import juicychain
-from lib.juicychain_env import MULTI_1X
 from lib.juicychain_env import MULTI_2X
 from lib.juicychain_env import MULTI_3X
 from lib.juicychain_env import EXPLORER_URL
@@ -177,40 +174,9 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, new_import_record, i
     return
 
 
-def juicychain_certificate_address_creation(wallet, data, db_id):
-
-    print("## JUICYCHAIN API ##")
-
-    data = json.dumps(data)
-
-    signed_data = juicychain.signmessage_wrapper(data)
-    item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
-
-    item_address = json.loads(item_address)
-
-    print(item_address['address'])
-
-    url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + id + '/'
-    data = {'raddress': item_address['address']}
-
-    res = requests.patch(url, data=data)  # , headers={"Content-Type": "application/json"})
-
-    print(res.text)
-
-    # id = json.loads(res.text)['id']
-
-    # print(id)
-
-    txid = juicychain.sendtoaddressWrapper(item_address['address'], SCRIPT_VERSION, MULTI_1X)
-    print(txid)
-
-    return item_address['address']
-
-
 batches_no_timestamp = juicychain.get_batches_no_timestamp()
 for json_batch in batches_no_timestamp:
     import_raw_refresco_batch_integrity_pre_process(THIS_NODE_ADDRESS, json_batch, json_batch['id'])
-    juicychain_certificate_address_creation(THIS_NODE_ADDRESS, json_batch, json_batch['id'])
 
 certificates_no_timestamp = juicychain.get_certificates_no_timestamp()
 
