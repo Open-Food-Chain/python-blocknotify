@@ -64,22 +64,6 @@ juicychain.checksync(BLOCKNOTIFY_CHAINSYNC_LIMIT)
 hk_txid = juicychain.sendtoaddressWrapper(HOUSEKEEPING_ADDRESS, SCRIPT_VERSION, MULTI_2X)
 print(hk_txid)
 
-
-# EXPLORER GET UTXO FOR WALLET
-
-
-# TODO f-string
-def iexplorer_get_utxos(EXPLORER_URL, querywallet):
-    print("10007 Get UTXO for wallet " + querywallet)
-    # INSIGHT_API_KOMODO_ADDRESS_UTXO = "insight-api-komodo/addrs/{querywallet}/utxo"
-    INSIGHT_API_KOMODO_ADDRESS_UTXO = "insight-api-komodo/addrs/" + querywallet + "/utxo"
-    # INSIGHT_API_BROADCAST_TX="insight-api-komodo/tx/send"
-    res = requests.get(EXPLORER_URL + INSIGHT_API_KOMODO_ADDRESS_UTXO)
-    print(res.text)
-    print("10007 end utxos")
-    return res.text
-
-
 # ##############################################################################
 
 # START JCF IMPORT API INTEGRITY CHECKS
