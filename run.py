@@ -38,13 +38,11 @@ from dotenv import load_dotenv
 load_dotenv(verbose=True)
 SCRIPT_VERSION = 0.00010021
 
-juicychain.connect_node(RPC_USER, RPC_PASSWORD, KOMODO_NODE, RPC_PORT)
-
 # TODO f-string https://realpython.com/python-f-strings/
 rpc_connect = rpc_connection = Proxy(
     "http://" + RPC_USER + ":" + RPC_PASSWORD + "@" + KOMODO_NODE + ":" + RPC_PORT)
 
-
+juicychain.connect_node(RPC_USER, RPC_PASSWORD, KOMODO_NODE, RPC_PORT)
 juicychain.ismywallet(THIS_NODE_ADDRESS, THIS_NODE_WIF)
 juicychain.checksync(BLOCKNOTIFY_CHAINSYNC_LIMIT)
 hk_txid = juicychain.sendtoaddressWrapper(HOUSEKEEPING_ADDRESS, SCRIPT_VERSION, MULTI_2X)
