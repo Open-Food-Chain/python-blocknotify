@@ -228,7 +228,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
         # certificates_txid = workaroundsendWrapper(certificates_rpc_connect, bnfp_wallet['address'], 0.02)
 
         print("** txid ** (Certificate to batch_lot): " + certificates_txid)
-        tstx_data = {'sender_raddress': "**WIP**",
+        tstx_data = {'sender_raddress': offline_wallet['address'],
                      'tsintegrity': id, 'sender_name': 'CERTIFICATE WALLET', 'txid': certificates_txid}
         print(tstx_url)
         print(tstx_data)

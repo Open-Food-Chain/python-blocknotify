@@ -205,7 +205,7 @@ def createrawtx4(utxos_json, num_utxo, to_address, fee):
     print("AMOUNT")
     print(amount)
 
-    rawtx = createrawtx(txids, vouts, to_address, (amount - fee))
+    rawtx = createrawtx(txids, vouts, to_address, round(amount - fee, 10))
     rawtx_info.append({'rawtx': rawtx})
     rawtx_info.append({'amounts': amounts})
     return rawtx_info
