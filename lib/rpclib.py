@@ -61,6 +61,27 @@ def getinfo(rpc_connection):
         raise Exception("Connection error!")
     return getinfo
 
+
+def createrawtransactionwithchange(rpc_connection, txids, vouts, address, amount, change_address, change_amount):
+    try:
+        txid_vout = []
+
+        for txid, vout in zip(txids, vouts):
+            txid_vout_v1 = [{ "txid": txid, "vout":vout }]
+            txid_vout.extend(txid_vout_v1)
+
+
+        # address_amount = {address: amount, "RNLnzgmnDNh7LqRpbzMGdfFXVDY6ZW2kop": 0.555}
+        address_amount = {address: amount, change_address: change_amount}
+
+        print(txid_vout)
+        print(address_amount)
+        rawtransaction = rpc_connection.createrawtransaction(txid_vout, address_amount)
+    except Exception as e:
+        raise Exception(e)
+    return rawtransaction
+
+
 def createrawtransaction(rpc_connection, txids, vouts, address, amount):
     try:
         txid_vout = []

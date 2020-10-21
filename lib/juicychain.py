@@ -15,7 +15,53 @@ def connect_node(rpc_user, rpc_password, komodo_node_ip, port):
     global RPC
     print("Connecting to: " + komodo_node_ip + ":" + port)
     RPC = Proxy("http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
-    return
+    return True
+
+
+def sendtoaddressWrapper(address, amount, amount_multiplier):
+    print("Sending to " + address)
+    send_amount = round(amount * amount_multiplier, 10)  # rounding 10??
+    response = rpclib.sendtoaddress(RPC, address, send_amount)
+    # response is txid
+    return response
+
+
+def checksync(blocknotify_chainsync_limit):
+    general_info = rpclib.getinfo(RPC)
+    sync = general_info['longestchain'] - general_info['blocks']
+
+    print("Chain info.  Longest chain, blocks, sync diff")
+    print(general_info['longestchain'])
+
+    print(general_info['blocks'])
+
+    print(sync)
+
+    if sync >= blocknotify_chainsync_limit:
+        print('the chain is not synced, try again later')
+        exit()
+
+    print("Chain is synced")
+    return sync
+
+
+def ismywallet(check_address, check_wif):
+    # check wallet management
+    try:
+        is_mine = rpclib.validateaddress(RPC, check_address)['ismine']
+        if is_mine is False:
+            rpclib.importprivkey(RPC, check_wif)
+        is_mine = rpclib.validateaddress(RPC, check_address)['ismine']
+        return is_mine
+    except Exception as e:
+        print(e)
+        print("## JUICYCHAIN_ERROR ##")
+        print("# Node is not available. Check debug.log for details")
+        print("# If node is rescanning, will take a short while")
+        print("# If changing wallet & env, rescan will occur")
+        print("# Exiting.")
+        print("##")
+        exit()
 
 
 def gen_wallet0(wallet, data):
@@ -69,14 +115,18 @@ def explorer_get_utxos(explorer_url, querywallet):
         res = requests.get(explorer_url + INSIGHT_API_KOMODO_ADDRESS_UTXO)
     except Exception as e:
         raise Exception(e)
-    vouts = json.loads(res.text)
-    #for vout in vouts:
-        #print(vout['txid'] + " " + str(vout['vout']) + " " + str(vout['amount']) + " " + str(vout['satoshis']))
+    # vouts = json.loads(res.text)
+    # for vout in vouts:
+        # print(vout['txid'] + " " + str(vout['vout']) + " " + str(vout['amount']) + " " + str(vout['satoshis']))
     return res.text
 
 
 def createrawtx(txids, vouts, to_address, amount):
     return rpclib.createrawtransaction(RPC, txids, vouts, to_address, amount)
+
+
+def createrawtxwithchange(txids, vouts, to_address, amount, change_address, change_amount):
+    return rpclib.createrawtransactionwithchange(RPC, txids, vouts, to_address, amount, change_address, change_amount)
 
 
 def createrawtx2(utxos_json, num_utxo, to_address):
@@ -134,6 +184,39 @@ def createrawtx3(utxos_json, num_utxo, to_address):
     return rawtx_info
 
 
+def createrawtx5(utxos_json, num_utxo, to_address, fee, change_address):
+    rawtx_info = []  # return this with rawtx & amounts
+    utxos = json.loads(utxos_json)
+    utxos.reverse()
+    count = 0
+
+    txids = []
+    vouts = []
+    amounts = []
+    amount = 0
+
+    for objects in utxos:
+        if (objects['amount'] > 0.00005) and count < num_utxo:
+            count = count + 1
+            easy_typeing2 = [objects['vout']]
+            easy_typeing = [objects['txid']]
+            txids.extend(easy_typeing)
+            vouts.extend(easy_typeing2)
+            amount = amount + objects['amount']
+            amounts.extend([objects['satoshis']])
+
+    # TODO be smart with change.
+    change_amount = 0.555
+    amount = round(amount - change_amount, 10)
+    print("AMOUNT")
+    print(amount)
+
+    rawtx = createrawtxwithchange(txids, vouts, to_address, round(amount - fee, 10), change_address, change_amount)
+    rawtx_info.append({'rawtx': rawtx})
+    rawtx_info.append({'amounts': amounts})
+    return rawtx_info
+
+
 def createrawtx4(utxos_json, num_utxo, to_address, fee):
     rawtx_info = []  # return this with rawtx & amounts
     utxos = json.loads(utxos_json)
@@ -146,7 +229,7 @@ def createrawtx4(utxos_json, num_utxo, to_address, fee):
     amount = 0
 
     for objects in utxos:
-        if (objects['amount'] > 0.01) and count < num_utxo:
+        if (objects['amount'] > 0.00005) and count < num_utxo:
             count = count + 1
             easy_typeing2 = [objects['vout']]
             easy_typeing = [objects['txid']]
@@ -156,8 +239,10 @@ def createrawtx4(utxos_json, num_utxo, to_address, fee):
             amounts.extend([objects['satoshis']])
 
     amount = round(amount, 10)
+    print("AMOUNT")
+    print(amount)
 
-    rawtx = createrawtx(txids, vouts, to_address, (amount - fee))
+    rawtx = createrawtx(txids, vouts, to_address, round(amount - fee, 10))
     rawtx_info.append({'rawtx': rawtx})
     rawtx_info.append({'amounts': amounts})
     return rawtx_info
@@ -237,3 +322,96 @@ def gen_wallet(wallet, data, label='NoLabelOK'):
     new_wallet = json.loads(new_wallet_json)
 
     return new_wallet
+
+
+def offlineWalletGenerator_fromObjectData_certificate(signing_wallet, objectData):
+    obj = {
+        "issuer": objectData['issuer'],
+        "issue_date": objectData['date_issue'],
+        "expiry_date": objectData['date_expiry'],
+        "identfier": objectData['identifier']
+    }
+    raw_json = json.dumps(obj)
+    print("libjuicychain->offlineWalletGenerator object data as json: " + raw_json)
+
+    log_label = objectData['identifier']
+    offline_wallet = gen_wallet(signing_wallet, raw_json, log_label)
+
+    return offline_wallet
+
+
+def utxo_bundle_amount(utxos_obj):
+    count = 0
+    list_of_ids = []
+    list_of_vouts = []
+    amount = 0
+
+    for objects in utxos_obj:
+        if (objects['amount']):
+            count = count + 1
+            easy_typeing2 = [objects['vout']]
+            easy_typeing = [objects['txid']]
+            list_of_ids.extend(easy_typeing)
+            list_of_vouts.extend(easy_typeing2)
+            amount = amount + objects['amount']
+
+    amount = round(amount, 10)
+    return amount
+
+
+def postWrapper(url, data):
+    res = requests.post(url, data=data)
+    if(res.status_code == 200 | res.status_code == 201):
+        return res.text
+    else:
+        obj = json.dumps({"error": res.reason})
+        return obj
+
+
+def putWrapper(url, data):
+    res = requests.put(url, data=data)
+
+    if(res.status_code == 200):
+        return res.text
+    else:
+        obj = json.dumps({"error": res.reason})
+        return obj
+
+
+def patchWrapper(url, data):
+    res = requests.patch(url, data=data)
+
+    if(res.status_code == 200):
+        return res.text
+    else:
+        obj = json.dumps({"error": res.reason})
+        return obj
+
+
+def getWrapper(url):
+    res = requests.get(url)
+
+    if(res.status_code == 200):
+        return res.text
+    else:
+        obj = json.dumps({"error": res.reason})
+        return obj
+
+
+def test_postWrapperr():
+    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
+    data = {'sender_raddress': this_node_address,
+            'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
+
+    test = postWrapper(url, data)
+    assert is_json(test) == True
+
+
+def test_putWrapperr():
+    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
+    data = {'sender_raddress': this_node_address,
+            'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
+
+    test = putWrapper(url, data)
+    assert is_json(test) == True
+
