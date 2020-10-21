@@ -18,6 +18,12 @@ def connect_node(rpc_user, rpc_password, komodo_node_ip, port):
     return True
 
 
+def sendmanyWrapper(from_address, recipients_json):
+    response = rpclib.sendmany(RPC, from_address, recipients_json)
+    # response is txid
+    return response
+
+
 def sendtoaddressWrapper(address, amount, amount_multiplier):
     print("Sending to " + address)
     send_amount = round(amount * amount_multiplier, 10)  # rounding 10??

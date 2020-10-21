@@ -51,12 +51,6 @@ hk_txid = juicychain.sendtoaddressWrapper(HOUSEKEEPING_ADDRESS, SCRIPT_VERSION, 
 print(hk_txid)
 
 
-def sendtomanyWrapper(addy, json_object):
-    response = rpclib.sendmany(rpc_connect, addy, json_object)
-    # response is txid
-    return response
-
-
 # TODO what does this do?
 def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
@@ -113,7 +107,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
             'address']: SCRIPT_VERSION, bnfp_wallet['address']: SCRIPT_VERSION}
 
         # TODO rename to sendmany_txid
-        response = sendtomanyWrapper(THIS_NODE_ADDRESS, json_object)
+        response = juicychain.sendmanyWrapper(THIS_NODE_ADDRESS, json_object)
 
         print("** txid ** (Main org wallet sendmany BATCH_LOT/POOL_PO/GTIN): " + response)
         tstx_url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
