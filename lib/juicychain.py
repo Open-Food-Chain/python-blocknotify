@@ -3,10 +3,10 @@ from lib.juicychain_env import MULTI_2X
 # from lib.juicychain_env import MULTI_3X
 # from lib.juicychain_env import MULTI_4X
 # from lib.juicychain_env import MULTI_5X
-# from lib.juicychain_env import KOMODO_NODE
-# from lib.juicychain_env import RPC_USER
-# from lib.juicychain_env import RPC_PASSWORD
-# from lib.juicychain_env import RPC_PORT
+from lib.juicychain_env import KOMODO_NODE
+from lib.juicychain_env import RPC_USER
+from lib.juicychain_env import RPC_PASSWORD
+from lib.juicychain_env import RPC_PORT
 from lib.juicychain_env import EXPLORER_URL
 from lib.juicychain_env import IMPORT_API_BASE_URL
 from lib.juicychain_env import THIS_NODE_ADDRESS
@@ -34,11 +34,16 @@ SCRIPT_VERSION = 0.00012111
 RPC = ""
 
 
-def connect_node(rpc_user, rpc_password, komodo_node_ip, port):
+def connect_node():
     global RPC
-    print("Connecting to: " + komodo_node_ip + ":" + port)
-    RPC = Proxy("http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
+    print("Connecting to: " + KOMODO_NODE + ":" + RPC_PORT)
+    RPC = Proxy("http://" + RPC_USER + ":" + RPC_PASSWORD + "@" + KOMODO_NODE + ":" + RPC_PORT)
     return True
+
+
+def signmessageWrapper(data):
+    signed_data = rpclib.signmessage(RPC, THIS_NODE_ADDRESS, data)
+    return signed_data
 
 
 def sendmanyWrapper(from_address, recipients_json):

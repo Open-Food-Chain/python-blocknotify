@@ -1,20 +1,14 @@
-from lib import rpclib
-from slickrpc import Proxy
 import requests
 import subprocess
 import json
 # import pytest
 # import os
 from lib import juicychain
-# from lib.juicychain_env import MULTI_1X
+from lib.juicychain_env import MULTI_1X
 from lib.juicychain_env import MULTI_2X
 from lib.juicychain_env import MULTI_3X
 # from lib.juicychain_env import MULTI_4X
 from lib.juicychain_env import MULTI_5X
-from lib.juicychain_env import KOMODO_NODE
-from lib.juicychain_env import RPC_USER
-from lib.juicychain_env import RPC_PASSWORD
-from lib.juicychain_env import RPC_PORT
 from lib.juicychain_env import EXPLORER_URL
 from lib.juicychain_env import IMPORT_API_BASE_URL
 from lib.juicychain_env import THIS_NODE_ADDRESS
@@ -37,11 +31,7 @@ URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_AP
 URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
 URL_JUICYCHAIN_API_ORGANIZATION_BATCH = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_BATCH
 
-# TODO f-string https://realpython.com/python-f-strings/
-rpc_connect = rpc_connection = Proxy(
-    "http://" + RPC_USER + ":" + RPC_PASSWORD + "@" + KOMODO_NODE + ":" + RPC_PORT)
-
-juicychain.connect_node(RPC_USER, RPC_PASSWORD, KOMODO_NODE, RPC_PORT)
+juicychain.connect_node()
 juicychain.ismywallet(THIS_NODE_ADDRESS, THIS_NODE_WIF)
 juicychain.checksync(BLOCKNOTIFY_CHAINSYNC_LIMIT)
 hk_txid = juicychain.sendtoaddressWrapper(HOUSEKEEPING_ADDRESS, SCRIPT_VERSION, MULTI_2X)
@@ -53,21 +43,18 @@ def getCertificateForTest(url):
 
 
 # TODO what does this do?
-def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
+def import_raw_refresco_batch_integrity_pre_process(wallet, new_import_record, import_id):
 
-    data = json.dumps(data)
-    PDS = data['pds']
-    JDS = data['jds']
-    JDE = data['jde']
-    BBD = data['bbd']
-    PC = data['pc']
-    ANFP = data['anfp']
-    PON = data['pon']
-    BNFP = data['bnfp']
-    anfp_wallet = juicychain.gen_wallet(wallet, ANFP, "anfp")
-    pon_wallet = juicychain.gen_wallet(wallet, PON, "pon")
-    bnfp_wallet = juicychain.gen_wallet(wallet, BNFP, "bnfp")
-    integrity_address = juicychain.gen_wallet(wallet, data)
+    data = json.dumps(new_import_record)
+    anfp_wallet = juicychain.gen_wallet(wallet, data['anfp'], "anfp")
+    pon_wallet = juicychain.gen_wallet(wallet, data['pon'], "pon")
+    bnfp_wallet = juicychain.gen_wallet(wallet, data['bnfp'], "bnfp")
+    # pds_wallet = juicychain.gen_wallet(wallet, data['pds'], "pds")
+    # jds_wallet = juicychain.gen_wallet(wallet, data['jds'], "jds")
+    # jde_wallet = juicychain.gen_wallet(wallet, data['jde'], "jde")
+    # bbd_wallet = juicychain.gen_wallet(wallet, data['bbd'], "bbd")
+    # pc_wallet = juicychain.gen_wallet(wallet, data['pc'], "pc")
+    integrity_address = juicychain.gen_wallet(wallet, data, "integrity address")
 
     print("Timestamp-integrity raddress: " + integrity_address['address'])
 
@@ -156,10 +143,15 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
             JC_ORG_ID = 2
         print("Push data from import-api to juicychain-api for batch_lot")
 
-        # print(PDS + JDS + JDE + BBD + PC)
-        data = {'identifier': BNFP, 'jds': JDS, 'jde': JDE, 'date_production_start': PDS,
-                'date_best_before': BBD, 'origin_country': PC, 'raddress': bnfp_wallet['address'],
-                'pubkey': bnfp_wallet['pubkey'], 'organization': JC_ORG_ID}
+        data = {'identifier': new_import_record['bnfp'],
+                'jds': new_import_record['jds'],
+                'jde': new_import_record['jde'],
+                'date_production_start': new_import_record['pds'],
+                'date_best_before': new_import_record['bbd'],
+                'origin_country': new_import_record['pc'],
+                'raddress': bnfp_wallet['address'],
+                'pubkey': bnfp_wallet['pubkey'],
+                'organization': JC_ORG_ID}
         print(data)
 
         jcapi_response = juicychain.postWrapper(URL_JUICYCHAIN_API_ORGANIZATION_BATCH, data=data)
@@ -199,7 +191,7 @@ def juicychain_certificate_address_creation(wallet, data, db_id):
 
     data = json.dumps(data)
 
-    signed_data = rpclib.signmessage(rpc_connect, wallet, data)
+    signed_data = juicychain.signmessageWrapper(data)
     item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
 
     item_address = json.loads(item_address)
@@ -217,9 +209,8 @@ def juicychain_certificate_address_creation(wallet, data, db_id):
 
     # print(id)
 
-    response = rpclib.sendtoaddress(rpc_connect, item_address['address'], SCRIPT_VERSION)
-
-    print(response)
+    txid = juicychain.sendtoaddressWrapper(item_address['address'], SCRIPT_VERSION, MULTI_1X)
+    print(txid)
 
     return item_address['address']
 
