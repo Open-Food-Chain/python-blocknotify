@@ -306,7 +306,6 @@ def offline_wallet_send_housekeeping():
     certificate = json.loads(getCertificateForTest(test_url))
     offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(THIS_NODE_ADDRESS, certificate)
     print(offline_wallet)
-    # sign a tx to housekeeping address
     # 1. get utxos for address
     print("\n#2# Get UTXOs\n")
     utxos_json = juicychain.explorer_get_utxos(EXPLORER_URL, offline_wallet['address'])
@@ -333,7 +332,6 @@ def offline_wallet_send_housekeeping():
     to_address = HOUSEKEEPING_ADDRESS
     num_utxo = 1
     fee = 0.00005
-    # rawtx_info = juicychain.createrawtx3(utxos_json, num_utxo, to_address)
     rawtx_info = juicychain.createrawtx4(utxos_json, num_utxo, to_address, fee)
     print(rawtx_info[0]['rawtx'])
 # this is an array: rawtx_info['rawtx', [array utxo amounts req for sig]]
