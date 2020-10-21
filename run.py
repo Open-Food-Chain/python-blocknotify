@@ -8,7 +8,6 @@ from lib.juicychain_env import MULTI_1X
 from lib.juicychain_env import MULTI_2X
 from lib.juicychain_env import MULTI_3X
 # from lib.juicychain_env import MULTI_4X
-from lib.juicychain_env import MULTI_5X
 from lib.juicychain_env import EXPLORER_URL
 from lib.juicychain_env import IMPORT_API_BASE_URL
 from lib.juicychain_env import THIS_NODE_ADDRESS
@@ -235,14 +234,14 @@ for json_batch in batches_no_timestamp:
     import_raw_refresco_batch_integrity_pre_process(THIS_NODE_ADDRESS, json_batch, json_batch['id'])
     juicychain_certificate_address_creation(THIS_NODE_ADDRESS, json_batch, json_batch['id'])
 
-certs_no_addy = getCertsNoAddy()
+certificates_no_timestamp = juicychain.get_certificates_no_timestamp()
 
-for cert in certs_no_addy:
-    offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(THIS_NODE_ADDRESS, cert)
-    url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + str(cert['id']) + "/"
+for certificate in certificates_no_timestamp:
+    offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(THIS_NODE_ADDRESS, certificate)
+    url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + str(certificate['id']) + "/"
     data = {"raddress": offline_wallet['address'], "pubkey": offline_wallet['pubkey']}
     juicychain.patchWrapper(url, data=data)
     # TODO try/block
-    txid = juicychain.sendtoaddressWrapper(offline_wallet['address'], SCRIPT_VERSION, MULTI_5X)
-    print("Funding tx " + txid)
+    funding_txid = juicychain.fund_certificate(offline_wallet['address'])
+    print("Funding tx " + funding_txid)
     # TODO add fundingtx, check for unfunded offline wallets

@@ -16,10 +16,11 @@ from lib.juicychain_env import HOUSEKEEPING_ADDRESS
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
 # from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
-# from lib.juicychain_env import JUICYCHAIN_API_BASE_URL
-# from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
+from lib.juicychain_env import JUICYCHAIN_API_BASE_URL
+from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
 # from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE
 # from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
+from lib.juicychain_env import FUNDING_AMOUNT_CERTIFICATE
 from dotenv import load_dotenv
 from lib import transaction, bitcoin
 from lib import rpclib
@@ -430,6 +431,22 @@ def get_batches_no_timestamp():
 
     print("New batch requires timestamping: " + str(len(batches_no_timestamp)))
     return batches_no_timestamp
+
+
+def get_certificates_no_timestamp():
+    url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
+    try:
+        res = requests.get(url)
+    except Exception as e:
+        raise Exception(e)
+
+    certs_no_addy = json.loads(res.text)
+    return certs_no_addy
+
+
+def fund_certificate(certificate_address):
+    txid = sendtoaddress_wrapper(certificate_address, FUNDING_AMOUNT_CERTIFICATE)
+    return txid
 
 
 def postWrapper(url, data):
