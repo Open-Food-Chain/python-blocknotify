@@ -212,15 +212,6 @@ def juicychain_certificate_address_creation(wallet, data, db_id):
     return item_address['address']
 
 
-def modifyBatchesNullIntegrity(batches_null_integrity):
-    for batch in batches_null_integrity:
-        raw_json = batch
-        id = batch['id']
-        print("starting process for id:", id)
-        import_raw_refresco_batch_integrity_pre_process(THIS_NODE_ADDRESS, raw_json, id)
-        juicychain_certificate_address_creation(THIS_NODE_ADDRESS, raw_json, id)
-
-
 def getCertsNoAddy():
     print("10008 start getting the address less certificates")
 
@@ -240,7 +231,10 @@ def getCertsNoAddy():
 
 
 batches_no_timestamp = juicychain.get_batches_no_timestamp()
-modifyBatchesNullIntegrity(batches_no_timestamp)
+for json_batch in batches_no_timestamp:
+    import_raw_refresco_batch_integrity_pre_process(THIS_NODE_ADDRESS, json_batch, json_batch['id'])
+    juicychain_certificate_address_creation(THIS_NODE_ADDRESS, json_batch, json_batch['id'])
+
 certs_no_addy = getCertsNoAddy()
 
 for cert in certs_no_addy:
