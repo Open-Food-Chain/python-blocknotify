@@ -7,17 +7,13 @@ from lib import juicychain
 from lib.juicychain_env import MULTI_1X
 from lib.juicychain_env import MULTI_2X
 from lib.juicychain_env import MULTI_3X
-# from lib.juicychain_env import MULTI_4X
 from lib.juicychain_env import EXPLORER_URL
 from lib.juicychain_env import IMPORT_API_BASE_URL
 from lib.juicychain_env import THIS_NODE_ADDRESS
-# from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
 from lib.juicychain_env import JUICYCHAIN_API_BASE_URL
-from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
 from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE
-# from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE
 from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
 
 from dotenv import load_dotenv
@@ -209,24 +205,6 @@ def juicychain_certificate_address_creation(wallet, data, db_id):
     print(txid)
 
     return item_address['address']
-
-
-def getCertsNoAddy():
-    print("10008 start getting the address less certificates")
-
-    url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
-    print("10008 trying " + url)
-
-    try:
-        res = requests.get(url)
-    except Exception as e:
-        raise Exception(e)
-
-    certs_no_addy = res.text
-
-    certs_no_addy = json.loads(certs_no_addy)
-
-    return certs_no_addy
 
 
 batches_no_timestamp = juicychain.get_batches_no_timestamp()
