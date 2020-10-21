@@ -37,26 +37,12 @@ from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
 SCRIPT_VERSION = 0.00010021
-script_version = SCRIPT_VERSION
 
 juicychain.connect_node(RPC_USER, RPC_PASSWORD, KOMODO_NODE, RPC_PORT)
 
-# global vars
-# TODO lowercase vars should be deprecated, in favour of import vars from juicychain_env
-rpc_user = RPC_USER
-# rpc_user = "wrong"
-rpc_password = RPC_PASSWORD
-port = RPC_PORT
-komodo_node_ip = KOMODO_NODE
-this_node_address = THIS_NODE_WALLET
-this_node_pubkey = THIS_NODE_PUBKEY
-this_node_wif = THIS_NODE_WIF
-
-
-# rpc_connect = rpc_connection = Proxy("http://%s:%s@127.0.0.1:%d" % (rpc_user, rpc_password, port))
 # TODO f-string https://realpython.com/python-f-strings/
 rpc_connect = rpc_connection = Proxy(
-    "http://" + rpc_user + ":" + rpc_password + "@" + komodo_node_ip + ":" + port)
+    "http://" + RPC_USER + ":" + RPC_PASSWORD + "@" + KOMODO_NODE + ":" + RPC_PORT)
 
 
 juicychain.ismywallet(THIS_NODE_ADDRESS, THIS_NODE_WIF)
@@ -100,7 +86,7 @@ def import_jcf_batch_integrity_pre_process(wallet, data, import_id):
 
     print(id)
 
-    response = rpclib.sendtoaddress(rpc_connect, item_address['address'], script_version)
+    response = rpclib.sendtoaddress(rpc_connect, item_address['address'], SCRIPT_VERSION)
 
     print(response)
 
@@ -171,17 +157,17 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
     res = juicychain.putWrapper(url, data)
 
     try:
-        print("MAIN WALLET " + this_node_address +
+        print("MAIN WALLET " + THIS_NODE_ADDRESS +
               " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), GTIN (anfp)")
-        json_object = {anfp_wallet['address']: script_version, pon_wallet[
-            'address']: script_version, bnfp_wallet['address']: script_version}
+        json_object = {anfp_wallet['address']: SCRIPT_VERSION, pon_wallet[
+            'address']: SCRIPT_VERSION, bnfp_wallet['address']: SCRIPT_VERSION}
 
         # TODO rename to sendmany_txid
-        response = sendtomanyWrapper(this_node_address, json_object)
+        response = sendtomanyWrapper(THIS_NODE_ADDRESS, json_object)
 
         print("** txid ** (Main org wallet sendmany BATCH_LOT/POOL_PO/GTIN): " + response)
         tstx_url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
-        tstx_data = {'sender_raddress': this_node_address,
+        tstx_data = {'sender_raddress': THIS_NODE_ADDRESS,
                      'tsintegrity': id, 'sender_name': 'ORG WALLET', 'txid': response}
         print(tstx_url)
         print(tstx_data)
@@ -239,9 +225,9 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
         exit()
 
     try:
-        if this_node_address == 'RV5GwBpJjTpXJYB5YGxJuZapECQF8Pn6Wy':
+        if THIS_NODE_ADDRESS == 'RV5GwBpJjTpXJYB5YGxJuZapECQF8Pn6Wy':
             JC_ORG_ID = 1
-        if this_node_address == 'RTWAtzNhLRxLot3QB2fv5oXCr5JfZhp5Fy':
+        if THIS_NODE_ADDRESS == 'RTWAtzNhLRxLot3QB2fv5oXCr5JfZhp5Fy':
             JC_ORG_ID = 2
         print("Push data from import-api to juicychain-api for batch_lot")
 
@@ -262,7 +248,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
         # TODO update import api with batch id in jcapi
 
         # send post integrity tx
-        response = rpclib.sendtoaddress(rpc_connect, item_address['address'], script_version * 3)
+        response = rpclib.sendtoaddress(rpc_connect, item_address['address'], SCRIPT_VERSION * 3)
         print("** txid ** (Timestamp integrity end): " + response)
         url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + id + "/"
         data = {'name': 'chris', 'integrity_address': item_address['address'],
@@ -309,7 +295,7 @@ def juicychain_certificate_address_creation(wallet, data, db_id):
 
     # print(id)
 
-    response = rpclib.sendtoaddress(rpc_connect, item_address['address'], script_version)
+    response = rpclib.sendtoaddress(rpc_connect, item_address['address'], SCRIPT_VERSION)
 
     print(response)
 
@@ -347,8 +333,8 @@ def modifyBatchesNullIntegrity(batches_null_integrity):
         raw_json = batch
         id = batch['id']
         print("starting process for id:", id)
-        import_raw_refresco_batch_integrity_pre_process(this_node_address, raw_json, id)
-        juicychain_certificate_address_creation(this_node_address, raw_json, id)
+        import_raw_refresco_batch_integrity_pre_process(THIS_NODE_ADDRESS, raw_json, id)
+        juicychain_certificate_address_creation(THIS_NODE_ADDRESS, raw_json, id)
 
 
 def getCertsNoAddy():
@@ -488,7 +474,7 @@ def test_explorer_get_utxos():
 
 
 def test_gen_Wallet():
-    test = gen_wallet(this_node_address, "testtest")
+    test = gen_wallet(THIS_NODE_ADDRESS, "testtest")
     assert type("test") == type(test['address'])
     assert test['address'][0] == 'R'
 
@@ -505,17 +491,17 @@ def test_getBatchesNullIntegrity():
 
 def test_import_jcf_batch_integrity_pre_process():
     data = {'this': 'is', 'test': 'data'}
-    test = import_jcf_batch_integrity_pre_process(this_node_address, data, "001")
+    test = import_jcf_batch_integrity_pre_process(THIS_NODE_ADDRESS, data, "001")
     assert is_json(test) == True
 
 
 def test_sendtoaddressWrapper():
-    test = sendtoaddressWrapper(this_node_address, 1)
+    test = sendtoaddressWrapper(THIS_NODE_ADDRESS, 1)
     assert not (" " in test)
 
 
 def test_sendtomanyWrapper():
-    json_object = {this_node_address: script_version}
-    test = sendtomanyWrapper(this_node_address, json_object)
+    json_object = {THIS_NODE_ADDRESS: SCRIPT_VERSION}
+    test = sendtomanyWrapper(THIS_NODE_ADDRESS, json_object)
     print(test)
     assert not (" " in test)
