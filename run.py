@@ -6,10 +6,10 @@ import json
 # import pytest
 # import os
 from lib import juicychain
-from lib.juicychain_env import MULTI_1X
+# from lib.juicychain_env import MULTI_1X
 from lib.juicychain_env import MULTI_2X
 from lib.juicychain_env import MULTI_3X
-from lib.juicychain_env import MULTI_4X
+# from lib.juicychain_env import MULTI_4X
 from lib.juicychain_env import MULTI_5X
 from lib.juicychain_env import KOMODO_NODE
 from lib.juicychain_env import RPC_USER
@@ -18,13 +18,9 @@ from lib.juicychain_env import RPC_PORT
 from lib.juicychain_env import EXPLORER_URL
 from lib.juicychain_env import IMPORT_API_BASE_URL
 from lib.juicychain_env import THIS_NODE_ADDRESS
-from lib.juicychain_env import THIS_NODE_WALLET
-from lib.juicychain_env import THIS_NODE_PUBKEY
 from lib.juicychain_env import THIS_NODE_WIF
 from lib.juicychain_env import BLOCKNOTIFY_CHAINSYNC_LIMIT
 from lib.juicychain_env import HOUSEKEEPING_ADDRESS
-from lib.juicychain_env import DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH
-# from lib.juicychain_env import DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
@@ -37,6 +33,9 @@ from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
 SCRIPT_VERSION = 0.00010021
+URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
+URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
+URL_JUICYCHAIN_API_ORGANIZATION_BATCH = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_BATCH
 
 # TODO f-string https://realpython.com/python-f-strings/
 rpc_connect = rpc_connection = Proxy(
@@ -49,11 +48,14 @@ hk_txid = juicychain.sendtoaddressWrapper(HOUSEKEEPING_ADDRESS, SCRIPT_VERSION, 
 print(hk_txid)
 
 
+def getCertificateForTest(url):
+    return juicychain.getWrapper(url)
+
+
 # TODO what does this do?
 def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
 
-    print("10009 Import API - Raw Refresco Pre Process")
-
+    data = json.dumps(data)
     PDS = data['pds']
     JDS = data['jds']
     JDE = data['jde']
@@ -62,41 +64,32 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
     ANFP = data['anfp']
     PON = data['pon']
     BNFP = data['bnfp']
-
     anfp_wallet = juicychain.gen_wallet(wallet, ANFP, "anfp")
     pon_wallet = juicychain.gen_wallet(wallet, PON, "pon")
     bnfp_wallet = juicychain.gen_wallet(wallet, BNFP, "bnfp")
+    integrity_address = juicychain.gen_wallet(wallet, data)
 
-    data = json.dumps(data)
+    print("Timestamp-integrity raddress: " + integrity_address['address'])
 
-    item_address = juicychain.gen_wallet(wallet, data)
-
-    print("Timestamp-integrity raddress: " + item_address['address'])
-
-    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
-
-    print(url)
-
-    data = {'name': 'chris', 'integrity_address': item_address[
+    data = {'name': 'chris', 'integrity_address': integrity_address[
         'address'], 'batch': import_id, 'batch_lot_raddress': bnfp_wallet['address']}
 
-    print(data)
+    batch_wallets_update_response = juicychain.postWrapper(URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH, data)
 
-    res = juicychain.postWrapper(url, data)
+    print("POST response: " + batch_wallets_update_response)
 
-    print("POST response: " + res)
+    id = json.loads(batch_wallets_update_response)['id']
 
-    id = json.loads(res)['id']
+    integrity_start_txid = juicychain.sendtoaddressWrapper(integrity_address['address'], SCRIPT_VERSION, MULTI_2X)
 
-    response = juicychain.sendtoaddressWrapper(item_address['address'], SCRIPT_VERSION, MULTI_2X)
+    print("** txid ** (Timestamp integrity start): " + integrity_start_txid)
 
-    print("** txid ** (Timestamp integrity start): " + response)
+    batch_integrity_url = URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + id + "/"
+    data = {'name': 'chris', 'integrity_address': integrity_address[
+        'address'], 'integrity_pre_tx': integrity_start_txid, 'batch_lot_raddress': bnfp_wallet['address']}
 
-    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + id + "/"
-    data = {'name': 'chris', 'integrity_address': item_address[
-        'address'], 'integrity_pre_tx': response, 'batch_lot_raddress': bnfp_wallet['address']}
-
-    res = juicychain.putWrapper(url, data)
+    batch_integrity_start_response = juicychain.putWrapper(batch_integrity_url, data)
+    print(batch_integrity_start_response)
 
     try:
         print("MAIN WALLET " + THIS_NODE_ADDRESS +
@@ -104,54 +97,44 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
         json_object = {anfp_wallet['address']: SCRIPT_VERSION, pon_wallet[
             'address']: SCRIPT_VERSION, bnfp_wallet['address']: SCRIPT_VERSION}
 
-        # TODO rename to sendmany_txid
-        response = juicychain.sendmanyWrapper(THIS_NODE_ADDRESS, json_object)
+        sendmany_txid = juicychain.sendmanyWrapper(THIS_NODE_ADDRESS, json_object)
 
-        print("** txid ** (Main org wallet sendmany BATCH_LOT/POOL_PO/GTIN): " + response)
-        tstx_url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
+        print("** txid ** (Main org wallet sendmany BATCH_LOT/POOL_PO/GTIN): " + sendmany_txid)
         tstx_data = {'sender_raddress': THIS_NODE_ADDRESS,
-                     'tsintegrity': id, 'sender_name': 'ORG WALLET', 'txid': response}
-        print(tstx_url)
-        print(tstx_data)
+                     'tsintegrity': id, 'sender_name': 'ORG WALLET', 'txid': sendmany_txid}
 
-        res = juicychain.postWrapper(tstx_url, tstx_data)
+        ts_response = juicychain.postWrapper(URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH, tstx_data)
+        print("POST ts_response: " + ts_response)
 
-        print("POST response: " + res)
-
-        # TODO offline wallets
+        # offline wallets
         test_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + "8/"
         certificate = json.loads(getCertificateForTest(test_url))
         offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(THIS_NODE_ADDRESS, certificate)
-        # TODO get_utxos
+        # get_utxos
         utxos_json = juicychain.explorer_get_utxos(EXPLORER_URL, offline_wallet['address'])
         utxos_obj = json.loads(utxos_json)
         amount = juicychain.utxo_bundle_amount(utxos_obj)
         print("(Not sending this amount atm) Amount of utxo bundle: " + str(amount))
-        # TODO create tx
+        # create tx
         to_address = bnfp_wallet['address']
         num_utxo = 1
         # fee = 0.00005
         fee = 0
         # rawtx_info = juicychain.createrawtx4(utxos_json, num_utxo, to_address, fee)
         rawtx_info = juicychain.createrawtx5(utxos_json, num_utxo, to_address, fee, offline_wallet['address'])
-        # TODO sign tx
+        # sign tx
         signedtx = juicychain.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], offline_wallet['wif'])
-        # TODO broadcast
+        # broadcast
         certificates_txid = juicychain.broadcast_via_explorer(EXPLORER_URL, signedtx)
-        # certificates_txid = workaroundsendWrapper(certificates_rpc_connect, bnfp_wallet['address'], 0.02)
 
         print("** txid ** (Certificate to batch_lot): " + certificates_txid)
         tstx_data = {'sender_raddress': offline_wallet['address'],
                      'tsintegrity': id, 'sender_name': 'CERTIFICATE WALLET', 'txid': certificates_txid}
-        print(tstx_url)
-        print(tstx_data)
 
-        res = juicychain.postWrapper(tstx_url, tstx_data)
-
-        print("POST response: " + res)
+        ts_response = juicychain.postWrapper(URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH, tstx_data)
+        print("POST ts_response: " + ts_response)
 
         print("Push data from import-api to juicychain-api for batch_lot")
-        # print(PDS + JDS + JDE + BBD + PC)
 
     except Exception as e:
         print(e)
@@ -174,31 +157,28 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
         print("Push data from import-api to juicychain-api for batch_lot")
 
         # print(PDS + JDS + JDE + BBD + PC)
-        jcapi_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_BATCH
-        print(jcapi_url)
         data = {'identifier': BNFP, 'jds': JDS, 'jde': JDE, 'date_production_start': PDS,
                 'date_best_before': BBD, 'origin_country': PC, 'raddress': bnfp_wallet['address'],
                 'pubkey': bnfp_wallet['pubkey'], 'organization': JC_ORG_ID}
         print(data)
 
-        res = juicychain.postWrapper(jcapi_url, data=data)  # , headers={"Content-Type": "application/json"})
+        jcapi_response = juicychain.postWrapper(URL_JUICYCHAIN_API_ORGANIZATION_BATCH, data=data)
 
-        print("POST response: " + res)
-        jcapi_batch_id = json.loads(res.text)['id']
+        print("POST jcapi_response: " + jcapi_response)
+        jcapi_batch_id = json.loads(jcapi_response.text)['id']
         print("BATCH ID @ JUICYCHAIN-API: " + str(jcapi_batch_id))
 
         # TODO update import api with batch id in jcapi
 
         # send post integrity tx
-        response = rpclib.sendtoaddress(rpc_connect, item_address['address'], SCRIPT_VERSION * 3)
-        print("** txid ** (Timestamp integrity end): " + response)
-        url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + id + "/"
-        data = {'name': 'chris', 'integrity_address': item_address['address'],
-                'integrity_post_tx': response, 'batch_lot_raddress': bnfp_wallet['address']}
+        integrity_end_txid = juicychain.sendtoaddressWrapper(integrity_address['address'], SCRIPT_VERSION, MULTI_3X)
+        print("** txid ** (Timestamp integrity end): " + integrity_end_txid)
+        data = {'name': 'chris', 'integrity_address': integrity_address['address'],
+                'integrity_post_tx': integrity_end_txid, 'batch_lot_raddress': bnfp_wallet['address']}
 
-        res = juicychain.putWrapper(url, data=data)
+        integrity_end_response = juicychain.putWrapper(batch_integrity_url, data=data)
 
-        print(res)
+        print(integrity_end_response)
         print("** complete **")
 
     except Exception as e:
@@ -297,65 +277,6 @@ def getCertsNoAddy():
     return certs_no_addy
 
 
-def getCertificateForTest(url):
-    return juicychain.getWrapper(url)
-
-
-def offline_wallet_send_housekeeping():
-    test_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + "7/"
-    certificate = json.loads(getCertificateForTest(test_url))
-    offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(THIS_NODE_ADDRESS, certificate)
-    print(offline_wallet)
-    # 1. get utxos for address
-    print("\n#2# Get UTXOs\n")
-    utxos_json = juicychain.explorer_get_utxos(EXPLORER_URL, offline_wallet['address'])
-    to_python = json.loads(utxos_json)
-    print(to_python)
-
-    count = 0
-    list_of_ids = []
-    list_of_vouts = []
-    amount = 0
-
-    for objects in to_python:
-        if (objects['amount']):
-            count = count + 1
-            easy_typeing2 = [objects['vout']]
-            easy_typeing = [objects['txid']]
-            list_of_ids.extend(easy_typeing)
-            list_of_vouts.extend(easy_typeing2)
-            amount = amount + objects['amount']
-
-    amount = round(amount, 10)
-
-    print("\n#3# Create raw tx\n")
-    to_address = HOUSEKEEPING_ADDRESS
-    num_utxo = 1
-    fee = 0.00005
-    rawtx_info = juicychain.createrawtx4(utxos_json, num_utxo, to_address, fee)
-    print(rawtx_info[0]['rawtx'])
-# this is an array: rawtx_info['rawtx', [array utxo amounts req for sig]]
-    print("\n#4# Decode unsigned raw tx\n")
-    decoded = juicychain.decoderawtx(rawtx_info[0]['rawtx'])
-    print()
-    print("#######")
-    print(json.dumps(decoded, indent=2))
-    print("#######")
-    print()
-
-    print("\n#5# Sign tx\n")
-    signedtx = juicychain.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], offline_wallet['wif'])
-    print(signedtx)
-    decoded = juicychain.decoderawtx(signedtx)
-    print("#######")
-    print("signed")
-    print(decoded)
-    print()
-
-    txid = juicychain.broadcast_via_explorer(EXPLORER_URL, signedtx)
-    print(txid)
-
-
 batches_null_integrity = getBatchesNullIntegrity()
 modifyBatchesNullIntegrity(batches_null_integrity)
 certs_no_addy = getCertsNoAddy()
@@ -369,79 +290,3 @@ for cert in certs_no_addy:
     txid = juicychain.sendtoaddressWrapper(offline_wallet['address'], SCRIPT_VERSION, MULTI_5X)
     print("Funding tx " + txid)
     # TODO add fundingtx, check for unfunded offline wallets
-
-
-offline_wallet_send_housekeeping()
-
-
-# the issuer, issue date, expiry date, identifier (not the db id, the
-# certificate serial number / identfier)
-
-
-# integrity/
-
-def is_json(myjson):
-    try:
-        # json_object = json.loads(myjson)
-        json.loads(myjson)
-    except ValueError as e:
-        print(e)
-        return False
-    return True
-
-
-# TEST FUNCTIONS
-
-# @pytest.mark.skip
-
-def test_isMy():
-    test = ismywallet()
-    assert test == True
-
-
-def test_checksync():
-    test = checksync()
-    assert type(10) == type(test)
-
-
-# @pytest.mark.skip
-def test_explorer_get_utxos():
-    try:
-        test = explorer_get_utxos(EXPLORER_URL, "RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW")
-        assert is_json(test) == True
-    except Exception as e:
-        assert e == True
-
-
-def test_gen_Wallet():
-    test = gen_wallet(THIS_NODE_ADDRESS, "testtest")
-    assert type("test") == type(test['address'])
-    assert test['address'][0] == 'R'
-
-
-def test_getCertsNoAddy():
-    test = getCertsNoAddy()
-    assert type(test) == type(['this', 'is', 'an', 'test', 'array'])
-
-
-def test_getBatchesNullIntegrity():
-    test = getBatchesNullIntegrity()
-    assert type(test) == type(['this', 'is', 'an', 'test', 'array'])
-
-
-def test_import_jcf_batch_integrity_pre_process():
-    data = {'this': 'is', 'test': 'data'}
-    test = import_jcf_batch_integrity_pre_process(THIS_NODE_ADDRESS, data, "001")
-    assert is_json(test) == True
-
-
-def test_sendtoaddressWrapper():
-    test = sendtoaddressWrapper(THIS_NODE_ADDRESS, 1)
-    assert not (" " in test)
-
-
-def test_sendtomanyWrapper():
-    json_object = {THIS_NODE_ADDRESS: SCRIPT_VERSION}
-    test = sendtomanyWrapper(THIS_NODE_ADDRESS, json_object)
-    print(test)
-    assert not (" " in test)

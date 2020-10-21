@@ -1,3 +1,25 @@
+# from lib.juicychain_env import MULTI_1X
+from lib.juicychain_env import MULTI_2X
+# from lib.juicychain_env import MULTI_3X
+# from lib.juicychain_env import MULTI_4X
+# from lib.juicychain_env import MULTI_5X
+# from lib.juicychain_env import KOMODO_NODE
+# from lib.juicychain_env import RPC_USER
+# from lib.juicychain_env import RPC_PASSWORD
+# from lib.juicychain_env import RPC_PORT
+from lib.juicychain_env import EXPLORER_URL
+from lib.juicychain_env import IMPORT_API_BASE_URL
+from lib.juicychain_env import THIS_NODE_ADDRESS
+# from lib.juicychain_env import THIS_NODE_WIF
+# from lib.juicychain_env import BLOCKNOTIFY_CHAINSYNC_LIMIT
+# from lib.juicychain_env import HOUSEKEEPING_ADDRESS
+# from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
+# from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
+from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
+# from lib.juicychain_env import JUICYCHAIN_API_BASE_URL
+# from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
+# from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE
+# from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
 from dotenv import load_dotenv
 from lib import transaction, bitcoin
 from lib import rpclib
@@ -7,6 +29,7 @@ import subprocess
 import requests
 import json
 load_dotenv(verbose=True)
+SCRIPT_VERSION = 0.00012111
 
 RPC = ""
 
@@ -80,7 +103,7 @@ def gen_wallet0(wallet, data):
     return item_address
 
 
-def organization_certificate_noraddress(url, org_id, this_node_address):
+def organization_certificate_noraddress(url, org_id, THIS_NODE_ADDRESS):
     try:
         res = requests.get(url)
     except Exception as e:
@@ -101,7 +124,7 @@ def organization_certificate_noraddress(url, org_id, this_node_address):
             "identfier": cert['identifier']
         }
         raw_json = json.dumps(raw_json)
-        addy = gen_wallet(this_node_address, raw_json)
+        addy = gen_wallet(THIS_NODE_ADDRESS, raw_json)
         # id = str(cert['id'])
         # url = IMPORT_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + id + "/"
 
@@ -404,9 +427,11 @@ def getWrapper(url):
         return obj
 
 
+# TEST FUNCTIONS
+
 def test_postWrapperr():
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
-    data = {'sender_raddress': this_node_address,
+    data = {'sender_raddress': THIS_NODE_ADDRESS,
             'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
 
     test = postWrapper(url, data)
@@ -415,9 +440,67 @@ def test_postWrapperr():
 
 def test_putWrapperr():
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
-    data = {'sender_raddress': this_node_address,
+    data = {'sender_raddress': THIS_NODE_ADDRESS,
             'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
 
     test = putWrapper(url, data)
     assert is_json(test) == True
 
+# TEST FUNCTIONS
+
+# @pytest.mark.skip
+
+
+def is_json(myjson):
+    try:
+        json_object = json.loads(myjson)
+    except ValueError as e:
+        return False
+    return True
+
+
+def test_isMy():
+    test = ismywallet()
+    assert test == True
+
+
+def test_checksync():
+    test = checksync()
+    assert type(10) == type(test)
+
+
+# @pytest.mark.skip
+def test_explorer_get_utxos():
+    try:
+        test = explorer_get_utxos(EXPLORER_URL, "RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW")
+        assert is_json(test) == True
+    except Exception as e:
+        assert e == True
+
+
+def test_gen_Wallet():
+    test = gen_wallet(THIS_NODE_ADDRESS, "testtest")
+    assert type("test") == type(test['address'])
+    assert test['address'][0] == 'R'
+
+
+def test_getCertsNoAddy():
+    test = getCertsNoAddy()
+    assert type(test) == type(['this', 'is', 'an', 'test', 'array'])
+
+
+def test_getBatchesNullIntegrity():
+    test = getBatchesNullIntegrity()
+    assert type(test) == type(['this', 'is', 'an', 'test', 'array'])
+
+
+def test_sendtoaddressWrapper():
+    test = sendtoaddressWrapper(THIS_NODE_ADDRESS, 1, MULTI_2X)
+    assert not (" " in test)
+
+
+def test_sendtomanyWrapper():
+    json_object = {THIS_NODE_ADDRESS: SCRIPT_VERSION}
+    test = sendmanyWrapper(THIS_NODE_ADDRESS, json_object)
+    print(test)
+    assert not (" " in test)
