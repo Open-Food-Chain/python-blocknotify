@@ -8,19 +8,21 @@ from lib.juicychain_env import RPC_USER
 from lib.juicychain_env import RPC_PASSWORD
 from lib.juicychain_env import RPC_PORT
 from lib.juicychain_env import EXPLORER_URL
-from lib.juicychain_env import IMPORT_API_BASE_URL
 from lib.juicychain_env import THIS_NODE_ADDRESS
 from lib.juicychain_env import THIS_NODE_WIF
 from lib.juicychain_env import BLOCKNOTIFY_CHAINSYNC_LIMIT
 from lib.juicychain_env import HOUSEKEEPING_ADDRESS
+from lib.juicychain_env import IMPORT_API_BASE_URL
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
-# from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
+from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
 from lib.juicychain_env import JUICYCHAIN_API_BASE_URL
 from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
 # from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE
 # from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
 from lib.juicychain_env import FUNDING_AMOUNT_CERTIFICATE
+from lib.juicychain_env import FUNDING_AMOUNT_TIMESTAMPING_START
+from lib.juicychain_env import FUNDING_AMOUNT_TIMESTAMPING_END
 from dotenv import load_dotenv
 from lib import transaction, bitcoin
 from lib import rpclib
@@ -33,6 +35,7 @@ load_dotenv(verbose=True)
 SCRIPT_VERSION = 0.00012111
 
 RPC = ""
+URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
 
 
 def connect_node():
@@ -486,6 +489,53 @@ def getWrapper(url):
     else:
         obj = json.dumps({"error": res.reason})
         return obj
+
+
+def batch_wallets_generate_timestamping(batchObj, import_id):
+    json_batch = json.dumps(batchObj)
+    # anfp_wallet = gen_wallet(THIS_NODE_ADDRESS, json_batch['anfp'], "anfp")
+    # pon_wallet = gen_wallet(THIS_NODE_ADDRESS, json_batch['pon'], "pon")
+    bnfp_wallet = gen_wallet(THIS_NODE_ADDRESS, batchObj['bnfp'], "bnfp")
+    # pds_wallet = juicychain.gen_wallet(wallet, data['pds'], "pds")
+    # jds_wallet = juicychain.gen_wallet(wallet, data['jds'], "jds")
+    # jde_wallet = juicychain.gen_wallet(wallet, data['jde'], "jde")
+    # bbd_wallet = juicychain.gen_wallet(wallet, data['bbd'], "bbd")
+    # pc_wallet = juicychain.gen_wallet(wallet, data['pc'], "pc")
+    integrity_address = gen_wallet(THIS_NODE_ADDRESS, json_batch, "integrity address")
+    print("Timestamp-integrity raddress: " + integrity_address['address'])
+    data = {'name': 'timestamping',
+            'integrity_address': integrity_address['address'],
+            'batch': import_id,
+            'batch_lot_raddress': bnfp_wallet['address']
+            }
+
+    batch_wallets_update_response = postWrapper(URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH, data)
+    print("POST response: " + batch_wallets_update_response)
+    return json.loads(batch_wallets_update_response)
+
+
+def batch_wallets_timestamping_start(batch_integrity, start_txid):
+    batch_integrity_url = URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + batch_integrity['id'] + "/"
+    print(batch_integrity)
+    batch_integrity['integrity_pre_tx'] = start_txid
+    print(batch_integrity)
+    # data = {'name': 'chris', 'integrity_address': integrity_address[
+    #    'address'], 'integrity_pre_tx': integrity_start_txid, 'batch_lot_raddress': bnfp_wallet['address']}
+
+    batch_integrity_start_response = putWrapper(batch_integrity_url, batch_integrity)
+    return batch_integrity_start_response
+
+
+def batch_wallets_timestamping_end(batch_integrity, end_txid):
+    pass
+
+
+def batch_wallets_fund_integrity_start(integrity_address):
+    return sendtoaddress_wrapper(integrity_address, FUNDING_AMOUNT_TIMESTAMPING_START)
+
+
+def batch_wallets_fund_integrity_end(integrity_address):
+    return sendtoaddress_wrapper(integrity_address, FUNDING_AMOUNT_TIMESTAMPING_END)
 
 
 # TEST FUNCTIONS
