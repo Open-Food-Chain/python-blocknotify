@@ -10,10 +10,10 @@ from lib.juicychain_env import RPC_PORT
 from lib.juicychain_env import EXPLORER_URL
 from lib.juicychain_env import IMPORT_API_BASE_URL
 from lib.juicychain_env import THIS_NODE_ADDRESS
-# from lib.juicychain_env import THIS_NODE_WIF
-# from lib.juicychain_env import BLOCKNOTIFY_CHAINSYNC_LIMIT
-# from lib.juicychain_env import HOUSEKEEPING_ADDRESS
-# from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
+from lib.juicychain_env import THIS_NODE_WIF
+from lib.juicychain_env import BLOCKNOTIFY_CHAINSYNC_LIMIT
+from lib.juicychain_env import HOUSEKEEPING_ADDRESS
+from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
 # from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
 # from lib.juicychain_env import JUICYCHAIN_API_BASE_URL
@@ -41,24 +41,40 @@ def connect_node():
     return True
 
 
-def signmessageWrapper(data):
+def sendtoaddress_wrapper(to_address, amount):
+    send_amount = round(amount, 10)
+    txid = rpclib.sendtoaddress(RPC, to_address, send_amount)
+    return txid
+
+
+def sendmany_wrapper(from_address, recipients_json):
+    txid = rpclib.sendmany(RPC, from_address, recipients_json)
+    return txid
+
+
+def signmessage_wrapper(data):
     signed_data = rpclib.signmessage(RPC, THIS_NODE_ADDRESS, data)
     return signed_data
 
 
+def housekeeping_tx():
+    return sendtoaddress_wrapper(HOUSEKEEPING_ADDRESS, SCRIPT_VERSION)
+
+
 def sendmanyWrapper(from_address, recipients_json):
+    print("Deprecated: use sendmany_wrapper(...)")
     txid = rpclib.sendmany(RPC, from_address, recipients_json)
     return txid
 
 
 def sendtoaddressWrapper(address, amount, amount_multiplier):
-    print("Sending to " + address)
+    print("Deprecated: use sendtoaddress_wrapper")
     send_amount = round(amount * amount_multiplier, 10)  # rounding 10??
     txid = rpclib.sendtoaddress(RPC, address, send_amount)
     return txid
 
 
-def checksync(blocknotify_chainsync_limit):
+def check_sync():
     general_info = rpclib.getinfo(RPC)
     sync = general_info['longestchain'] - general_info['blocks']
 
@@ -69,7 +85,7 @@ def checksync(blocknotify_chainsync_limit):
 
     print(sync)
 
-    if sync >= blocknotify_chainsync_limit:
+    if sync >= BLOCKNOTIFY_CHAINSYNC_LIMIT:
         print('the chain is not synced, try again later')
         exit()
 
@@ -77,13 +93,13 @@ def checksync(blocknotify_chainsync_limit):
     return sync
 
 
-def ismywallet(check_address, check_wif):
+def check_node_wallet():
     # check wallet management
     try:
-        is_mine = rpclib.validateaddress(RPC, check_address)['ismine']
+        is_mine = rpclib.validateaddress(RPC, THIS_NODE_ADDRESS)['ismine']
         if is_mine is False:
-            rpclib.importprivkey(RPC, check_wif)
-        is_mine = rpclib.validateaddress(RPC, check_address)['ismine']
+            rpclib.importprivkey(RPC, THIS_NODE_WIF)
+        is_mine = rpclib.validateaddress(RPC, THIS_NODE_ADDRESS)['ismine']
         return is_mine
     except Exception as e:
         print(e)
@@ -94,16 +110,6 @@ def ismywallet(check_address, check_wif):
         print("# Exiting.")
         print("##")
         exit()
-
-
-def gen_wallet0(wallet, data):
-    print("10007 - Generate an address using %s with data %s" % (wallet, data))
-    signed_data = rpclib.signmessage(RPC, wallet, data)
-    print("10007 - Signed data is %s" % (signed_data))
-    item_address = subprocess.getoutput("php genbothaddresswif.php " + signed_data)
-    print("10007 - Created address %s" % (item_address))
-    # item_address = json.loads(item_address)
-    return item_address
 
 
 def organization_certificate_noraddress(url, org_id, THIS_NODE_ADDRESS):
@@ -138,7 +144,6 @@ def organization_certificate_noraddress(url, org_id, THIS_NODE_ADDRESS):
             raise Exception(e)
 
 
-# TODO f-string
 def explorer_get_utxos(explorer_url, querywallet):
     print("Get UTXO for wallet " + querywallet)
     # INSIGHT_API_KOMODO_ADDRESS_UTXO = "insight-api-komodo/addrs/{querywallet}/utxo"
@@ -153,7 +158,7 @@ def explorer_get_utxos(explorer_url, querywallet):
     return res.text
 
 
-def createrawtx(txids, vouts, to_address, amount):
+def createrawtx_wrapper(txids, vouts, to_address, amount):
     return rpclib.createrawtransaction(RPC, txids, vouts, to_address, amount)
 
 
@@ -161,7 +166,13 @@ def createrawtxwithchange(txids, vouts, to_address, amount, change_address, chan
     return rpclib.createrawtransactionwithchange(RPC, txids, vouts, to_address, amount, change_address, change_amount)
 
 
+def createrawtx(txids, vouts, to_address, amount):
+    print("Deprecated: use createrawtx_wrapper")
+    return rpclib.createrawtransaction(RPC, txids, vouts, to_address, amount)
+
+
 def createrawtx2(utxos_json, num_utxo, to_address):
+    print("Deprecated: use createrawtx4 or createrawtx5")
     utxos = json.loads(utxos_json)
     utxos.reverse()
     count = 0
@@ -188,6 +199,7 @@ def createrawtx2(utxos_json, num_utxo, to_address):
 
 
 def createrawtx3(utxos_json, num_utxo, to_address):
+    print("Deprecated: use createrawtx4 or createrawtx5")
     rawtx_info = []  # return this with rawtx & amounts
     utxos = json.loads(utxos_json)
     utxos.reverse()
@@ -280,8 +292,13 @@ def createrawtx4(utxos_json, num_utxo, to_address, fee):
     return rawtx_info
 
 
+def decoderawtx_wrapper(tx):
+    return rpclib.decoderawtransaction(RPC, tx)
+
+
 def decoderawtx(tx):
-        return rpclib.decoderawtransaction(RPC, tx)
+    print("Deprecated: use decoderawtx_wrapper(tx)")
+    return rpclib.decoderawtransaction(RPC, tx)
 
 
 def signtx(kmd_unsigned_tx_serialized, amounts, wif):
@@ -391,6 +408,30 @@ def utxo_bundle_amount(utxos_obj):
     return amount
 
 
+def get_batches_no_timestamp():
+    print("10009 start import api - raw/refresco")
+    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
+    print("Trying: " + url)
+
+    try:
+        res = requests.get(url)
+    except Exception as e:
+        print("###### REQUIRE INTEGRITY URL ERROR: ", e)
+        print("20201020 - url not sending nice response " + url)
+
+    print(res.text)
+    raw_json = res.text
+    batches_no_timestamp = ""
+
+    try:
+        batches_no_timestamp = json.loads(raw_json)
+    except Exception as e:
+        print("10009 failed to parse to json because of", e)
+
+    print("New batch requires timestamping: " + str(len(batches_no_timestamp)))
+    return batches_no_timestamp
+
+
 def postWrapper(url, data):
     res = requests.post(url, data=data)
     if(res.status_code == 200 | res.status_code == 201):
@@ -462,13 +503,13 @@ def is_json(myjson):
     return True
 
 
-def test_isMy():
-    test = ismywallet()
+def test_check_node_wallet():
+    test = check_node_wallet()
     assert test == True
 
 
-def test_checksync():
-    test = checksync()
+def test_check_sync():
+    test = check_sync()
     assert type(10) == type(test)
 
 
@@ -481,7 +522,7 @@ def test_explorer_get_utxos():
         assert e == True
 
 
-def test_gen_Wallet():
+def test_gen_wallet():
     test = gen_wallet(THIS_NODE_ADDRESS, "testtest")
     assert type("test") == type(test['address'])
     assert test['address'][0] == 'R'
@@ -492,8 +533,8 @@ def test_getCertsNoAddy():
     assert type(test) == type(['this', 'is', 'an', 'test', 'array'])
 
 
-def test_getBatchesNullIntegrity():
-    test = getBatchesNullIntegrity()
+def test_get_batches_no_timestamp():
+    test = get_batches_no_timestamp()
     assert type(test) == type(['this', 'is', 'an', 'test', 'array'])
 
 

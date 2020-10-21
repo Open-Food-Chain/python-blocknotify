@@ -12,10 +12,7 @@ from lib.juicychain_env import MULTI_5X
 from lib.juicychain_env import EXPLORER_URL
 from lib.juicychain_env import IMPORT_API_BASE_URL
 from lib.juicychain_env import THIS_NODE_ADDRESS
-from lib.juicychain_env import THIS_NODE_WIF
-from lib.juicychain_env import BLOCKNOTIFY_CHAINSYNC_LIMIT
-from lib.juicychain_env import HOUSEKEEPING_ADDRESS
-from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
+# from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
 from lib.juicychain_env import JUICYCHAIN_API_BASE_URL
@@ -32,9 +29,9 @@ URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW
 URL_JUICYCHAIN_API_ORGANIZATION_BATCH = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_BATCH
 
 juicychain.connect_node()
-juicychain.ismywallet(THIS_NODE_ADDRESS, THIS_NODE_WIF)
-juicychain.checksync(BLOCKNOTIFY_CHAINSYNC_LIMIT)
-hk_txid = juicychain.sendtoaddressWrapper(HOUSEKEEPING_ADDRESS, SCRIPT_VERSION, MULTI_2X)
+juicychain.check_node_wallet()
+juicychain.check_sync()
+hk_txid = juicychain.housekeeping_tx()
 print(hk_txid)
 
 
@@ -191,7 +188,7 @@ def juicychain_certificate_address_creation(wallet, data, db_id):
 
     data = json.dumps(data)
 
-    signed_data = juicychain.signmessageWrapper(data)
+    signed_data = juicychain.signmessage_wrapper(data)
     item_address = subprocess.getoutput("php genaddressonly.php " + signed_data)
 
     item_address = json.loads(item_address)
@@ -213,32 +210,6 @@ def juicychain_certificate_address_creation(wallet, data, db_id):
     print(txid)
 
     return item_address['address']
-
-
-def getBatchesNullIntegrity():
-    print("10009 start import api - raw/refresco")
-    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
-    print("Trying: " + url)
-
-    try:
-        res = requests.get(url)
-    except Exception as e:
-        print("###### REQUIRE INTEGRITY URL ERROR: ", e)
-        print("20201020 - url not sending nice response " + url)
-
-    print(res.text)
-
-    raw_json = res.text
-
-    batches_null_integrity = ""
-
-    try:
-        batches_null_integrity = json.loads(raw_json)
-    except Exception as e:
-        print("10009 failed to parse to json because of", e)
-
-    print("New batch requires timestamping: " + str(len(batches_null_integrity)))
-    return batches_null_integrity
 
 
 def modifyBatchesNullIntegrity(batches_null_integrity):
@@ -268,8 +239,8 @@ def getCertsNoAddy():
     return certs_no_addy
 
 
-batches_null_integrity = getBatchesNullIntegrity()
-modifyBatchesNullIntegrity(batches_null_integrity)
+batches_no_timestamp = juicychain.get_batches_no_timestamp()
+modifyBatchesNullIntegrity(batches_no_timestamp)
 certs_no_addy = getCertsNoAddy()
 
 for cert in certs_no_addy:
