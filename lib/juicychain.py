@@ -125,6 +125,10 @@ def createrawtx(txids, vouts, to_address, amount):
     return rpclib.createrawtransaction(RPC, txids, vouts, to_address, amount)
 
 
+def createrawtxwithchange(txids, vouts, to_address, amount, change_address, change_amount):
+    return rpclib.createrawtransactionwithchange(RPC, txids, vouts, to_address, amount, change_address, change_amount)
+
+
 def createrawtx2(utxos_json, num_utxo, to_address):
     utxos = json.loads(utxos_json)
     utxos.reverse()
@@ -175,6 +179,39 @@ def createrawtx3(utxos_json, num_utxo, to_address):
     amount = round(amount, 10)
 
     rawtx = createrawtx(txids, vouts, to_address, amount)
+    rawtx_info.append({'rawtx': rawtx})
+    rawtx_info.append({'amounts': amounts})
+    return rawtx_info
+
+
+def createrawtx5(utxos_json, num_utxo, to_address, fee, change_address):
+    rawtx_info = []  # return this with rawtx & amounts
+    utxos = json.loads(utxos_json)
+    utxos.reverse()
+    count = 0
+
+    txids = []
+    vouts = []
+    amounts = []
+    amount = 0
+
+    for objects in utxos:
+        if (objects['amount'] > 0.00005) and count < num_utxo:
+            count = count + 1
+            easy_typeing2 = [objects['vout']]
+            easy_typeing = [objects['txid']]
+            txids.extend(easy_typeing)
+            vouts.extend(easy_typeing2)
+            amount = amount + objects['amount']
+            amounts.extend([objects['satoshis']])
+
+    # TODO be smart with change.
+    change_amount = 0.555
+    amount = round(amount - change_amount, 10)
+    print("AMOUNT")
+    print(amount)
+
+    rawtx = createrawtxwithchange(txids, vouts, to_address, round(amount - fee, 10), change_address, change_amount)
     rawtx_info.append({'rawtx': rawtx})
     rawtx_info.append({'amounts': amounts})
     return rawtx_info

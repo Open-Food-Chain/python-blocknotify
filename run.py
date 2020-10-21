@@ -219,8 +219,10 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, data, import_id):
         # TODO create tx
         to_address = bnfp_wallet['address']
         num_utxo = 1
-        fee = 0.00005
-        rawtx_info = juicychain.createrawtx4(utxos_json, num_utxo, to_address, fee)
+        # fee = 0.00005
+        fee = 0
+        # rawtx_info = juicychain.createrawtx4(utxos_json, num_utxo, to_address, fee)
+        rawtx_info = juicychain.createrawtx5(utxos_json, num_utxo, to_address, fee, offline_wallet['address'])
         # TODO sign tx
         signedtx = juicychain.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], offline_wallet['wif'])
         # TODO broadcast
