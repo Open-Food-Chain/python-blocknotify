@@ -42,17 +42,15 @@ def connect_node(rpc_user, rpc_password, komodo_node_ip, port):
 
 
 def sendmanyWrapper(from_address, recipients_json):
-    response = rpclib.sendmany(RPC, from_address, recipients_json)
-    # response is txid
-    return response
+    txid = rpclib.sendmany(RPC, from_address, recipients_json)
+    return txid
 
 
 def sendtoaddressWrapper(address, amount, amount_multiplier):
     print("Sending to " + address)
     send_amount = round(amount * amount_multiplier, 10)  # rounding 10??
-    response = rpclib.sendtoaddress(RPC, address, send_amount)
-    # response is txid
-    return response
+    txid = rpclib.sendtoaddress(RPC, address, send_amount)
+    return txid
 
 
 def checksync(blocknotify_chainsync_limit):
