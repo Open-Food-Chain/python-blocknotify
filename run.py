@@ -51,7 +51,6 @@ komodo_node_ip = KOMODO_NODE
 this_node_address = THIS_NODE_WALLET
 this_node_pubkey = THIS_NODE_PUBKEY
 this_node_wif = THIS_NODE_WIF
-blocknotify_chainsync_limit = BLOCKNOTIFY_CHAINSYNC_LIMIT
 
 
 # rpc_connect = rpc_connection = Proxy("http://%s:%s@127.0.0.1:%d" % (rpc_user, rpc_password, port))
