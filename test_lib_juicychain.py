@@ -65,7 +65,7 @@ def test_check_sync():
 # @pytest.mark.skip
 def test_explorer_get_utxos():
     try:
-        test = juicychain.explorer_get_utxos(EXPLORER_URL, "RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW")
+        test = juicychain.explorer_get_utxos("RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW")
         assert is_json(test) is True
     except Exception as e:
         assert e is True
