@@ -4,7 +4,6 @@ import json
 from lib import juicychain
 from lib.juicychain_env import EXPLORER_URL
 from lib.juicychain_env import IMPORT_API_BASE_URL
-from lib.juicychain_env import THIS_NODE_ADDRESS
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
 from lib.juicychain_env import JUICYCHAIN_API_BASE_URL
@@ -25,11 +24,10 @@ hk_txid = juicychain.housekeeping_tx()
 print(hk_txid)
 
 
-# TODO what does this do?
-def import_raw_refresco_batch_integrity_pre_process(wallet, batch, import_id):
-
+batches_no_timestamp = juicychain.get_batches_no_timestamp()
+for batch in batches_no_timestamp:
     try:
-        batch_wallets_integrity = juicychain.batch_wallets_generate_timestamping(batch, import_id)
+        batch_wallets_integrity = juicychain.batch_wallets_generate_timestamping(batch, batch['id'])
         tofix_bnfp_wallet = juicychain.gen_wallet(batch['bnfp'], "bnfp")
         # integrity_address, batch_lot_raddress
         id = batch_wallets_integrity['id']
@@ -110,7 +108,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, batch, import_id):
         print("** txid ** (Timestamp integrity end): " + integrity_end_txid)
         juicychain.batch_wallets_timestamping_end(batch_wallets_integrity, integrity_end_txid)
 
-        print("** complete **")
+        print("** complete import timestamping and pushing to public api **")
 
     except Exception as e:
         print(e)
@@ -121,13 +119,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, batch, import_id):
         print("#")
         print("##")
 
-    return
-
-
-batches_no_timestamp = juicychain.get_batches_no_timestamp()
-for batch in batches_no_timestamp:
-    import_raw_refresco_batch_integrity_pre_process(THIS_NODE_ADDRESS, batch, batch['id'])
-
+print("Getting certificates requiring timestamping")
 certificates_no_timestamp = juicychain.get_certificates_no_timestamp()
 
 for certificate in certificates_no_timestamp:
@@ -139,3 +131,5 @@ for certificate in certificates_no_timestamp:
     funding_txid = juicychain.fund_certificate(offline_wallet['address'])
     print("Funding tx " + funding_txid)
     # TODO add fundingtx, check for unfunded offline wallets
+
+print("End of script")
