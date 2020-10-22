@@ -394,23 +394,6 @@ def offlineWalletGenerator_fromObjectData_certificate(objectData):
     return offline_wallet
 
 
-def offlineWalletGenerator_fromObjectData_certificate0(signing_wallet, objectData):
-    print("Deprecated: no need to pass in signing wallet")
-    obj = {
-        "issuer": objectData['issuer'],
-        "issue_date": objectData['date_issue'],
-        "expiry_date": objectData['date_expiry'],
-        "identfier": objectData['identifier']
-    }
-    raw_json = json.dumps(obj)
-    print("libjuicychain->offlineWalletGenerator object data as json: " + raw_json)
-
-    log_label = objectData['identifier']
-    offline_wallet = gen_wallet(raw_json, log_label)
-
-    return offline_wallet
-
-
 def utxo_bundle_amount(utxos_obj):
     count = 0
     list_of_ids = []
