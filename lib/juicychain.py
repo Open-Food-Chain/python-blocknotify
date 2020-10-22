@@ -121,11 +121,8 @@ def organization_certificate_noraddress(url, org_id, THIS_NODE_ADDRESS):
         raise Exception(e)
 
     certs_no_addy = res.text
-
     certs_no_addy = json.loads(certs_no_addy)
-
-
-# the issuer, issue date, expiry date, identifier (not the db id, the certificate serial number / identfier)
+    # the issuer, issue date, expiry date, identifier (not the db id, the certificate serial number / identfier)
 
     for cert in certs_no_addy:
         raw_json = {
@@ -173,63 +170,6 @@ def createrawtx(txids, vouts, to_address, amount):
     return rpclib.createrawtransaction(RPC, txids, vouts, to_address, amount)
 
 
-def createrawtx2(utxos_json, num_utxo, to_address):
-    print("Deprecated: use createrawtx4 or createrawtx5")
-    utxos = json.loads(utxos_json)
-    utxos.reverse()
-    count = 0
-
-    txids = []
-    vouts = []
-    amounts = []
-    amount = 0
-
-    for objects in utxos:
-        print(objects)
-        if (count < num_utxo):
-            count = count + 1
-            easy_typeing2 = [objects['vout']]
-            easy_typeing = [objects['txid']]
-            txids.extend(easy_typeing)
-            vouts.extend(easy_typeing2)
-            amount = amount + objects['amount']
-            amounts.extend([objects['satoshis']])
-
-    amount = round(amount, 10)
-
-    return createrawtx(txids, vouts, to_address, amount)
-
-
-def createrawtx3(utxos_json, num_utxo, to_address):
-    print("Deprecated: use createrawtx4 or createrawtx5")
-    rawtx_info = []  # return this with rawtx & amounts
-    utxos = json.loads(utxos_json)
-    utxos.reverse()
-    count = 0
-
-    txids = []
-    vouts = []
-    amounts = []
-    amount = 0
-
-    for objects in utxos:
-        if (count < num_utxo):
-            count = count + 1
-            easy_typeing2 = [objects['vout']]
-            easy_typeing = [objects['txid']]
-            txids.extend(easy_typeing)
-            vouts.extend(easy_typeing2)
-            amount = amount + objects['amount']
-            amounts.extend([objects['satoshis']])
-
-    amount = round(amount, 10)
-
-    rawtx = createrawtx(txids, vouts, to_address, amount)
-    rawtx_info.append({'rawtx': rawtx})
-    rawtx_info.append({'amounts': amounts})
-    return rawtx_info
-
-
 def createrawtx5(utxos_json, num_utxo, to_address, fee, change_address):
     rawtx_info = []  # return this with rawtx & amounts
     utxos = json.loads(utxos_json)
@@ -251,7 +191,6 @@ def createrawtx5(utxos_json, num_utxo, to_address, fee, change_address):
             amount = amount + objects['amount']
             amounts.extend([objects['satoshis']])
 
-    # TODO be smart with change.
     to_amount = 0.00123
     change_amount = round(amount - fee - to_amount, 10)
     print("AMOUNTS: amount, to_amount, change_amount, fee")
