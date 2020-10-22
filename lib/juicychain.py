@@ -36,6 +36,7 @@ SCRIPT_VERSION = 0.00012111
 
 RPC = ""
 URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
+URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
 
 
 def connect_node():
@@ -514,6 +515,13 @@ def batch_wallets_generate_timestamping(batchObj, import_id):
     return json.loads(batch_wallets_update_response)
 
 
+def batch_wallets_timestamping_update(batch_integrity):
+    batch_integrity_url = URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + batch_integrity['id'] + "/"
+    print(batch_integrity)
+    batch_integrity_response = putWrapper(batch_integrity_url, batch_integrity)
+    return batch_integrity_response
+
+
 def batch_wallets_timestamping_start(batch_integrity, start_txid):
     batch_integrity_url = URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + batch_integrity['id'] + "/"
     print(batch_integrity)
@@ -527,7 +535,10 @@ def batch_wallets_timestamping_start(batch_integrity, start_txid):
 
 
 def batch_wallets_timestamping_end(batch_integrity, end_txid):
-    pass
+    batch_integrity['integrity_post_tx'] = end_txid
+    print(batch_integrity)
+    batch_integrity_end_response = batch_wallets_timestamping_update(batch_integrity)
+    return batch_integrity_end_response
 
 
 def batch_wallets_fund_integrity_start(integrity_address):
@@ -536,6 +547,27 @@ def batch_wallets_fund_integrity_start(integrity_address):
 
 def batch_wallets_fund_integrity_end(integrity_address):
     return sendtoaddress_wrapper(integrity_address, FUNDING_AMOUNT_TIMESTAMPING_END)
+
+
+def organization_send_batch_links(batch_integrity):
+    sample_pool_po = "RWSVFtCJfRH5ErsXJCaz9YNVKx7PijxpoV"
+    sample_pool_batch_lot = "R9X5CBJjmVmJe4a533hemBf6vCW2m3BAqH"
+    print("MAIN WALLET " + THIS_NODE_ADDRESS + " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), POOL_BATCH_LOT")
+    json_object = {sample_pool_po: SCRIPT_VERSION,
+                   sample_pool_batch_lot: SCRIPT_VERSION,
+                   batch_integrity['batch_lot_raddress']: SCRIPT_VERSION
+                   }
+    sendmany_txid = sendmanyWrapper(THIS_NODE_ADDRESS, json_object)
+    return sendmany_txid
+
+
+def timestamping_save_batch_links(id, sendmany_txid):
+        print("** txid ** (Main org wallet sendmany BATCH_LOT/POOL_PO/GTIN): " + sendmany_txid)
+        tstx_data = {'sender_raddress': THIS_NODE_ADDRESS,
+                     'tsintegrity': id, 'sender_name': 'ORG WALLET', 'txid': sendmany_txid}
+        ts_response = postWrapper(URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH, tstx_data)
+        print("POST ts_response: " + ts_response)
+        return ts_response
 
 
 # TEST FUNCTIONS

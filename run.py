@@ -2,7 +2,6 @@ import json
 # import pytest
 # import os
 from lib import juicychain
-from lib.juicychain_env import MULTI_3X
 from lib.juicychain_env import EXPLORER_URL
 from lib.juicychain_env import IMPORT_API_BASE_URL
 from lib.juicychain_env import THIS_NODE_ADDRESS
@@ -39,25 +38,12 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, batch, import_id):
     integrity_start_txid = juicychain.batch_wallets_fund_integrity_start(batch_wallets_integrity['integrity_address'])
     print("** txid ** (Timestamp integrity start): " + integrity_start_txid)
     juicychain.batch_wallets_timestamping_start(batch_wallets_integrity, integrity_start_txid)
-    # sendmany_txid = juicychain.batch_wallets_send_batch_links(batch, batch_wallets)
+    sendmany_txid = juicychain.organization_send_batch_links(batch_wallets_integrity)
     # TODO MYLO UP TO HERE ^^^ TO SENDMANY, THEN UPDATE TSTX TABLE.  THEN OFFLINE WALLETS
     # THEN REMOVE THIS FUNCTION AND MOVE LOGIC DOWN INTO batch LOOP.
+    juicychain.timestamping_save_batch_links(id, sendmany_txid)
 
     try:
-        print("MAIN WALLET " + THIS_NODE_ADDRESS +
-              " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), GTIN (anfp)")
-        json_object = {anfp_wallet['address']: SCRIPT_VERSION, pon_wallet[
-            'address']: SCRIPT_VERSION, bnfp_wallet['address']: SCRIPT_VERSION}
-
-        sendmany_txid = juicychain.sendmanyWrapper(THIS_NODE_ADDRESS, json_object)
-
-        print("** txid ** (Main org wallet sendmany BATCH_LOT/POOL_PO/GTIN): " + sendmany_txid)
-        tstx_data = {'sender_raddress': THIS_NODE_ADDRESS,
-                     'tsintegrity': id, 'sender_name': 'ORG WALLET', 'txid': sendmany_txid}
-
-        ts_response = juicychain.postWrapper(URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH, tstx_data)
-        print("POST ts_response: " + ts_response)
-
         # offline wallets
         test_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + "8/"
         certificate = json.loads(getCertificateForTest(test_url))
@@ -68,7 +54,7 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, batch, import_id):
         amount = juicychain.utxo_bundle_amount(utxos_obj)
         print("(Not sending this amount atm) Amount of utxo bundle: " + str(amount))
         # create tx
-        to_address = bnfp_wallet['address']
+        to_address = batch_wallets_integrity['batch_lot_raddress']
         num_utxo = 1
         # fee = 0.00005
         fee = 0
@@ -108,14 +94,14 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, batch, import_id):
             JC_ORG_ID = 2
         print("Push data from import-api to juicychain-api for batch_lot")
 
-        data = {'identifier': new_import_record['bnfp'],
-                'jds': new_import_record['jds'],
-                'jde': new_import_record['jde'],
-                'date_production_start': new_import_record['pds'],
-                'date_best_before': new_import_record['bbd'],
-                'origin_country': new_import_record['pc'],
-                'raddress': bnfp_wallet['address'],
-                'pubkey': bnfp_wallet['pubkey'],
+        data = {'identifier': batch['bnfp'],
+                'jds': batch['jds'],
+                'jde': batch['jde'],
+                'date_production_start': batch['pds'],
+                'date_best_before': batch['bbd'],
+                'origin_country': batch['pc'],
+                'raddress': batch['address'],
+                'pubkey': batch['pubkey'],
                 'organization': JC_ORG_ID}
         print(data)
 
@@ -128,14 +114,18 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, batch, import_id):
         # TODO update import api with batch id in jcapi
 
         # send post integrity tx
-        integrity_end_txid = juicychain.sendtoaddressWrapper(integrity_address['address'], SCRIPT_VERSION, MULTI_3X)
+        # integrity_end_txid = juicychain.sendtoaddressWrapper(batch_wallets_integrity['integrity_address'], SCRIPT_VERSION, MULTI_3X)
+        # print("** txid ** (Timestamp integrity end): " + integrity_end_txid)
+        # data = {'name': 'chris', 'integrity_address': batch_wallets_integrity['integrity_address'],
+        #        'integrity_post_tx': integrity_end_txid, 'batch_lot_raddress': batch_wallets_integrity['batch_lot_raddress']}
+
+        # integrity_end_response = juicychain.putWrapper(batch_integrity_url, data=data)
+        # print(integrity_end_response)
+
+        integrity_end_txid = juicychain.batch_wallets_fund_integrity_end(batch_wallets_integrity['integrity_address'])
         print("** txid ** (Timestamp integrity end): " + integrity_end_txid)
-        data = {'name': 'chris', 'integrity_address': integrity_address['address'],
-                'integrity_post_tx': integrity_end_txid, 'batch_lot_raddress': bnfp_wallet['address']}
+        juicychain.batch_wallets_timestamping_end(batch_wallets_integrity, integrity_end_txid)
 
-        integrity_end_response = juicychain.putWrapper(batch_integrity_url, data=data)
-
-        print(integrity_end_response)
         print("** complete **")
 
     except Exception as e:
