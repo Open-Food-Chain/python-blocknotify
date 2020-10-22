@@ -25,10 +25,6 @@ hk_txid = juicychain.housekeeping_tx()
 print(hk_txid)
 
 
-def getCertificateForTest(url):
-    return juicychain.getWrapper(url)
-
-
 # TODO what does this do?
 def import_raw_refresco_batch_integrity_pre_process(wallet, batch, import_id):
 
@@ -42,12 +38,12 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, batch, import_id):
     # TODO MYLO UP TO HERE ^^^ TO SENDMANY, THEN UPDATE TSTX TABLE.  THEN OFFLINE WALLETS
     # THEN REMOVE THIS FUNCTION AND MOVE LOGIC DOWN INTO batch LOOP.
     juicychain.timestamping_save_batch_links(id, sendmany_txid)
+    certificate = juicychain.get_certificate_for_batch()
+    offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(certificate)
 
     try:
         # offline wallets
-        test_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + "8/"
-        certificate = json.loads(getCertificateForTest(test_url))
-        offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(THIS_NODE_ADDRESS, certificate)
+        # offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(certificate)
         # get_utxos
         utxos_json = juicychain.explorer_get_utxos(EXPLORER_URL, offline_wallet['address'])
         utxos_obj = json.loads(utxos_json)
@@ -147,7 +143,7 @@ for batch in batches_no_timestamp:
 certificates_no_timestamp = juicychain.get_certificates_no_timestamp()
 
 for certificate in certificates_no_timestamp:
-    offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(THIS_NODE_ADDRESS, certificate)
+    offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(certificate)
     url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + str(certificate['id']) + "/"
     data = {"raddress": offline_wallet['address'], "pubkey": offline_wallet['pubkey']}
     juicychain.patchWrapper(url, data=data)
