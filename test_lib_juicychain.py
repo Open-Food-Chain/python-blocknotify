@@ -1,5 +1,9 @@
 from lib.juicychain_env import EXPLORER_URL
 from lib.juicychain_env import THIS_NODE_ADDRESS
+from lib.juicychain_env import TEST_GEN_WALLET_PASSPHRASE
+from lib.juicychain_env import TEST_GEN_WALLET_ADDRESS
+from lib.juicychain_env import TEST_GEN_WALLET_WIF
+from lib.juicychain_env import TEST_GEN_WALLET_PUBKEY
 from lib import juicychain
 from dotenv import load_dotenv
 import json
@@ -68,9 +72,11 @@ def test_explorer_get_utxos():
 
 
 def test_gen_wallet():
-    test = juicychain.gen_wallet("testtest")
-    assert type("test") == type(test['address'])
-    assert test['address'][0] == 'R'
+    test_wallet = juicychain.gen_wallet(TEST_GEN_WALLET_PASSPHRASE)
+    assert TEST_GEN_WALLET_ADDRESS == test_wallet['address']
+    assert TEST_GEN_WALLET_PUBKEY == test_wallet['pubkey']
+    assert TEST_GEN_WALLET_WIF == test_wallet['wif']
+    assert test_wallet['address'][0] == 'R'
 
 
 def test_get_batches_no_timestamp():
