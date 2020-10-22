@@ -7,7 +7,7 @@ from lib.juicychain_env import KOMODO_NODE
 from lib.juicychain_env import RPC_USER
 from lib.juicychain_env import RPC_PASSWORD
 from lib.juicychain_env import RPC_PORT
-# from lib.juicychain_env import EXPLORER_URL
+from lib.juicychain_env import EXPLORER_URL
 from lib.juicychain_env import THIS_NODE_ADDRESS
 from lib.juicychain_env import THIS_NODE_WIF
 from lib.juicychain_env import BLOCKNOTIFY_CHAINSYNC_LIMIT
@@ -143,12 +143,12 @@ def organization_certificate_noraddress(url, org_id, THIS_NODE_ADDRESS):
             raise Exception(e)
 
 
-def explorer_get_utxos(explorer_url, querywallet):
+def explorer_get_utxos(querywallet):
     print("Get UTXO for wallet " + querywallet)
     # INSIGHT_API_KOMODO_ADDRESS_UTXO = "insight-api-komodo/addrs/{querywallet}/utxo"
     INSIGHT_API_KOMODO_ADDRESS_UTXO = "insight-api-komodo/addrs/" + querywallet + "/utxo"
     try:
-        res = requests.get(explorer_url + INSIGHT_API_KOMODO_ADDRESS_UTXO)
+        res = requests.get(EXPLORER_URL + INSIGHT_API_KOMODO_ADDRESS_UTXO)
     except Exception as e:
         raise Exception(e)
     # vouts = json.loads(res.text)
