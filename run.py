@@ -40,34 +40,23 @@ def import_raw_refresco_batch_integrity_pre_process(wallet, batch, import_id):
     juicychain.timestamping_save_batch_links(id, sendmany_txid)
     certificate = juicychain.get_certificate_for_batch()
     offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(certificate)
-
+    utxos_json = juicychain.explorer_get_utxos(EXPLORER_URL, offline_wallet['address'])
+    utxos_obj = json.loads(utxos_json)
+    amount = juicychain.utxo_bundle_amount(utxos_obj)
+    print("(Not sending this amount atm) Amount of utxo bundle: " + str(amount))
+    to_address = batch_wallets_integrity['batch_lot_raddress']
+    num_utxo = 1
+    # fee = 0.00005
+    fee = 0
+    # rawtx_info = juicychain.createrawtx4(utxos_json, num_utxo, to_address, fee)
+    rawtx_info = juicychain.createrawtx5(utxos_json, num_utxo, to_address, fee, offline_wallet['address'])
+    # sign tx
+    signedtx = juicychain.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], offline_wallet['wif'])
+    # broadcast
+    certificate_txid = juicychain.broadcast_via_explorer(EXPLORER_URL, signedtx)
+    juicychain.timestamping_save_certificate(id, "CERTIFICATE WALLET", offline_wallet, certificate_txid)
     try:
-        # offline wallets
-        # offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(certificate)
-        # get_utxos
-        utxos_json = juicychain.explorer_get_utxos(EXPLORER_URL, offline_wallet['address'])
-        utxos_obj = json.loads(utxos_json)
-        amount = juicychain.utxo_bundle_amount(utxos_obj)
-        print("(Not sending this amount atm) Amount of utxo bundle: " + str(amount))
-        # create tx
-        to_address = batch_wallets_integrity['batch_lot_raddress']
-        num_utxo = 1
-        # fee = 0.00005
-        fee = 0
-        # rawtx_info = juicychain.createrawtx4(utxos_json, num_utxo, to_address, fee)
-        rawtx_info = juicychain.createrawtx5(utxos_json, num_utxo, to_address, fee, offline_wallet['address'])
-        # sign tx
-        signedtx = juicychain.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], offline_wallet['wif'])
-        # broadcast
-        certificates_txid = juicychain.broadcast_via_explorer(EXPLORER_URL, signedtx)
-
-        print("** txid ** (Certificate to batch_lot): " + certificates_txid)
-        tstx_data = {'sender_raddress': offline_wallet['address'],
-                     'tsintegrity': id, 'sender_name': 'CERTIFICATE WALLET', 'txid': certificates_txid}
-
-        ts_response = juicychain.postWrapper(URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH, tstx_data)
-        print("POST ts_response: " + ts_response)
-
+        print("** txid ** (Certificate to batch_lot): " + certificate_txid)
         print("Push data from import-api to juicychain-api for batch_lot")
 
     except Exception as e:

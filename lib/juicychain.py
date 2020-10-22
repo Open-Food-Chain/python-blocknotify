@@ -236,7 +236,7 @@ def createrawtx3(utxos_json, num_utxo, to_address):
 def createrawtx5(utxos_json, num_utxo, to_address, fee, change_address):
     rawtx_info = []  # return this with rawtx & amounts
     utxos = json.loads(utxos_json)
-    utxos.reverse()
+    # utxos.reverse()
     count = 0
 
     txids = []
@@ -255,12 +255,15 @@ def createrawtx5(utxos_json, num_utxo, to_address, fee, change_address):
             amounts.extend([objects['satoshis']])
 
     # TODO be smart with change.
-    change_amount = 0.555
-    amount = round(amount - change_amount, 10)
-    print("AMOUNT")
+    to_amount = 0.00123
+    change_amount = round(amount - fee - to_amount, 10)
+    print("AMOUNTS: amount, to_amount, change_amount, fee")
     print(amount)
+    print(to_amount)
+    print(change_amount)
+    print(fee)
 
-    rawtx = createrawtxwithchange(txids, vouts, to_address, round(amount - fee, 10), change_address, change_amount)
+    rawtx = createrawtxwithchange(txids, vouts, to_address, to_amount, change_address, change_amount)
     rawtx_info.append({'rawtx': rawtx})
     rawtx_info.append({'amounts': amounts})
     return rawtx_info
@@ -362,8 +365,8 @@ def broadcast_via_explorer(explorer_url, signedtx):
         print(e)
 
     print(broadcast_res.text)
-
-    return broadcast_res.text
+    broadcast_res = json.loads(broadcast_res.text)
+    return broadcast_res['txid']
 
 
 def gen_wallet(data, label='NoLabelOK'):
@@ -562,12 +565,22 @@ def organization_send_batch_links(batch_integrity):
 
 
 def timestamping_save_batch_links(id, sendmany_txid):
-        print("** txid ** (Main org wallet sendmany BATCH_LOT/POOL_PO/GTIN): " + sendmany_txid)
-        tstx_data = {'sender_raddress': THIS_NODE_ADDRESS,
-                     'tsintegrity': id, 'sender_name': 'ORG WALLET', 'txid': sendmany_txid}
-        ts_response = postWrapper(URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH, tstx_data)
-        print("POST ts_response: " + ts_response)
-        return ts_response
+    print("** txid ** (Main org wallet sendmany BATCH_LOT/POOL_PO/GTIN): " + sendmany_txid)
+    tstx_data = {'sender_raddress': THIS_NODE_ADDRESS,
+                 'tsintegrity': id, 'sender_name': 'ORG WALLET', 'txid': sendmany_txid}
+    ts_response = postWrapper(URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH, tstx_data)
+    print("POST ts_response: " + ts_response)
+    return ts_response
+
+
+def timestamping_save_certificate(id, sender_name, sender_wallet, certificate_txid):
+    print("** txid ** (Certificate to batch_lot): " + certificate_txid)
+    tstx_data = {'sender_raddress': sender_wallet['address'],
+                 'tsintegrity': id, 'sender_name': sender_name, 'txid': certificate_txid}
+    print(tstx_data)
+    ts_response = postWrapper(URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH, tstx_data)
+    print("POST ts_response: " + ts_response)
+    return ts_response
 
 
 def get_certificate_for_test(url):
