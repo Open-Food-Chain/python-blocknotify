@@ -17,6 +17,7 @@ from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PAT
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
 from lib.juicychain_env import JUICYCHAIN_API_BASE_URL
+from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION
 from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
 from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE
 # from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
@@ -37,6 +38,7 @@ SCRIPT_VERSION = 0.00012111
 RPC = ""
 URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
 URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
+URL_JUICYCHAIN_API_ORGANIZATION = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION
 
 
 def connect_node():
@@ -245,7 +247,7 @@ def createrawtx5(utxos_json, num_utxo, to_address, fee, change_address):
     amount = 0
 
     for objects in utxos:
-        if (objects['amount'] > 0.00005) and count < num_utxo:
+        if (objects['amount'] > 0.00005 and objects['confirmations'] > 2) and count < num_utxo:
             count = count + 1
             easy_typeing2 = [objects['vout']]
             easy_typeing = [objects['txid']]
@@ -493,6 +495,14 @@ def getWrapper(url):
     else:
         obj = json.dumps({"error": res.reason})
         return obj
+
+
+def get_jcapi_organization():
+    print("GET juicychain-api organization query: " + URL_JUICYCHAIN_API_ORGANIZATION + "?raddress=" + THIS_NODE_ADDRESS)
+    res = getWrapper(URL_JUICYCHAIN_API_ORGANIZATION + "?raddress=" + THIS_NODE_ADDRESS)
+    print(res)
+    organizations = json.loads(res)
+    return organizations[0]
 
 
 def batch_wallets_generate_timestamping(batchObj, import_id):
