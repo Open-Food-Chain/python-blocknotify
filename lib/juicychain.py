@@ -1,5 +1,5 @@
 # from lib.juicychain_env import MULTI_1X
-from lib.juicychain_env import MULTI_2X
+# from lib.juicychain_env import MULTI_2X
 # from lib.juicychain_env import MULTI_3X
 # from lib.juicychain_env import MULTI_4X
 # from lib.juicychain_env import MULTI_5X
@@ -7,7 +7,7 @@ from lib.juicychain_env import KOMODO_NODE
 from lib.juicychain_env import RPC_USER
 from lib.juicychain_env import RPC_PASSWORD
 from lib.juicychain_env import RPC_PORT
-from lib.juicychain_env import EXPLORER_URL
+# from lib.juicychain_env import EXPLORER_URL
 from lib.juicychain_env import THIS_NODE_ADDRESS
 from lib.juicychain_env import THIS_NODE_WIF
 from lib.juicychain_env import BLOCKNOTIFY_CHAINSYNC_LIMIT
@@ -20,7 +20,7 @@ from lib.juicychain_env import JUICYCHAIN_API_BASE_URL
 from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION
 from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
 from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE
-# from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
+from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
 from lib.juicychain_env import FUNDING_AMOUNT_CERTIFICATE
 from lib.juicychain_env import FUNDING_AMOUNT_TIMESTAMPING_START
 from lib.juicychain_env import FUNDING_AMOUNT_TIMESTAMPING_END
@@ -39,6 +39,7 @@ RPC = ""
 URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
 URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
 URL_JUICYCHAIN_API_ORGANIZATION = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION
+URL_JUICYCHAIN_API_ORGANIZATION_BATCH = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_BATCH
 
 
 def connect_node():
@@ -66,12 +67,6 @@ def signmessage_wrapper(data):
 
 def housekeeping_tx():
     return sendtoaddress_wrapper(HOUSEKEEPING_ADDRESS, SCRIPT_VERSION)
-
-
-def sendmanyWrapper(from_address, recipients_json):
-    print("Deprecated: use sendmany_wrapper(...)")
-    txid = rpclib.sendmany(RPC, from_address, recipients_json)
-    return txid
 
 
 def sendtoaddressWrapper(address, amount, amount_multiplier):
@@ -570,7 +565,7 @@ def organization_send_batch_links(batch_integrity):
                    sample_pool_batch_lot: SCRIPT_VERSION,
                    batch_integrity['batch_lot_raddress']: SCRIPT_VERSION
                    }
-    sendmany_txid = sendmanyWrapper(THIS_NODE_ADDRESS, json_object)
+    sendmany_txid = sendmany_wrapper(THIS_NODE_ADDRESS, json_object)
     return sendmany_txid
 
 
@@ -603,80 +598,17 @@ def get_certificate_for_batch():
     return certificate
 
 
-# TEST FUNCTIONS
-
-def test_postWrapperr():
-    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
-    data = {'sender_raddress': THIS_NODE_ADDRESS,
-            'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
-
-    test = postWrapper(url, data)
-    assert is_json(test) == True
-
-
-def test_putWrapperr():
-    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
-    data = {'sender_raddress': THIS_NODE_ADDRESS,
-            'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
-
-    test = putWrapper(url, data)
-    assert is_json(test) == True
-
-# TEST FUNCTIONS
-
-# @pytest.mark.skip
-
-
-def is_json(myjson):
-    try:
-        json_object = json.loads(myjson)
-    except ValueError as e:
-        return False
-    return True
-
-
-def test_check_node_wallet():
-    test = check_node_wallet()
-    assert test == True
-
-
-def test_check_sync():
-    test = check_sync()
-    assert type(10) == type(test)
-
-
-# @pytest.mark.skip
-def test_explorer_get_utxos():
-    try:
-        test = explorer_get_utxos(EXPLORER_URL, "RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW")
-        assert is_json(test) == True
-    except Exception as e:
-        assert e == True
-
-
-def test_gen_wallet():
-    test = gen_wallet("testtest")
-    assert type("test") == type(test['address'])
-    assert test['address'][0] == 'R'
-
-
-def test_getCertsNoAddy():
-    test = getCertsNoAddy()
-    assert type(test) == type(['this', 'is', 'an', 'test', 'array'])
-
-
-def test_get_batches_no_timestamp():
-    test = get_batches_no_timestamp()
-    assert type(test) == type(['this', 'is', 'an', 'test', 'array'])
-
-
-def test_sendtoaddressWrapper():
-    test = sendtoaddressWrapper(THIS_NODE_ADDRESS, 1, MULTI_2X)
-    assert not (" " in test)
-
-
-def test_sendtomanyWrapper():
-    json_object = {THIS_NODE_ADDRESS: SCRIPT_VERSION}
-    test = sendmanyWrapper(THIS_NODE_ADDRESS, json_object)
-    print(test)
-    assert not (" " in test)
+def push_batch_data_consumer(jcapi_org_id, batch, batch_wallet):
+        data = {'identifier': batch['bnfp'],
+                'jds': batch['jds'],
+                'jde': batch['jde'],
+                'date_production_start': batch['pds'],
+                'date_best_before': batch['bbd'],
+                'origin_country': batch['pc'],
+                'raddress': batch_wallet['address'],
+                'pubkey': batch_wallet['pubkey'],
+                'organization': jcapi_org_id}
+        jcapi_response = postWrapper(URL_JUICYCHAIN_API_ORGANIZATION_BATCH, data=data)
+        jcapi_batch_id = json.loads(jcapi_response)['id']
+        print("BATCH ID @ JUICYCHAIN-API: " + str(jcapi_batch_id))
+        return jcapi_response

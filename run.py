@@ -73,7 +73,7 @@ for batch in batches_no_timestamp:
         # http://localhost:8999/api/v1/organization/?raddress=RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW
         organization = juicychain.get_jcapi_organization()
         JC_ORG_ID = organization['id']
-        print(JC_ORG_ID)
+        jcapi_batch = juicychain.push_batch_data_consumer(JC_ORG_ID, batch, tofix_bnfp_wallet)
         print(batch)
         print(batch_wallets_integrity)
         data = {'identifier': batch['bnfp'],
@@ -86,24 +86,10 @@ for batch in batches_no_timestamp:
                 'pubkey': tofix_bnfp_wallet['pubkey'],
                 'organization': JC_ORG_ID}
         print(data)
-
         jcapi_response = juicychain.postWrapper(URL_JUICYCHAIN_API_ORGANIZATION_BATCH, data=data)
-
         print("POST jcapi_response: " + jcapi_response)
         jcapi_batch_id = json.loads(jcapi_response)['id']
         print("BATCH ID @ JUICYCHAIN-API: " + str(jcapi_batch_id))
-
-        # TODO update import api with batch id in jcapi
-
-        # send post integrity tx
-        # integrity_end_txid = juicychain.sendtoaddressWrapper(batch_wallets_integrity['integrity_address'], SCRIPT_VERSION, MULTI_3X)
-        # print("** txid ** (Timestamp integrity end): " + integrity_end_txid)
-        # data = {'name': 'chris', 'integrity_address': batch_wallets_integrity['integrity_address'],
-        #        'integrity_post_tx': integrity_end_txid, 'batch_lot_raddress': batch_wallets_integrity['batch_lot_raddress']}
-
-        # integrity_end_response = juicychain.putWrapper(batch_integrity_url, data=data)
-        # print(integrity_end_response)
-
         integrity_end_txid = juicychain.batch_wallets_fund_integrity_end(batch_wallets_integrity['integrity_address'])
         print("** txid ** (Timestamp integrity end): " + integrity_end_txid)
         juicychain.batch_wallets_timestamping_end(batch_wallets_integrity, integrity_end_txid)
