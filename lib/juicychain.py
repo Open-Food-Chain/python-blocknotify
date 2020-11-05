@@ -24,6 +24,7 @@ from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
 from lib.juicychain_env import FUNDING_AMOUNT_CERTIFICATE
 from lib.juicychain_env import FUNDING_AMOUNT_TIMESTAMPING_START
 from lib.juicychain_env import FUNDING_AMOUNT_TIMESTAMPING_END
+from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_PATH
 from dotenv import load_dotenv
 from lib import transaction, bitcoin
 from lib import rpclib
@@ -368,6 +369,7 @@ def get_batches_no_timestamp():
         print("20201020 - url not sending nice response " + url)
 
     print(res.text)
+
     raw_json = res.text
     batches_no_timestamp = ""
 
@@ -379,6 +381,30 @@ def get_batches_no_timestamp():
     print("New batch requires timestamping: " + str(len(batches_no_timestamp)))
     return batches_no_timestamp
 
+#has test
+def get_batches():
+    print("10009 start import api - raw/refresco")
+    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_PATH
+    print("Trying: " + url)
+
+    try:
+        res = requests.get(url)
+    except Exception as e:
+        print("###### REQUIRE INTEGRITY URL ERROR: ", e)
+        print("20201020 - url not sending nice response " + url)
+
+    print(res.text)
+
+    raw_json = res.text
+    batches = ""
+
+    try:
+        batches = json.loads(raw_json)
+    except Exception as e:
+        print("10009 failed to parse to json because of", e)
+
+    print("New batch requires timestamping: " + str(len(batches)))
+    return batches
 
 #has test function
 def get_certificates_no_timestamp():
@@ -445,7 +471,7 @@ def get_jcapi_organization():
         return  organizations[0]
     return organizations
 
-
+#test done
 def batch_wallets_generate_timestamping(batchObj, import_id):
     json_batch = json.dumps(batchObj)
     # anfp_wallet = gen_wallet(json_batch['anfp'], "anfp")
@@ -468,7 +494,7 @@ def batch_wallets_generate_timestamping(batchObj, import_id):
     print("POST response: " + batch_wallets_update_response)
     return json.loads(batch_wallets_update_response)
 
-
+#test done
 def batch_wallets_timestamping_update(batch_integrity):
     batch_integrity_url = URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + batch_integrity['id'] + "/"
     print(batch_integrity)
@@ -476,6 +502,7 @@ def batch_wallets_timestamping_update(batch_integrity):
     return batch_integrity_response
 
 
+#test done
 def batch_wallets_timestamping_start(batch_integrity, start_txid):
     batch_integrity_url = URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + batch_integrity['id'] + "/"
     print(batch_integrity)
@@ -487,18 +514,18 @@ def batch_wallets_timestamping_start(batch_integrity, start_txid):
     batch_integrity_start_response = putWrapper(batch_integrity_url, batch_integrity)
     return batch_integrity_start_response
 
-
+#test done
 def batch_wallets_timestamping_end(batch_integrity, end_txid):
     batch_integrity['integrity_post_tx'] = end_txid
     print(batch_integrity)
     batch_integrity_end_response = batch_wallets_timestamping_update(batch_integrity)
     return batch_integrity_end_response
 
-
+#test done
 def batch_wallets_fund_integrity_start(integrity_address):
     return sendtoaddress_wrapper(integrity_address, FUNDING_AMOUNT_TIMESTAMPING_START)
 
-
+#test done
 def batch_wallets_fund_integrity_end(integrity_address):
     return sendtoaddress_wrapper(integrity_address, FUNDING_AMOUNT_TIMESTAMPING_END)
 
