@@ -161,7 +161,12 @@ def sendmany(rpc_connection, from_account, input_json):
         raise Exception(e)
     return response
 
+# TODO 
+def kvupdate(RPC, kv_key, kv_value, kv_days, kv_passphrase)
+    return txid
 
+def kvsearch(RPC, kv_key):
+    kv_response = rpclib.kvsearch(RPC, kv_key)
 
 def gettransaction(rpc_connection, tx_id):
     transaction_info = rpc_connection.gettransaction(tx_id)

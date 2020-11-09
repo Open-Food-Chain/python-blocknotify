@@ -43,41 +43,57 @@ URL_JUICYCHAIN_API_ORGANIZATION = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGAN
 URL_JUICYCHAIN_API_ORGANIZATION_BATCH = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_BATCH
 
 
-##test done
+# test done
 def connect_node():
     global RPC
     print("Connecting to: " + KOMODO_NODE + ":" + RPC_PORT)
     RPC = Proxy("http://" + RPC_USER + ":" + RPC_PASSWORD + "@" + KOMODO_NODE + ":" + RPC_PORT)
     return True
 
-##test done
+
+def kvupdate_wrapper(kv_key, kv_value, kv_days, kv_passphrase):
+    txid = rpclib.kvupdate(RPC, kv_key, kv_value, kv_days, kv_passphrase)
+    return txid
+
+
+def kvsearch_wrapper(kv_key):
+    kv_response = rpclib.kvsearch(RPC, kv_key)
+    return kv_response
+
+
+# test done
 def sendtoaddress_wrapper(to_address, amount):
     send_amount = round(amount, 10)
     txid = rpclib.sendtoaddress(RPC, to_address, send_amount)
     return txid
 
-##test done
+
+# test done
 def sendmany_wrapper(from_address, recipients_json):
     txid = rpclib.sendmany(RPC, from_address, recipients_json)
     return txid
 
-##test done
+
+# test done
 def signmessage_wrapper(data):
     signed_data = rpclib.signmessage(RPC, THIS_NODE_ADDRESS, data)
     return signed_data
 
-##test done
+
+# test done
 def housekeeping_tx():
     return sendtoaddress_wrapper(HOUSEKEEPING_ADDRESS, SCRIPT_VERSION)
 
-##test done
+
+# test done
 def sendtoaddressWrapper(address, amount, amount_multiplier):
     print("Deprecated: use sendtoaddress_wrapper")
     send_amount = round(amount * amount_multiplier, 10)  # rounding 10??
     txid = rpclib.sendtoaddress(RPC, address, send_amount)
     return txid
 
-##test done
+
+# test done
 def check_sync():
     general_info = rpclib.getinfo(RPC)
     sync = general_info['longestchain'] - general_info['blocks']
@@ -96,7 +112,8 @@ def check_sync():
     print("Chain is synced")
     return sync
 
-##test done
+
+# test done
 def check_node_wallet():
     # check wallet management
     try:
@@ -144,7 +161,8 @@ def organization_certificate_noraddress(url, org_id, THIS_NODE_ADDRESS):
         except Exception as e:
             raise Exception(e)
 
-##test done
+
+# test done
 def explorer_get_utxos(querywallet):
     print("Get UTXO for wallet " + querywallet)
     # INSIGHT_API_KOMODO_ADDRESS_UTXO = "insight-api-komodo/addrs/{querywallet}/utxo"
@@ -159,20 +177,23 @@ def explorer_get_utxos(querywallet):
     return res.text
 
 
-##test done
+# test done
 def createrawtx_wrapper(txids, vouts, to_address, amount):
     return rpclib.createrawtransaction(RPC, txids, vouts, to_address, amount)
 
-##test done
+
+# test done
 def createrawtxwithchange(txids, vouts, to_address, amount, change_address, change_amount):
     return rpclib.createrawtransactionwithchange(RPC, txids, vouts, to_address, amount, change_address, change_amount)
 
-##test done
+
+# test done
 def createrawtx(txids, vouts, to_address, amount):
     print("Deprecated: use createrawtx_wrapper")
     return rpclib.createrawtransaction(RPC, txids, vouts, to_address, amount)
 
-##test done
+
+# test done
 def createrawtx5(utxos_json, num_utxo, to_address, fee, change_address):
     rawtx_info = []  # return this with rawtx & amounts
     utxos = json.loads(utxos_json)
@@ -207,7 +228,8 @@ def createrawtx5(utxos_json, num_utxo, to_address, fee, change_address):
     rawtx_info.append({'amounts': amounts})
     return rawtx_info
 
-##test done
+
+# test done
 def createrawtx4(utxos_json, num_utxo, to_address, fee):
     rawtx_info = []  # return this with rawtx & amounts
     utxos = json.loads(utxos_json)
@@ -238,16 +260,19 @@ def createrawtx4(utxos_json, num_utxo, to_address, fee):
     rawtx_info.append({'amounts': amounts})
     return rawtx_info
 
-##test done
+
+# test done
 def decoderawtx_wrapper(tx):
     return rpclib.decoderawtransaction(RPC, tx)
 
-##test done
+
+# test done
 def decoderawtx(tx):
     print("Deprecated: use decoderawtx_wrapper(tx)")
     return rpclib.decoderawtransaction(RPC, tx)
 
-##test done
+
+# test done
 def signtx(kmd_unsigned_tx_serialized, amounts, wif):
     txin_type, privkey, compressed = bitcoin.deserialize_privkey(wif)
     pubkey = bitcoin.public_key_from_private_key(privkey, compressed)
@@ -307,7 +332,8 @@ def broadcast_via_explorer(explorer_url, signedtx):
     broadcast_res = json.loads(broadcast_res.text)
     return broadcast_res['txid']
 
-##test done
+
+# test done
 def gen_wallet(data, label='NoLabelOK'):
     print("Creating a %s address signing with %s and data %s" % (label, THIS_NODE_ADDRESS, data))
     signed_data = rpclib.signmessage(RPC, THIS_NODE_ADDRESS, data)
@@ -319,7 +345,8 @@ def gen_wallet(data, label='NoLabelOK'):
 
     return new_wallet
 
-#test done
+
+# test done
 def offlineWalletGenerator_fromObjectData_certificate(objectData):
     obj = {
         "issuer": objectData['issuer'],
@@ -335,7 +362,8 @@ def offlineWalletGenerator_fromObjectData_certificate(objectData):
 
     return offline_wallet
 
-#test done
+
+# test done
 def utxo_bundle_amount(utxos_obj):
     count = 0
     list_of_ids = []
@@ -355,8 +383,7 @@ def utxo_bundle_amount(utxos_obj):
     return amount
 
 
-
-##test done
+# test done
 def get_batches_no_timestamp():
     print("10009 start import api - raw/refresco")
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
@@ -381,7 +408,8 @@ def get_batches_no_timestamp():
     print("New batch requires timestamping: " + str(len(batches_no_timestamp)))
     return batches_no_timestamp
 
-#has test
+
+# has test
 def get_batches():
     print("10009 start import api - raw/refresco")
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_PATH
@@ -406,7 +434,8 @@ def get_batches():
     print("New batch requires timestamping: " + str(len(batches)))
     return batches
 
-#has test function
+
+# has test function
 def get_certificates_no_timestamp():
     url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
     try:
@@ -422,7 +451,8 @@ def fund_certificate(certificate_address):
     txid = sendtoaddress_wrapper(certificate_address, FUNDING_AMOUNT_CERTIFICATE)
     return txid
 
-##test done
+
+# test done
 def postWrapper(url, data):
     res = requests.post(url, data=data)
     if(res.status_code == 200 | res.status_code == 201):
@@ -431,7 +461,8 @@ def postWrapper(url, data):
         obj = json.dumps({"error": res.reason})
         return obj
 
-##test done
+
+# test done
 def putWrapper(url, data):
     res = requests.put(url, data=data)
 
@@ -441,7 +472,8 @@ def putWrapper(url, data):
         obj = json.dumps({"error": res.reason})
         return obj
 
-#has test function
+
+# has test function
 def patchWrapper(url, data):
     res = requests.patch(url, data=data)
 
@@ -451,7 +483,8 @@ def patchWrapper(url, data):
         obj = json.dumps({"error": res.reason})
         return obj
 
-#has test function
+
+# has test function
 def getWrapper(url):
     res = requests.get(url)
 
@@ -461,17 +494,20 @@ def getWrapper(url):
         obj = json.dumps({"error": res.reason})
         return obj
 
-#test done
+
+# test done
 def get_jcapi_organization():
     print("GET juicychain-api organization query: " + URL_JUICYCHAIN_API_ORGANIZATION + "?raddress=" + THIS_NODE_ADDRESS)
     res = getWrapper(URL_JUICYCHAIN_API_ORGANIZATION + "?raddress=" + THIS_NODE_ADDRESS)
     print(res)
     organizations = json.loads(res)
+    # TODO E721 do not compare types, use "isinstance()" pep8
     if type(organizations) == type(['d', 'f']):
-        return  organizations[0]
+        return organizations[0]
     return organizations
 
-#test done
+
+# test done
 def batch_wallets_generate_timestamping(batchObj, import_id):
     json_batch = json.dumps(batchObj)
     # anfp_wallet = gen_wallet(json_batch['anfp'], "anfp")
@@ -494,7 +530,8 @@ def batch_wallets_generate_timestamping(batchObj, import_id):
     print("POST response: " + batch_wallets_update_response)
     return json.loads(batch_wallets_update_response)
 
-#test done
+
+# test done
 def batch_wallets_timestamping_update(batch_integrity):
     batch_integrity_url = URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + batch_integrity['id'] + "/"
     print(batch_integrity)
@@ -502,7 +539,7 @@ def batch_wallets_timestamping_update(batch_integrity):
     return batch_integrity_response
 
 
-#test done
+# test done
 def batch_wallets_timestamping_start(batch_integrity, start_txid):
     batch_integrity_url = URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + batch_integrity['id'] + "/"
     print(batch_integrity)
@@ -514,18 +551,21 @@ def batch_wallets_timestamping_start(batch_integrity, start_txid):
     batch_integrity_start_response = putWrapper(batch_integrity_url, batch_integrity)
     return batch_integrity_start_response
 
-#test done
+
+# test done
 def batch_wallets_timestamping_end(batch_integrity, end_txid):
     batch_integrity['integrity_post_tx'] = end_txid
     print(batch_integrity)
     batch_integrity_end_response = batch_wallets_timestamping_update(batch_integrity)
     return batch_integrity_end_response
 
-#test done
+
+# test done
 def batch_wallets_fund_integrity_start(integrity_address):
     return sendtoaddress_wrapper(integrity_address, FUNDING_AMOUNT_TIMESTAMPING_START)
 
-#test done
+
+# test done
 def batch_wallets_fund_integrity_end(integrity_address):
     return sendtoaddress_wrapper(integrity_address, FUNDING_AMOUNT_TIMESTAMPING_END)
 
@@ -561,11 +601,12 @@ def timestamping_save_certificate(id, sender_name, sender_wallet, certificate_tx
     return ts_response
 
 
-#test done
+# test done
 def get_certificate_for_test(url):
     return getWrapper(url)
 
-#test done
+
+# test done
 def get_certificate_for_batch():
     test_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + "8/"
     certificate = json.loads(get_certificate_for_test(test_url))
