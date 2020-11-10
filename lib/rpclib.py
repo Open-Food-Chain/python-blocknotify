@@ -162,11 +162,13 @@ def sendmany(rpc_connection, from_account, input_json):
     return response
 
 # TODO 
-def kvupdate(RPC, kv_key, kv_value, kv_days, kv_passphrase)
+def kvupdate(RPC, kv_key, kv_value, kv_days, kv_passphrase):
+    txid = RPC.kvupdate(kv_key, kv_value, kv_days, kv_passphrase)
     return txid
 
 def kvsearch(RPC, kv_key):
-    kv_response = rpclib.kvsearch(RPC, kv_key)
+    kv_response = RPC.kvsearch(kv_key)
+    return kv_response
 
 def gettransaction(rpc_connection, tx_id):
     transaction_info = rpc_connection.gettransaction(tx_id)
