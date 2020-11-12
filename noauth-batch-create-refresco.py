@@ -56,10 +56,14 @@ def days(date):
 
 
 def create_batches(amount):
+	responselist = []
 	for x in range(0,amount):
 		params = create_random_batch()
 		res = post_batches(params)
-		print(res)
+		res = json.loads(res)
+		responselist = responselist + [ res ]
+	
+	return responselist
 	
 
 def post_batches(params):
@@ -89,7 +93,50 @@ def create_random_batch():
 	print(params)
 	return params
 
+def main():
+	amount = int(sys.argv[1])
+	create_batches(amount)
 
-amount = int(sys.argv[1])
+if __name__ == '__main__':
+    main()
 
-create_batches(amount)
+def properties_test(tests):
+	for test in tests:
+		print(test)
+		assert test['anfp']
+		assert test['dfp']
+		assert test['bnfp']
+		assert test['pds']
+		assert test['pde']
+		assert test['jds']
+		assert test['jde']
+		assert test['bbd']
+		assert test['pc']
+		assert test['pl'] 
+		assert test['rmn']
+		assert test['pon']
+		assert test['pop']
+
+def ids_test(tests):
+	for test in tests:
+		assert test['id']
+
+def test_create_random_batch():
+	test_1 = create_random_batch()
+	test_2 = create_random_batch()
+	assert not test_1 == test_2
+
+	tests = [test_1, test_2]
+	properties_test(tests)
+
+def test_post_random_batch():
+	test_1 = create_random_batch()
+	res = post_batches(test_1)
+	res = json.loads(res)
+	ids_test([res])
+
+
+def test_create_batches():
+	res = create_batches(10)
+	properties_test(res)
+	ids_test(res)
