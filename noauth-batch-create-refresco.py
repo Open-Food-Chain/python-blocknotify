@@ -4,6 +4,7 @@ import random
 import time
 import requests
 import json
+import sys
 from datetime import datetime
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
@@ -53,8 +54,21 @@ def days(date):
 			ret = ret + a 
 	return int(ret)
 
-for x in range(0,1):
+
+def create_batches(amount):
+	for x in range(0,amount):
+		params = create_random_batch()
+		res = post_batches(params)
+		print(res)
+	
+
+def post_batches(params):
 	print(IMPORT_API_BASE_URL)
+	url = IMPORT_API_BASE_URL + "raw/refresco/"
+	res = requests.post(url, data=params)
+	return res.text
+
+def create_random_batch():
 	RANDOM_VAL_ANFP=get_random_number(5)
 	RANDOM_VAL_DFP="100EP PA Apfelsaft naturtrüb NF"
 	RANDOM_VAL_BNFP=make_random_string(10)
@@ -63,7 +77,7 @@ for x in range(0,1):
 	RANDOM_VAL_RMN=11200100520
 	RANDOM_VAL_PON=get_random_number(8)
 	RANDOM_VAL_POP=get_random_number(2)
-	
+
 	PDS=random_date("2020-1-1", "2020-11-15", random.random())
 	PDE=random_date(PDS, "2020-11-15", random.random())
 	BBD=PDE
@@ -71,8 +85,11 @@ for x in range(0,1):
 	JDS=days(PDS)
 	JDE=days(PDE)
 
-	params={ "anfp": RANDOM_VAL_ANFP, "dfp": RANDOM_VAL_DFP, "bnfp": RANDOM_VAL_BNFP, "pds":PDS , "pde":PDE, "jds":JDS, "jde":JDE , "bbd":BBD , "pc": RANDOM_VAL_PC, "pl": RANDOM_VAL_PL, "rmn":RANDOM_VAL_RMN , "pon":RANDOM_VAL_PON , "pop": RANDOM_VAL_POP }
+	params = { "anfp": RANDOM_VAL_ANFP, "dfp": RANDOM_VAL_DFP, "bnfp": RANDOM_VAL_BNFP, "pds":PDS , "pde":PDE, "jds":JDS, "jde":JDE , "bbd":BBD , "pc": RANDOM_VAL_PC, "pl": RANDOM_VAL_PL, "rmn":RANDOM_VAL_RMN, "pon":RANDOM_VAL_PON, "pop":RANDOM_VAL_POP }
 	print(params)
-	url = IMPORT_API_BASE_URL + "raw/refresco/"
-	res = requests.post(url, data=params)
-	print(res.text)
+	return params
+
+
+amount = int(sys.argv[1])
+
+create_batches(amount)
