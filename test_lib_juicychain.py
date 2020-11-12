@@ -16,15 +16,15 @@ SCRIPT_VERSION = 0.00012111
 
 RPC = ""
 
+juicychain.connect_node()
 
 @pytest.fixture(scope="session", autouse=True)
 def execute_before_any_test():
     # your setup code goes here, executed ahead of first test
     juicychain.connect_node()
+    print("here we go")
 
 # TEST FUNCTIONS
-
-
 def test_postWrapperr():
     url = EXPLORER_URL
     data = {'sender_raddress': THIS_NODE_ADDRESS,
