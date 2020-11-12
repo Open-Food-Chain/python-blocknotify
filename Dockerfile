@@ -31,7 +31,7 @@ COPY lib/plugins.py /code/lib
 COPY lib/rpclib.py /code/lib
 COPY lib/juicychain.py /code/lib
 COPY lib/juicychain_env.py /code/lib
-COPY .env /code
+# COPY .env /code
 COPY run.py /code
 WORKDIR /code
 
