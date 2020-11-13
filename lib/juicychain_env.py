@@ -1,6 +1,6 @@
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import os
-load_dotenv(verbose=True)
+# load_dotenv(verbose=True)
 
 MULTI_1X = 1
 MULTI_2X = 2
