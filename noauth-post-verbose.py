@@ -1,4 +1,11 @@
 from lib.juicychain_env import IMPORT_API_BASE_URL
+from lib.juicychain_env import JUICYCHAIN_API_BASE_URL
+from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
+from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE
+from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE
+from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
+from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION
+from lib import juicychain
 import string
 import random
 import time
@@ -10,8 +17,6 @@ import binascii
 from datetime import datetime
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
-
-print(IMPORT_API_BASE_URL)
 
 def str_time_prop(start, end, format, prop):
     """Get a time at a proportion of a range of two formatted times.
@@ -38,6 +43,8 @@ def generate_random_hex(size):
 def random_date(start, end, prop):
 	return str_time_prop(start, end, '%Y-%m-%d', prop)
 
+def random_date_cert(start, end, prop):
+        return str_time_prop(start, end, '%d-%m-%Y', prop)
 
 def make_random_string(length):
 	str = ""
@@ -80,8 +87,8 @@ def post_batches(params):
 def create_random_org():
 	
 	RANDOM_ORG_NAME= get_random_number(1)
-	RANDOM_RADDRESS= "R" + make_random_string(32)
-	RANDOM_PUBKEY= str(b'02' + generate_random_hex(62))[2:-1]
+	RANDOM_RADDRESS= "R" + make_random_string(33)
+	RANDOM_PUBKEY= str(b'02' + generate_random_hex(32))[2:-1]
 
 	#RANDOM_START_DATE=random_date("2020-1-1", "2020-11-15", random.random())
 	#RANDOM_EXPIRY_DATE=random_date(PDS, "2020-11-15", random.random())
@@ -92,12 +99,12 @@ def create_random_org():
 	return params
 
 def create_random_locations(orgid):
-	RANDOM_LOCATION_1_RADDRESS= "R" + make_random_string(32)
-	RANDOM_PUBKEY = str(b'02'+ generate_random_hex(62))[2:-1]
+	RANDOM_LOCATION_1_RADDRESS= "R" + make_random_string(33)
+	RANDOM_PUBKEY = str(b'02'+ generate_random_hex(32))[2:-1]
 	LOCATION_1_NAME = "LOCATION A" + str(get_random_number(3))
 	ORG_ID = orgid
 
-	params = { "name":LOCATION_1_NAME, "pubkey":RANDOM_PUBKEY, "raddress":RANDOM_LOCATION_1_RADDRESS }
+	params = { "name":LOCATION_1_NAME, "pubkey":RANDOM_PUBKEY, "raddress":RANDOM_LOCATION_1_RADDRESS, "organization":ORG_ID }
 	
 	return params
 
@@ -106,27 +113,27 @@ def create_random_certificates(ORG_ID):
 	RANDOM_END_DAY = random_date(RANDOM_START_DAY, "2020-11-15", random.random())
 	RANDOM_CERT_NAME = "CERT " + make_random_string(3)
 	RANDOM_ISSUER_NAME = "USER " + make_random_string(5)
-	RANDOM_PUBKEY = str(b'02'+ generate_random_hex(62))[2:-1]
-	RANDOM_RADDRESS= "R" + make_random_string(32)
+	RANDOM_PUBKEY = str(b'02'+ generate_random_hex(32))[2:-1]
+	RANDOM_RADDRESS= "R" + make_random_string(33)
 	RANDOM_CERT_ID = str(get_random_number(9))
 	
-	params =  { "name":RANDOM_CERT_NAME, "pubkey":RANDOM_PUBKEY, "raddress":RANDOM_RADDRESS, "issuer":RANDOM_ISSUER_NAME, "identifier":RANDOM_CERT_ID, "date_issue": RANDOM_START_DAY, "date_expiry":RANDOM_END_DAY, "organisation":ORG_ID}
+	params =  { "name":RANDOM_CERT_NAME, "pubkey":RANDOM_PUBKEY, "raddress":RANDOM_RADDRESS, "issuer":RANDOM_ISSUER_NAME, "identifier":RANDOM_CERT_ID, "date_issue": RANDOM_START_DAY, "date_expiry":RANDOM_END_DAY, "organization":ORG_ID}
 
 	return params
 
 def create_random_cert_rules(location_raddress, location, CERT_ID):
 	CERT_CONDITION = location_raddress
 	RULE_NAME = "match location " + location
-	RANDOM_PUBKEY = str(b'02'+ generate_random_hex(62))[2:-1]
-	RANDOM_RADDRESS= "R" + make_random_string(32)
+	RANDOM_PUBKEY = str(b'02'+ generate_random_hex(32))[2:-1]
+	RANDOM_RADDRESS= "R" + make_random_string(33)
 	
 	params =  { "name":RULE_NAME, "pubkey":RANDOM_PUBKEY, "raddress":RANDOM_RADDRESS, "condition":CERT_CONDITION, "certificate":CERT_ID }
 
 	return params
 
 def create_random_batches(ORG_ID):
-	RANDOM_PUBKEY = str(b'02'+ generate_random_hex(62))[2:-1]
-	RANDOM_RADDRESS = "R" + make_random_string(32)
+	RANDOM_PUBKEY = str(b'02'+ generate_random_hex(32))[2:-1]
+	RANDOM_RADDRESS = "R" + make_random_string(33)
 	RANDOM_IDENTIFIER = "ID-" + str(get_random_number(7))
 	RANDOM_JDS = str(get_random_number(2))
 	RANDOM_JDE = RANDOM_JDS + str(get_random_number(1))
@@ -134,23 +141,47 @@ def create_random_batches(ORG_ID):
 	BBD_DATE = random_date(RANDOM_START_DAY, "2020-11-15", random.random())
 	ORIGIN_COUNTRY = "DE"
 	
-	params = { "identifier":RANDOM_IDENTIFIER, "jds":RANDOM_JDS, "jde":RANDOM_JDE, "date_production_start":RANDOM_START_DAY, "BB_DATE":BBD_DATE, "origin_country":ORIGIN_COUNTRY, "pubkey":RANDOM_PUBKEY, "raddress":RANDOM_RADDRESS, "organization":ORG_ID }
+	params = { "identifier":RANDOM_IDENTIFIER, "jds":RANDOM_JDS, "jde":RANDOM_JDE, "date_production_start":RANDOM_START_DAY, "date_best_before":BBD_DATE, "origin_country":ORIGIN_COUNTRY, "pubkey":RANDOM_PUBKEY, "raddress":RANDOM_RADDRESS, "organization":ORG_ID }
 
 	return params
-	
+
+def post_to_juicychain_api(url_add, params):
+	url = JUICYCHAIN_API_BASE_URL + url_add
+	print(url)
+
+	res = juicychain.postWrapper(url, params)
+	return res
+
 def main():
+	print(JUICYCHAIN_API_BASE_URL)
 	amount = int(sys.argv[1])
 	for i in range(0, amount):
 		params = create_random_org()
 		print(params)
-		params = create_random_locations(10)
+		res = post_to_juicychain_api(JUICYCHAIN_API_ORGANIZATION, params)
+		print(res)
+		org_id = json.loads(res)['id']
+		params = create_random_locations(org_id)
 		print(params)
-		params = create_random_certificates(10)
+		res = post_to_juicychain_api("location/", params)
+		print(res)
+		params = create_random_certificates(org_id)
 		print(params)
-		params = create_random_cert_rules("R" + make_random_string(32), "R" + make_random_string(32), 123)
+		res = post_to_juicychain_api(JUICYCHAIN_API_ORGANIZATION_CERTIFICATE, params)
+		print(res)
+		res = json.loads(res)
+		cert_id = res['id']
+		cert_raddie = res['raddress']
+		cert_pub = res['pubkey']
+		params = create_random_cert_rules(cert_pub, cert_raddie, cert_id)
 		print(params)
-		params = create_random_batches(10)
+		res = post_to_juicychain_api(JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE, params)
+		print(res)
+		params = create_random_batches(org_id)
 		print(params)
+		res = post_to_juicychain_api(JUICYCHAIN_API_ORGANIZATION_BATCH, params)
+		print(res)
+
 
 if __name__ == '__main__':
     main()
