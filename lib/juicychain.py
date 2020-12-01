@@ -43,6 +43,14 @@ URL_JUICYCHAIN_API_ORGANIZATION = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGAN
 URL_JUICYCHAIN_API_ORGANIZATION_BATCH = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_BATCH
 
 
+#helper mothods
+def is_json(myjson):
+  try:
+    json_object = json.loads(myjson)
+  except ValueError as e:
+    return False
+  return True
+
 # test done
 def connect_node():
     global RPC
@@ -52,6 +60,8 @@ def connect_node():
 
 
 def kvupdate_wrapper(kv_key, kv_value, kv_days, kv_passphrase):
+    if(type(kv_value) == type({"this":"is", "a":"json"})):
+        kv_value = json.dumps(kv_value)
     txid = rpclib.kvupdate(RPC, kv_key, kv_value, kv_days, kv_passphrase)
     return txid
 
