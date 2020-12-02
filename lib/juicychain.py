@@ -43,13 +43,14 @@ URL_JUICYCHAIN_API_ORGANIZATION = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGAN
 URL_JUICYCHAIN_API_ORGANIZATION_BATCH = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_BATCH
 
 
-#helper mothods
+# helper mothods
 def is_json(myjson):
-  try:
-    json_object = json.loads(myjson)
-  except ValueError as e:
-    return False
-  return True
+    try:
+        json_object = json.loads(myjson)
+    except ValueError as e:
+        return False
+    return True
+
 
 # test done
 def connect_node():
@@ -60,7 +61,7 @@ def connect_node():
 
 
 def kvupdate_wrapper(kv_key, kv_value, kv_days, kv_passphrase):
-    if(type(kv_value) == type({"this":"is", "a":"json"})):
+    if(type(kv_value) == type({"this": "is", "a": "json"})):
         kv_value = json.dumps(kv_value)
     txid = rpclib.kvupdate(RPC, kv_key, kv_value, kv_days, kv_passphrase)
     return txid
@@ -134,7 +135,9 @@ def check_node_wallet():
         return is_mine
     except Exception as e:
         print(e)
-        print("## JUICYCHAIN_ERROR ##")
+        print("## CHECK NODE WALLET ERROR ##")
+        print("# Things that could be wrong:")
+        print("# Wallet is not imported on this node or wallet mismatch to env")
         print("# Node is not available. Check debug.log for details")
         print("# If node is rescanning, will take a short while")
         print("# If changing wallet & env, rescan will occur")
