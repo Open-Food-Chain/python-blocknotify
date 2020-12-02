@@ -230,15 +230,19 @@ def createrawtx5(utxos_json, num_utxo, to_address, fee, change_address):
             amount = amount + objects['amount']
             amounts.extend([objects['satoshis']])
 
-    to_amount = 0.00123
-    change_amount = round(amount - fee - to_amount, 10)
-    print("AMOUNTS: amount, to_amount, change_amount, fee")
+    # check this file in commit https://github.com/The-New-Fork/blocknotify-python/commit/f91a148b18840aaf08d7c7736045a8c924bd236b
+    # for to_amount.  When a wallet had no utxos, the resulting change was -0.00123, some sort of mis-naming maybe?
+    #to_amount = 0.00123
+    change_tmp = 0
+    change_amount = round(amount - fee - change_tmp, 10)
+    print("AMOUNTS: amount, #to_amount, change_amount, fee")
     print(amount)
-    print(to_amount)
+    # print(to_amount)
     print(change_amount)
     print(fee)
 
-    rawtx = createrawtxwithchange(txids, vouts, to_address, to_amount, change_address, change_amount)
+    # rawtx = createrawtxwithchange(txids, vouts, to_address, to_amount, change_address, change_amount)
+    rawtx = createrawtxwithchange(txids, vouts, to_address, change_tmp, change_address, change_amount)
     rawtx_info.append({'rawtx': rawtx})
     rawtx_info.append({'amounts': amounts})
     return rawtx_info
