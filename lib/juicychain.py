@@ -93,8 +93,6 @@ def signmessage_wrapper(data):
 
 # test done
 def housekeeping_tx():
-    print(HOUSEKEEPING_RADDRESS)
-    print(SCRIPT_VERSION)
     return sendtoaddress_wrapper(HOUSEKEEPING_RADDRESS, SCRIPT_VERSION)
 
 
