@@ -31,7 +31,7 @@ COPY new_org_wallet /code
 #COPY lib/rpclib.py /code/lib
 #COPY lib/juicychain.py /code/lib
 #COPY lib/juicychain_env.py /code/lib
-COPY lib/* /code/lib
+COPY lib/* /code/lib/
 COPY run.py /code
 WORKDIR /code
 
