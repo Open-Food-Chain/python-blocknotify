@@ -19,19 +19,19 @@ COPY run.sh /code
 COPY genaddressonly.php /code
 COPY genwallet.php /code
 COPY new_org_wallet /code
-COPY lib/transaction.py /code/lib
-COPY lib/bitcoin.py /code/lib
-COPY lib/util.py /code/lib
-COPY lib/i18n.py /code/lib
-COPY lib/version.py /code/lib
-COPY lib/constants.py /code/lib
-COPY lib/keystore.py /code/lib
-COPY lib/mnemonic.py /code/lib
-COPY lib/plugins.py /code/lib
-COPY lib/rpclib.py /code/lib
-COPY lib/juicychain.py /code/lib
-COPY lib/juicychain_env.py /code/lib
-# COPY .env /code
+#COPY lib/transaction.py /code/lib
+#COPY lib/bitcoin.py /code/lib
+#COPY lib/util.py /code/lib
+#COPY lib/i18n.py /code/lib
+#COPY lib/version.py /code/lib
+#COPY lib/constants.py /code/lib
+#COPY lib/keystore.py /code/lib
+#COPY lib/mnemonic.py /code/lib
+#COPY lib/plugins.py /code/lib
+#COPY lib/rpclib.py /code/lib
+#COPY lib/juicychain.py /code/lib
+#COPY lib/juicychain_env.py /code/lib
+COPY lib/* /code/lib
 COPY run.py /code
 WORKDIR /code
 
