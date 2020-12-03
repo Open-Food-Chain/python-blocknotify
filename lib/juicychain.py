@@ -404,7 +404,7 @@ def utxo_bundle_amount(utxos_obj):
 
 # test done
 def get_batches_no_timestamp():
-    print("10009 start import api - raw/refresco")
+    print("10009 start import api - raw/refresco/require_integrity/")
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
     print("Trying: " + url)
 
