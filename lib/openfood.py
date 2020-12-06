@@ -8,10 +8,10 @@ from lib.juicychain_env import RPC_USER
 from lib.juicychain_env import RPC_PASSWORD
 from lib.juicychain_env import RPC_PORT
 from lib.juicychain_env import EXPLORER_URL
-from lib.juicychain_env import THIS_NODE_ADDRESS
+from lib.juicychain_env import THIS_NODE_RADDRESS
 from lib.juicychain_env import THIS_NODE_WIF
 from lib.juicychain_env import BLOCKNOTIFY_CHAINSYNC_LIMIT
-from lib.juicychain_env import HOUSEKEEPING_ADDRESS
+from lib.juicychain_env import HOUSEKEEPING_RADDRESS
 from lib.juicychain_env import IMPORT_API_BASE_URL
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
@@ -43,6 +43,15 @@ URL_JUICYCHAIN_API_ORGANIZATION = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGAN
 URL_JUICYCHAIN_API_ORGANIZATION_BATCH = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_BATCH
 
 
+# helper mothods
+def is_json(myjson):
+    try:
+        json_object = json.loads(myjson)
+    except ValueError as e:
+        return False
+    return True
+
+
 # test done
 def connect_node():
     global RPC
@@ -52,6 +61,8 @@ def connect_node():
 
 
 def kvupdate_wrapper(kv_key, kv_value, kv_days, kv_passphrase):
+    if(type(kv_value) == type({"this": "is", "a": "json"})):
+        kv_value = json.dumps(kv_value)
     txid = rpclib.kvupdate(RPC, kv_key, kv_value, kv_days, kv_passphrase)
     return txid
 
@@ -76,13 +87,13 @@ def sendmany_wrapper(from_address, recipients_json):
 
 # test done
 def signmessage_wrapper(data):
-    signed_data = rpclib.signmessage(RPC, THIS_NODE_ADDRESS, data)
+    signed_data = rpclib.signmessage(RPC, THIS_NODE_RADDRESS, data)
     return signed_data
 
 
 # test done
 def housekeeping_tx():
-    return sendtoaddress_wrapper(HOUSEKEEPING_ADDRESS, SCRIPT_VERSION)
+    return sendtoaddress_wrapper(HOUSEKEEPING_RADDRESS, SCRIPT_VERSION)
 
 
 # test done
@@ -117,14 +128,18 @@ def check_sync():
 def check_node_wallet():
     # check wallet management
     try:
-        is_mine = rpclib.validateaddress(RPC, THIS_NODE_ADDRESS)['ismine']
+        print("Validating wallet with " + THIS_NODE_RADDRESS)
+        is_mine = rpclib.validateaddress(RPC, THIS_NODE_RADDRESS)['ismine']
+        print(is_mine)
         if is_mine is False:
             rpclib.importprivkey(RPC, THIS_NODE_WIF)
-        is_mine = rpclib.validateaddress(RPC, THIS_NODE_ADDRESS)['ismine']
+        is_mine = rpclib.validateaddress(RPC, THIS_NODE_RADDRESS)['ismine']
         return is_mine
     except Exception as e:
         print(e)
-        print("## JUICYCHAIN_ERROR ##")
+        print("## CHECK NODE WALLET ERROR ##")
+        print("# Things that could be wrong:")
+        print("# Wallet is not imported on this node or wallet mismatch to env")
         print("# Node is not available. Check debug.log for details")
         print("# If node is rescanning, will take a short while")
         print("# If changing wallet & env, rescan will occur")
@@ -133,7 +148,7 @@ def check_node_wallet():
         exit()
 
 
-def organization_certificate_noraddress(url, org_id, THIS_NODE_ADDRESS):
+def organization_certificate_noraddress(url, org_id, THIS_NODE_RADDRESS):
     try:
         res = requests.get(url)
     except Exception as e:
@@ -215,15 +230,19 @@ def createrawtx5(utxos_json, num_utxo, to_address, fee, change_address):
             amount = amount + objects['amount']
             amounts.extend([objects['satoshis']])
 
-    to_amount = 0.00123
-    change_amount = round(amount - fee - to_amount, 10)
-    print("AMOUNTS: amount, to_amount, change_amount, fee")
+    # check this file in commit https://github.com/The-New-Fork/blocknotify-python/commit/f91a148b18840aaf08d7c7736045a8c924bd236b
+    # for to_amount.  When a wallet had no utxos, the resulting change was -0.00123, some sort of mis-naming maybe?
+    #to_amount = 0.00123
+    change_tmp = 0
+    change_amount = round(amount - fee - change_tmp, 10)
+    print("AMOUNTS: amount, #to_amount, change_amount, fee")
     print(amount)
-    print(to_amount)
+    # print(to_amount)
     print(change_amount)
     print(fee)
 
-    rawtx = createrawtxwithchange(txids, vouts, to_address, to_amount, change_address, change_amount)
+    # rawtx = createrawtxwithchange(txids, vouts, to_address, to_amount, change_address, change_amount)
+    rawtx = createrawtxwithchange(txids, vouts, to_address, change_tmp, change_address, change_amount)
     rawtx_info.append({'rawtx': rawtx})
     rawtx_info.append({'amounts': amounts})
     return rawtx_info
@@ -335,8 +354,8 @@ def broadcast_via_explorer(explorer_url, signedtx):
 
 # test done
 def gen_wallet(data, label='NoLabelOK'):
-    print("Creating a %s address signing with %s and data %s" % (label, THIS_NODE_ADDRESS, data))
-    signed_data = rpclib.signmessage(RPC, THIS_NODE_ADDRESS, data)
+    print("Creating a %s address signing with %s and data %s" % (label, THIS_NODE_RADDRESS, data))
+    signed_data = rpclib.signmessage(RPC, THIS_NODE_RADDRESS, data)
     print("Signed data is %s" % (signed_data))
     new_wallet_json = subprocess.getoutput("php genwallet.php " + signed_data)
     print("Created wallet %s" % (new_wallet_json))
@@ -385,7 +404,7 @@ def utxo_bundle_amount(utxos_obj):
 
 # test done
 def get_batches_no_timestamp():
-    print("10009 start import api - raw/refresco")
+    print("10009 start import api - raw/refresco/require_integrity/")
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
     print("Trying: " + url)
 
@@ -497,8 +516,8 @@ def getWrapper(url):
 
 # test done
 def get_jcapi_organization():
-    print("GET juicychain-api organization query: " + URL_JUICYCHAIN_API_ORGANIZATION + "?raddress=" + THIS_NODE_ADDRESS)
-    res = getWrapper(URL_JUICYCHAIN_API_ORGANIZATION + "?raddress=" + THIS_NODE_ADDRESS)
+    print("GET juicychain-api organization query: " + URL_JUICYCHAIN_API_ORGANIZATION + "?raddress=" + THIS_NODE_RADDRESS)
+    res = getWrapper(URL_JUICYCHAIN_API_ORGANIZATION + "?raddress=" + THIS_NODE_RADDRESS)
     print(res)
     organizations = json.loads(res)
     # TODO E721 do not compare types, use "isinstance()" pep8
@@ -573,18 +592,18 @@ def batch_wallets_fund_integrity_end(integrity_address):
 def organization_send_batch_links(batch_integrity):
     sample_pool_po = "RWSVFtCJfRH5ErsXJCaz9YNVKx7PijxpoV"
     sample_pool_batch_lot = "R9X5CBJjmVmJe4a533hemBf6vCW2m3BAqH"
-    print("MAIN WALLET " + THIS_NODE_ADDRESS + " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), POOL_BATCH_LOT")
+    print("MAIN WALLET " + THIS_NODE_RADDRESS + " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), POOL_BATCH_LOT")
     json_object = {sample_pool_po: SCRIPT_VERSION,
                    sample_pool_batch_lot: SCRIPT_VERSION,
                    batch_integrity['batch_lot_raddress']: SCRIPT_VERSION
                    }
-    sendmany_txid = sendmany_wrapper(THIS_NODE_ADDRESS, json_object)
+    sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
     return sendmany_txid
 
 
 def timestamping_save_batch_links(id, sendmany_txid):
     print("** txid ** (Main org wallet sendmany BATCH_LOT/POOL_PO/GTIN): " + sendmany_txid)
-    tstx_data = {'sender_raddress': THIS_NODE_ADDRESS,
+    tstx_data = {'sender_raddress': THIS_NODE_RADDRESS,
                  'tsintegrity': id, 'sender_name': 'ORG WALLET', 'txid': sendmany_txid}
     ts_response = postWrapper(URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH, tstx_data)
     print("POST ts_response: " + ts_response)
