@@ -1,12 +1,12 @@
-from lib.juicychain_env import KOMODO_NODE
-from lib.juicychain_env import RPC_USER
-from lib.juicychain_env import RPC_PASSWORD
-from lib.juicychain_env import RPC_PORT
-# from lib.juicychain_env import THIS_NODE_WALLET
-# from lib.juicychain_env import EXPLORER_URL
+from lib.openfood_env import KOMODO_NODE
+from lib.openfood_env import RPC_USER
+from lib.openfood_env import RPC_PASSWORD
+from lib.openfood_env import RPC_PORT
+# from lib.openfood_env import THIS_NODE_WALLET
+# from lib.openfood_env import EXPLORER_URL
 # load all needed vars at top of file only
 
-from lib import juicychain
+from lib import openfood
 from dotenv import load_dotenv
 import json
 import time
@@ -30,10 +30,10 @@ while True:
     for EXPLORER_URL in ["https://blockchain-explorer.thenewfork.staging.do.unchain.io/"]:
 
         print("\n#1# Connect Node\n")
-        juicychain.connect_node(RPC_USER, RPC_PASSWORD, KOMODO_NODE, RPC_PORT)
+        openfood.connect_node(RPC_USER, RPC_PASSWORD, KOMODO_NODE, RPC_PORT)
 
         print("\n#2# Get UTXOs\n")
-        utxos_json = juicychain.explorer_get_utxos(EXPLORER_URL, THIS_NODE_WALLET)
+        utxos_json = openfood.explorer_get_utxos(EXPLORER_URL, THIS_NODE_WALLET)
         final = []
         try:
             utxos_json = json.loads(utxos_json)
@@ -51,11 +51,11 @@ while True:
             print("\n#3# Create raw tx\n")
             to_address = "RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW"
             num_utxo = 50
-            rawtx_info = juicychain.createrawtx3(utxos_json, num_utxo, to_address)
+            rawtx_info = openfood.createrawtx3(utxos_json, num_utxo, to_address)
             print(rawtx_info[0]['rawtx'])
         # this is an array: rawtx_info['rawtx', [array utxo amounts req for sig]]
             print("\n#4# Decode unsigned raw tx\n")
-            decoded = juicychain.decoderawtx(rawtx_info[0]['rawtx'])
+            decoded = openfood.decoderawtx(rawtx_info[0]['rawtx'])
             print()
             print("#######")
             print(json.dumps(decoded, indent=2))
@@ -63,13 +63,13 @@ while True:
             print()
 
             print("\n#5# Sign tx\n")
-            signedtx = juicychain.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], THIS_NODE_WIF)
+            signedtx = openfood.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], THIS_NODE_WIF)
             print(signedtx)
-            decoded = juicychain.decoderawtx(signedtx)
+            decoded = openfood.decoderawtx(signedtx)
             print("#######")
             print("signed")
             print(decoded)
 
-            txid = juicychain.broadcast_via_explorer(EXPLORER_URL, signedtx)
+            txid = openfood.broadcast_via_explorer(EXPLORER_URL, signedtx)
             print(txid)
     time.sleep(time_in_sec)

@@ -1,4 +1,4 @@
-from lib.juicychain_env import IMPORT_API_BASE_URL
+from lib.openfood_env import IMPORT_API_BASE_URL
 import string
 import random
 import time
@@ -38,7 +38,7 @@ def make_random_string(length):
 	str = ""
 	for x in range(0,length):
 		str = str + random.choice(string.ascii_letters)
-	
+
 	return str
 
 def get_random_number(length):
@@ -51,7 +51,7 @@ def days(date):
 		if a == '-':
 			ret = ""
 		else:
-			ret = ret + a 
+			ret = ret + a
 	return int(ret)
 
 
@@ -62,9 +62,9 @@ def create_batches(amount):
 		res = post_batches(params)
 		res = json.loads(res)
 		responselist = responselist + [ res ]
-	
+
 	return responselist
-	
+
 
 def post_batches(params):
 	print(IMPORT_API_BASE_URL)
@@ -112,7 +112,7 @@ def properties_test(tests):
 		assert test['jde']
 		assert test['bbd']
 		assert test['pc']
-		assert test['pl'] 
+		assert test['pl']
 		assert test['rmn']
 		assert test['pon']
 		assert test['pop']

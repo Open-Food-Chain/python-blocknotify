@@ -21,12 +21,12 @@ rpc_connect = rpc_connection = Proxy("http://" + rpc_user + ":" + rpc_password +
 
 this_node_address = os.getenv("THIS_NODE_WALLET")
 
-JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS"))
-JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE"))
+openfood_API_ORGANIZATION_CERTIFICATE_NORADDRESS = str(os.getenv("openfood_API_ORGANIZATION_CERTIFICATE_NORADDRESS"))
+openfood_API_ORGANIZATION_CERTIFICATE = str(os.getenv("openfood_API_ORGANIZATION_CERTIFICATE"))
 
 print("start getting the address less certificates")
 
-url = IMPORT_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
+url = IMPORT_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE_NORADDRESS
 
 def get_address(wallet, data):
     print("Creating an address using %s with data %s" % (wallet, data))
@@ -62,13 +62,13 @@ for cert in certs_no_addy:
     raw_json = json.dumps(raw_json)
     addy = get_address(this_node_address, raw_json)
     id = str(cert['id'])
-    url = IMPORT_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + id + "/"
+    url = IMPORT_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + id + "/"
 
     try:
         data={"raddress": addy['address'], "pubkey": addy['pubkey']}
         res = requests.patch(url, data=data)
     except Exception as e:
         raise Exception(e)
-    
+
 
 # integrity/

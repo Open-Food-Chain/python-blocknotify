@@ -1,16 +1,16 @@
 import json
-from lib import juicychain
+from lib import openfood
 
 
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
 
-juicychain.connect_node()
-# juicychain.check_node_wallet()
+openfood.connect_node()
+# openfood.check_node_wallet()
 
-juicychain.check_sync()
+openfood.check_sync()
 
-#hk_txid = juicychain.housekeeping_tx()
+#hk_txid = openfood.housekeeping_tx()
 
 #print(hk_txid)
 

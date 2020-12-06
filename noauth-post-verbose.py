@@ -1,11 +1,11 @@
-from lib.juicychain_env import IMPORT_API_BASE_URL
-from lib.juicychain_env import JUICYCHAIN_API_BASE_URL
-from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
-from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE
-from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE
-from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
-from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION
-from lib import juicychain
+from lib.openfood_env import IMPORT_API_BASE_URL
+from lib.openfood_env import openfood_API_BASE_URL
+from lib.openfood_env import openfood_API_ORGANIZATION_CERTIFICATE_NORADDRESS
+from lib.openfood_env import openfood_API_ORGANIZATION_CERTIFICATE
+from lib.openfood_env import openfood_API_ORGANIZATION_CERTIFICATE_RULE
+from lib.openfood_env import openfood_API_ORGANIZATION_BATCH
+from lib.openfood_env import openfood_API_ORGANIZATION
+from lib import openfood
 import string
 import random
 import time
@@ -145,29 +145,29 @@ def create_random_batches(ORG_ID):
 
 	return params
 
-def post_to_juicychain_api(url_add, params):
-	url = JUICYCHAIN_API_BASE_URL + url_add
+def post_to_openfood_api(url_add, params):
+	url = openfood_API_BASE_URL + url_add
 	print(url)
 
-	res = juicychain.postWrapper(url, params)
+	res = openfood.postWrapper(url, params)
 	return res
 
 def main():
-	print(JUICYCHAIN_API_BASE_URL)
+	print(openfood_API_BASE_URL)
 	amount = int(sys.argv[1])
 	for i in range(0, amount):
 		params = create_random_org()
 		print(params)
-		res = post_to_juicychain_api(JUICYCHAIN_API_ORGANIZATION, params)
+		res = post_to_openfood_api(openfood_API_ORGANIZATION, params)
 		print(res)
 		org_id = json.loads(res)['id']
 		params = create_random_locations(org_id)
 		print(params)
-		res = post_to_juicychain_api("location/", params)
+		res = post_to_openfood_api("location/", params)
 		print(res)
 		params = create_random_certificates(org_id)
 		print(params)
-		res = post_to_juicychain_api(JUICYCHAIN_API_ORGANIZATION_CERTIFICATE, params)
+		res = post_to_openfood_api(openfood_API_ORGANIZATION_CERTIFICATE, params)
 		print(res)
 		res = json.loads(res)
 		cert_id = res['id']
@@ -175,11 +175,11 @@ def main():
 		cert_pub = res['pubkey']
 		params = create_random_cert_rules(cert_pub, cert_raddie, cert_id)
 		print(params)
-		res = post_to_juicychain_api(JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE, params)
+		res = post_to_openfood_api(openfood_API_ORGANIZATION_CERTIFICATE_RULE, params)
 		print(res)
 		params = create_random_batches(org_id)
 		print(params)
-		res = post_to_juicychain_api(JUICYCHAIN_API_ORGANIZATION_BATCH, params)
+		res = post_to_openfood_api(openfood_API_ORGANIZATION_BATCH, params)
 		print(res)
 
 

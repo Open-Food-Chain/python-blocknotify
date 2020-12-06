@@ -22,14 +22,14 @@ rpc_connect = rpc_connection = Proxy("http://" + rpc_user + ":" + rpc_password +
 this_node_address = os.getenv("THIS_NODE_WALLET")
 this_node_pubkey = os.getenv("THIS_NODE_PUBKEY")
 
-JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE_NORADDRESS = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE_NORADDRESS"))
-JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE"))
-JUICYCHAIN_API_ORGANIZATION_CERTIFICATE = str(os.getenv("JUICYCHAIN_API_ORGANIZATION_CERTIFICATE"))
+openfood_API_ORGANIZATION_CERTIFICATE_RULE_NORADDRESS = str(os.getenv("openfood_API_ORGANIZATION_CERTIFICATE_RULE_NORADDRESS"))
+openfood_API_ORGANIZATION_CERTIFICATE_RULE = str(os.getenv("openfood_API_ORGANIZATION_CERTIFICATE_RULE"))
+openfood_API_ORGANIZATION_CERTIFICATE = str(os.getenv("openfood_API_ORGANIZATION_CERTIFICATE"))
 
 print("start getting the address less certificates")
 
-url = IMPORT_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_RULE_NORADDRESS
-print("http://juicychain-api.thenewfork.staging.do.unchain.io/api/v1/certificate-rule/noraddress/")
+url = IMPORT_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE_RULE_NORADDRESS
+print("http://openfood-api.thenewfork.staging.do.unchain.io/api/v1/certificate-rule/noraddress/")
 
 script_version = 0.00010006
 
@@ -49,7 +49,7 @@ def get_address(wallet, data):
 def create_multisig(addy, cert_id):
     cert_pubkey = ""
     try:
-        url = IMPORT_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + str(cert_id) + '/'
+        url = IMPORT_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + str(cert_id) + '/'
         res = requests.get(url)
         cert_pubkey = json.loads(res.text)['pubkey']
         print(cert_pubkey)
@@ -94,7 +94,7 @@ for cert in certs_no_addy:
         #res = requests.patch(url, data=data)
         print(res.text)
 
-        url = IMPORT_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + str(cert['certificate']) + '/'
+        url = IMPORT_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + str(cert['certificate']) + '/'
         res = requests.get(url)
         cert_address = json.loads(res.text)['raddress']
         json= { addy['address']:script_version, cert_address:script_version }

@@ -29,8 +29,8 @@ COPY lib/keystore.py /code/lib
 COPY lib/mnemonic.py /code/lib
 COPY lib/plugins.py /code/lib
 COPY lib/rpclib.py /code/lib
-COPY lib/juicychain.py /code/lib
-COPY lib/juicychain_env.py /code/lib
+COPY lib/openfood.py /code/lib
+COPY lib/openfood_env.py /code/lib
 # COPY .env /code
 COPY run.py /code
 WORKDIR /code

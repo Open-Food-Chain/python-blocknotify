@@ -1,5 +1,5 @@
 # from lib import rpclib
-from lib import juicychain
+from lib import openfood
 from slickrpc import Proxy
 import os
 from dotenv import load_dotenv
@@ -15,5 +15,5 @@ IMPORT_API_HOST = str(os.getenv("IMPORT_API_HOST"))
 IMPORT_API_PORT = str(os.getenv("IMPORT_API_PORT"))
 IMPORT_API_BASE_URL = IMPORT_API_HOST
 
-wallet_info = juicychain.gen_wallet(rpc_connect, this_node_address, "test")
+wallet_info = openfood.gen_wallet(rpc_connect, this_node_address, "test")
 print(wallet_info)
