@@ -1,30 +1,30 @@
-# from lib.juicychain_env import MULTI_1X
-# from lib.juicychain_env import MULTI_2X
-# from lib.juicychain_env import MULTI_3X
-# from lib.juicychain_env import MULTI_4X
-# from lib.juicychain_env import MULTI_5X
-from lib.juicychain_env import KOMODO_NODE
-from lib.juicychain_env import RPC_USER
-from lib.juicychain_env import RPC_PASSWORD
-from lib.juicychain_env import RPC_PORT
-from lib.juicychain_env import EXPLORER_URL
-from lib.juicychain_env import THIS_NODE_RADDRESS
-from lib.juicychain_env import THIS_NODE_WIF
-from lib.juicychain_env import BLOCKNOTIFY_CHAINSYNC_LIMIT
-from lib.juicychain_env import HOUSEKEEPING_RADDRESS
-from lib.juicychain_env import IMPORT_API_BASE_URL
-from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
-from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
-from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
-from lib.juicychain_env import JUICYCHAIN_API_BASE_URL
-from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION
-from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
-from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE
-from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
-from lib.juicychain_env import FUNDING_AMOUNT_CERTIFICATE
-from lib.juicychain_env import FUNDING_AMOUNT_TIMESTAMPING_START
-from lib.juicychain_env import FUNDING_AMOUNT_TIMESTAMPING_END
-from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_PATH
+# from lib.openfood_env import MULTI_1X
+# from lib.openfood_env import MULTI_2X
+# from lib.openfood_env import MULTI_3X
+# from lib.openfood_env import MULTI_4X
+# from lib.openfood_env import MULTI_5X
+from lib.openfood_env import KOMODO_NODE
+from lib.openfood_env import RPC_USER
+from lib.openfood_env import RPC_PASSWORD
+from lib.openfood_env import RPC_PORT
+from lib.openfood_env import EXPLORER_URL
+from lib.openfood_env import THIS_NODE_RADDRESS
+from lib.openfood_env import THIS_NODE_WIF
+from lib.openfood_env import BLOCKNOTIFY_CHAINSYNC_LIMIT
+from lib.openfood_env import HOUSEKEEPING_RADDRESS
+from lib.openfood_env import IMPORT_API_BASE_URL
+from lib.openfood_env import DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
+from lib.openfood_env import DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
+from lib.openfood_env import DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
+from lib.openfood_env import openfood_API_BASE_URL
+from lib.openfood_env import openfood_API_ORGANIZATION
+from lib.openfood_env import openfood_API_ORGANIZATION_CERTIFICATE_NORADDRESS
+from lib.openfood_env import openfood_API_ORGANIZATION_CERTIFICATE
+from lib.openfood_env import openfood_API_ORGANIZATION_BATCH
+from lib.openfood_env import FUNDING_AMOUNT_CERTIFICATE
+from lib.openfood_env import FUNDING_AMOUNT_TIMESTAMPING_START
+from lib.openfood_env import FUNDING_AMOUNT_TIMESTAMPING_END
+from lib.openfood_env import DEV_IMPORT_API_RAW_REFRESCO_PATH
 from dotenv import load_dotenv
 from lib import transaction, bitcoin
 from lib import rpclib
@@ -39,8 +39,8 @@ SCRIPT_VERSION = 0.00012111
 RPC = ""
 URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
 URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
-URL_JUICYCHAIN_API_ORGANIZATION = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION
-URL_JUICYCHAIN_API_ORGANIZATION_BATCH = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_BATCH
+URL_openfood_API_ORGANIZATION = openfood_API_BASE_URL + openfood_API_ORGANIZATION
+URL_openfood_API_ORGANIZATION_BATCH = openfood_API_BASE_URL + openfood_API_ORGANIZATION_BATCH
 
 
 # helper mothods
@@ -168,7 +168,7 @@ def organization_certificate_noraddress(url, org_id, THIS_NODE_RADDRESS):
         raw_json = json.dumps(raw_json)
         addy = gen_wallet(raw_json)
         # id = str(cert['id'])
-        # url = IMPORT_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + id + "/"
+        # url = IMPORT_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + id + "/"
 
         try:
             data = {"raddress": addy['address'], "pubkey": addy['pubkey']}
@@ -374,7 +374,7 @@ def offlineWalletGenerator_fromObjectData_certificate(objectData):
         "identfier": objectData['identifier']
     }
     raw_json = json.dumps(obj)
-    print("libjuicychain->offlineWalletGenerator object data as json: " + raw_json)
+    print("libopenfood->offlineWalletGenerator object data as json: " + raw_json)
 
     log_label = objectData['identifier']
     offline_wallet = gen_wallet(raw_json, log_label)
@@ -456,7 +456,7 @@ def get_batches():
 
 # has test function
 def get_certificates_no_timestamp():
-    url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE_NORADDRESS
+    url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE_NORADDRESS
     try:
         res = requests.get(url)
     except Exception as e:
@@ -516,8 +516,8 @@ def getWrapper(url):
 
 # test done
 def get_jcapi_organization():
-    print("GET juicychain-api organization query: " + URL_JUICYCHAIN_API_ORGANIZATION + "?raddress=" + THIS_NODE_RADDRESS)
-    res = getWrapper(URL_JUICYCHAIN_API_ORGANIZATION + "?raddress=" + THIS_NODE_RADDRESS)
+    print("GET openfood-api organization query: " + URL_openfood_API_ORGANIZATION + "?raddress=" + THIS_NODE_RADDRESS)
+    res = getWrapper(URL_openfood_API_ORGANIZATION + "?raddress=" + THIS_NODE_RADDRESS)
     print(res)
     organizations = json.loads(res)
     # TODO E721 do not compare types, use "isinstance()" pep8
@@ -532,11 +532,11 @@ def batch_wallets_generate_timestamping(batchObj, import_id):
     # anfp_wallet = gen_wallet(json_batch['anfp'], "anfp")
     # pon_wallet = gen_wallet(json_batch['pon'], "pon")
     bnfp_wallet = gen_wallet(batchObj['bnfp'], "bnfp")
-    # pds_wallet = juicychain.gen_wallet(data['pds'], "pds")
-    # jds_wallet = juicychain.gen_wallet(data['jds'], "jds")
-    # jde_wallet = juicychain.gen_wallet(data['jde'], "jde")
-    # bbd_wallet = juicychain.gen_wallet(data['bbd'], "bbd")
-    # pc_wallet = juicychain.gen_wallet(data['pc'], "pc")
+    # pds_wallet = openfood.gen_wallet(data['pds'], "pds")
+    # jds_wallet = openfood.gen_wallet(data['jds'], "jds")
+    # jde_wallet = openfood.gen_wallet(data['jde'], "jde")
+    # bbd_wallet = openfood.gen_wallet(data['bbd'], "bbd")
+    # pc_wallet = openfood.gen_wallet(data['pc'], "pc")
     integrity_address = gen_wallet(json_batch, "integrity address")
     print("Timestamp-integrity raddress: " + integrity_address['address'])
     data = {'name': 'timestamping',
@@ -627,7 +627,7 @@ def get_certificate_for_test(url):
 
 # test done
 def get_certificate_for_batch():
-    test_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + "8/"
+    test_url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + "8/"
     certificate = json.loads(get_certificate_for_test(test_url))
     return certificate
 
@@ -642,7 +642,7 @@ def push_batch_data_consumer(jcapi_org_id, batch, batch_wallet):
                 'raddress': batch_wallet['address'],
                 'pubkey': batch_wallet['pubkey'],
                 'organization': jcapi_org_id}
-        jcapi_response = postWrapper(URL_JUICYCHAIN_API_ORGANIZATION_BATCH, data=data)
+        jcapi_response = postWrapper(URL_openfood_API_ORGANIZATION_BATCH, data=data)
         jcapi_batch_id = json.loads(jcapi_response)['id']
-        print("BATCH ID @ JUICYCHAIN-API: " + str(jcapi_batch_id))
+        print("BATCH ID @ openfood-API: " + str(jcapi_batch_id))
         return jcapi_response
