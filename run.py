@@ -5,7 +5,6 @@ sentry_dsn = os.getenv('SENTRY_DSN')
 if sentry_dsn:
     sentry_sdk.init(
         sentry_dsn,
-        debug=True,
         environment=os.environ['ENVIRONMENT']
     )
 
