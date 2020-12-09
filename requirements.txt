@@ -5,7 +5,7 @@
 #    pip-compile
 #
 attrs==20.2.0             # via pytest
-certifi==2020.6.20        # via -r requirements.in, requests
+certifi==2020.6.20        # via -r requirements.in, requests, sentry-sdk
 chardet==3.0.4            # via -r requirements.in, requests
 click==7.1.2              # via -r requirements.in, pip-tools
 configobj==5.0.6          # via -r requirements.in, slick-bitcoinrpc
@@ -24,11 +24,12 @@ pyparsing==2.4.7          # via packaging
 pytest==6.1.1             # via -r requirements.in
 python-dotenv==0.14.0     # via -r requirements.in
 requests==2.24.0          # via -r requirements.in
+sentry-sdk==0.19.4        # via -r requirements.in
 six==1.15.0               # via -r requirements.in, configobj, ecdsa, packaging, pip-tools
 slick-bitcoinrpc==0.1.4   # via -r requirements.in
 toml==0.10.1              # via pytest
 ujson==3.2.0              # via -r requirements.in, slick-bitcoinrpc
-urllib3==1.25.10          # via -r requirements.in, requests
+urllib3==1.25.10          # via -r requirements.in, requests, sentry-sdk
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

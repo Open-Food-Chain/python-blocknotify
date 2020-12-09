@@ -2,6 +2,8 @@ import json
 # import pytest
 # import os
 from lib import juicychain
+import sentry_sdk
+import os
 from lib.juicychain_env import EXPLORER_URL
 from lib.juicychain_env import IMPORT_API_BASE_URL
 from lib.juicychain_env import DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
@@ -12,6 +14,17 @@ from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_BATCH
 
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
+
+# Setup sentry
+sentry_dsn = os.getenv('SENTRY_DSN')
+if sentry_dsn:
+    sentry_sdk.init(
+        sentry_dsn,
+        debug=True,
+        environment=os.environ['ENVIRONMENT']
+    )
+
+
 SCRIPT_VERSION = 0.00010021
 URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
 URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
