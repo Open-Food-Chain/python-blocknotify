@@ -1,34 +1,34 @@
 import json
-from lib import juicychain
-from lib.juicychain_env import KOMODO_NODE
-from lib.juicychain_env import RPC_USER
-from lib.juicychain_env import RPC_PASSWORD
-from lib.juicychain_env import RPC_PORT
-from lib.juicychain_env import EXPLORER_URL
-from lib.juicychain_env import THIS_NODE_ADDRESS
-from lib.juicychain_env import HOUSEKEEPING_ADDRESS
-from lib.juicychain_env import JUICYCHAIN_API_BASE_URL
-from lib.juicychain_env import JUICYCHAIN_API_ORGANIZATION_CERTIFICATE
+from lib import openfood
+from lib.openfood_env import KOMODO_NODE
+from lib.openfood_env import RPC_USER
+from lib.openfood_env import RPC_PASSWORD
+from lib.openfood_env import RPC_PORT
+from lib.openfood_env import EXPLORER_URL
+from lib.openfood_env import THIS_NODE_ADDRESS
+from lib.openfood_env import HOUSEKEEPING_ADDRESS
+from lib.openfood_env import openfood_API_BASE_URL
+from lib.openfood_env import openfood_API_ORGANIZATION_CERTIFICATE
 
 # from dotenv import load_dotenv
 # load_dotenv(verbose=True)
 SCRIPT_VERSION = 0.00011111
 
-juicychain.connect_node(RPC_USER, RPC_PASSWORD, KOMODO_NODE, RPC_PORT)
+openfood.connect_node(RPC_USER, RPC_PASSWORD, KOMODO_NODE, RPC_PORT)
 
 
 def getCertificateForTest(url):
-    return juicychain.getWrapper(url)
+    return openfood.getWrapper(url)
 
 
 def offline_wallet_send_housekeeping():
-    test_url = JUICYCHAIN_API_BASE_URL + JUICYCHAIN_API_ORGANIZATION_CERTIFICATE + "18/"
+    test_url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + "18/"
     certificate = json.loads(getCertificateForTest(test_url))
-    offline_wallet = juicychain.offlineWalletGenerator_fromObjectData_certificate(THIS_NODE_ADDRESS, certificate)
+    offline_wallet = openfood.offlineWalletGenerator_fromObjectData_certificate(THIS_NODE_ADDRESS, certificate)
     print(offline_wallet)
     # 1. get utxos for address
     print("\n#2# Get UTXOs\n")
-    utxos_json = juicychain.explorer_get_utxos(EXPLORER_URL, offline_wallet['address'])
+    utxos_json = openfood.explorer_get_utxos(EXPLORER_URL, offline_wallet['address'])
     to_python = json.loads(utxos_json)
     print(to_python)
 
@@ -52,11 +52,11 @@ def offline_wallet_send_housekeeping():
     to_address = HOUSEKEEPING_ADDRESS
     num_utxo = 1
     fee = 0.00001
-    rawtx_info = juicychain.createrawtx4(utxos_json, num_utxo, to_address, fee)
+    rawtx_info = openfood.createrawtx4(utxos_json, num_utxo, to_address, fee)
     print(rawtx_info[0]['rawtx'])
 # this is an array: rawtx_info['rawtx', [array utxo amounts req for sig]]
     print("\n#4# Decode unsigned raw tx\n")
-    decoded = juicychain.decoderawtx(rawtx_info[0]['rawtx'])
+    decoded = openfood.decoderawtx(rawtx_info[0]['rawtx'])
     print()
     print("#######")
     print(json.dumps(decoded, indent=2))
@@ -64,15 +64,15 @@ def offline_wallet_send_housekeeping():
     print()
 
     print("\n#5# Sign tx\n")
-    signedtx = juicychain.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], offline_wallet['wif'])
+    signedtx = openfood.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], offline_wallet['wif'])
     print(signedtx)
-    decoded = juicychain.decoderawtx(signedtx)
+    decoded = openfood.decoderawtx(signedtx)
     print("#######")
     print("signed")
     print(decoded)
     print()
 
-    txid = juicychain.broadcast_via_explorer(EXPLORER_URL, signedtx)
+    txid = openfood.broadcast_via_explorer(EXPLORER_URL, signedtx)
     print(txid)
 
 
