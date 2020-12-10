@@ -1,5 +1,5 @@
 from lib.openfood_env import EXPLORER_URL
-from lib.openfood_env import THIS_NODE_ADDRESS
+from lib.openfood_env import THIS_NODE_WALLET
 from lib.openfood_env import THIS_NODE_WIF
 from lib.openfood_env import TEST_GEN_WALLET_PASSPHRASE
 from lib.openfood_env import TEST_GEN_WALLET_ADDRESS
@@ -27,7 +27,7 @@ def execute_before_any_test():
 # TEST FUNCTIONS
 def test_postWrapperr():
     url = EXPLORER_URL
-    data = {'sender_raddress': THIS_NODE_ADDRESS,
+    data = {'sender_raddress': THIS_NODE_WALLET,
             'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
 
     test = openfood.postWrapper(url, data)
@@ -36,7 +36,7 @@ def test_postWrapperr():
 
 def test_putWrapperr():
     url = EXPLORER_URL
-    data = {'sender_raddress': THIS_NODE_ADDRESS,
+    data = {'sender_raddress': THIS_NODE_WALLET,
             'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
 
     test = openfood.putWrapper(url, data)
@@ -71,7 +71,7 @@ def test_get_batches():
 
 def test_patchWrapperr():
     url = EXPLORER_URL
-    data = {'sender_raddress': THIS_NODE_ADDRESS,
+    data = {'sender_raddress': THIS_NODE_WALLET,
             'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
 
     test = openfood.patchWrapper(url, data)
@@ -174,7 +174,7 @@ def test_createrawtx_wrapper():
     txids = []
     vouts = []
     amount = openfood.utxo_bundle_amount(utxos_obj)
-    to_address = THIS_NODE_ADDRESS
+    to_address = THIS_NODE_WALLET
 
     for utxo in utxos_obj:
         txids = txids + [ utxo['txid'] ]
@@ -217,7 +217,7 @@ def test_createrawtxwithchange():
     amount = openfood.utxo_bundle_amount(utxos_obj)
     change_amount = 0.2
 
-    to_address = change_address = THIS_NODE_ADDRESS
+    to_address = change_address = THIS_NODE_WALLET
 
     for utxo in utxos_obj:
         txids = txids + [ utxo['txid'] ]
@@ -258,7 +258,7 @@ def test_createrawtx5():
     amount = openfood.utxo_bundle_amount(utxos_obj)
     fee = 0.2
 
-    to_address = change_address = THIS_NODE_ADDRESS
+    to_address = change_address = THIS_NODE_WALLET
 
     utxos = json.dumps(utxos_obj)
 
@@ -336,7 +336,7 @@ def test_createrawtx4():
     amount = openfood.utxo_bundle_amount(utxos_obj)
     fee = 0.2
 
-    to_address = change_address = THIS_NODE_ADDRESS
+    to_address = change_address = THIS_NODE_WALLET
 
     utxos = json.dumps(utxos_obj)
 
@@ -395,7 +395,7 @@ def test_get_batches_no_timestamp():
 
 
 def test_sendtoaddress_wrapper():
-    test = openfood.sendtoaddress_wrapper(THIS_NODE_ADDRESS, 0.1)
+    test = openfood.sendtoaddress_wrapper(THIS_NODE_WALLET, 0.1)
     assert not (" " in test)
 
 
@@ -449,7 +449,7 @@ def batch_wallets_timestamping_start(testObj):
     amount = openfood.utxo_bundle_amount(utxos_obj)
     fee = 0.2
 
-    to_address = change_address = THIS_NODE_ADDRESS
+    to_address = change_address = THIS_NODE_WALLET
 
     utxos = json.dumps(utxos_obj)
 
@@ -491,7 +491,7 @@ def batch_wallets_timestamping_end(testObj):
     amount = openfood.utxo_bundle_amount(utxos_obj)
     fee = 0.2
 
-    to_address = change_address = THIS_NODE_ADDRESS
+    to_address = change_address = THIS_NODE_WALLET
 
     utxos = json.dumps(utxos_obj)
 
@@ -507,11 +507,11 @@ def batch_wallets_timestamping_end(testObj):
     assert is_json(test) == True
 
 def test_batch_wallets_fund_integrity_start():
-    test = openfood.batch_wallets_fund_integrity_start(THIS_NODE_ADDRESS)
+    test = openfood.batch_wallets_fund_integrity_start(THIS_NODE_WALLET)
     assert type(int(test, 16)) == type(10)
 
 def test_batch_wallets_fund_integrity_end():
-    test = openfood.batch_wallets_fund_integrity_end(THIS_NODE_ADDRESS)
+    test = openfood.batch_wallets_fund_integrity_end(THIS_NODE_WALLET)
     assert type(int(test, 16)) == type(10)
 
 def test_timestamping_save_batch_links():
@@ -542,7 +542,7 @@ def test_timestamping_save_batch_links():
     amount = openfood.utxo_bundle_amount(utxos_obj)
     fee = 0.2
 
-    to_address = change_address = THIS_NODE_ADDRESS
+    to_address = change_address = THIS_NODE_WALLET
 
     utxos = json.dumps(utxos_obj)
 
@@ -552,7 +552,7 @@ def test_timestamping_save_batch_links():
     assert test == True
 
 def test_sendmany_wrapper():
-    json_object = {THIS_NODE_ADDRESS: SCRIPT_VERSION}
-    test = openfood.sendmany_wrapper(THIS_NODE_ADDRESS, json_object)
+    json_object = {THIS_NODE_WALLET: SCRIPT_VERSION}
+    test = openfood.sendmany_wrapper(THIS_NODE_WALLET, json_object)
     print(test)
     assert not (" " in test)
