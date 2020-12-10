@@ -7,6 +7,7 @@ if sentry_dsn:
         sentry_dsn,
         environment=os.environ['ENVIRONMENT']
     )
+    sentry_sdk.set_tag('org', os.environ['SENTRY_ORG'])
 
 import json
 # import pytest
