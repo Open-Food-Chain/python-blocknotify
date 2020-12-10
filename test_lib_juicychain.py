@@ -1,10 +1,10 @@
 from lib.openfood_env import EXPLORER_URL
 from lib.openfood_env import THIS_NODE_WALLET
 from lib.openfood_env import THIS_NODE_WIF
-from lib.openfood_env import TEST_GEN_WALLET_PASSPHRASE
-from lib.openfood_env import TEST_GEN_WALLET_ADDRESS
-from lib.openfood_env import TEST_GEN_WALLET_WIF
-from lib.openfood_env import TEST_GEN_WALLET_PUBKEY
+#from lib.openfood_env import TEST_GEN_WALLET_PASSPHRASE
+#from lib.openfood_env import TEST_GEN_WALLET_ADDRESS
+#from lib.openfood_env import TEST_GEN_WALLET_WIF
+#from lib.openfood_env import TEST_GEN_WALLET_PUBKEY
 from lib.openfood_env import openfood_API_BASE_URL
 from lib.openfood_env import openfood_API_ORGANIZATION_CERTIFICATE
 from lib import openfood
@@ -381,12 +381,12 @@ def test_explorer_get_utxos():
         assert e is True
 
 
-def test_gen_wallet():
-    test_wallet = openfood.gen_wallet(TEST_GEN_WALLET_PASSPHRASE)
+#def test_gen_wallet():
+  #  test_wallet = openfood.gen_wallet(TEST_GEN_WALLET_PASSPHRASE)
     #assert TEST_GEN_WALLET_ADDRESS == test_wallet['address']
     #assert TEST_GEN_WALLET_PUBKEY == test_wallet['pubkey']
     #assert TEST_GEN_WALLET_WIF == test_wallet['wif']
-    assert test_wallet['address'][0] == 'R'
+   # assert test_wallet['address'][0] == 'R'
 
 
 def test_get_batches_no_timestamp():
