@@ -9,25 +9,25 @@ MULTI_4X = 4
 MULTI_5X = 5
 
 # explorer
-openfood_EXPLORER_MAINNET_UNCHAIN = str(os.getenv("openfood_EXPLORER_MAINNET_UNCHAIN_HOST"))
-openfood_EXPLORER_MAINNET_UNCHAIN_PORT = str(os.getenv("openfood_EXPLORER_MAINNET_UNCHAIN_PORT"))
+openfood_EXPLORER_MAINNET_UNCHAIN = str(os.environ['openfood_EXPLORER_MAINNET_UNCHAIN_HOST'])
+openfood_EXPLORER_MAINNET_UNCHAIN_PORT = str(os.environ['openfood_EXPLORER_MAINNET_UNCHAIN_PORT'])
 EXPLORER_URL = "http://" + openfood_EXPLORER_MAINNET_UNCHAIN + ":" + openfood_EXPLORER_MAINNET_UNCHAIN_PORT + "/"
 
 # this node wallet
-THIS_NODE_WALLET = str(os.getenv("THIS_NODE_WALLET"))
-THIS_NODE_RADDRESS = str(os.getenv("THIS_NODE_RADDRESS"))
-THIS_NODE_WIF = str(os.getenv("THIS_NODE_WIF"))
-THIS_NODE_PUBKEY = str(os.getenv("THIS_NODE_PUBKEY"))
+THIS_NODE_WALLET = str(os.environ['THIS_NODE_WALLET'])
+THIS_NODE_RADDRESS = str(os.environ['THIS_NODE_RADDRESS'])
+THIS_NODE_WIF = str(os.environ['THIS_NODE_WIF'])
+THIS_NODE_PUBKEY = str(os.environ['THIS_NODE_PUBKEY'])
 
 # rpc
-# RPC_USER = str(os.getenv("KOMODO_SMARTCHAIN_NODE_USERNAME"))
-# RPC_PASSWORD = str(os.getenv("KOMODO_SMARTCHAIN_NODE_PASSWORD"))
-# RPC_PORT = str(os.getenv("KOMODO_SMARTCHAIN_NODE_RPC_PORT"))
-# KOMODO_NODE = str(os.getenv("KOMODO_SMARTCHAIN_NODE_IPV4_ADDR"))
-RPC_USER = str(os.getenv("KOMODO_SMARTCHAIN_NODE_USERNAME"))
-RPC_PASSWORD = str(os.getenv("KOMODO_SMARTCHAIN_NODE_PASSWORD"))
-RPC_PORT = str(os.getenv("KOMODO_SMARTCHAIN_NODE_RPC_PORT"))
-KOMODO_NODE = str(os.getenv("KOMODO_SMARTCHAIN_NODE_IPV4_ADDR"))
+# RPC_USER = str(os.environ['KOMODO_SMARTCHAIN_NODE_USERNAME'])
+# RPC_PASSWORD = str(os.environ['KOMODO_SMARTCHAIN_NODE_PASSWORD'])
+# RPC_PORT = str(os.environ['KOMODO_SMARTCHAIN_NODE_RPC_PORT'])
+# KOMODO_NODE = str(os.environ['KOMODO_SMARTCHAIN_NODE_IPV4_ADDR'])
+RPC_USER = str(os.environ['KOMODO_SMARTCHAIN_NODE_USERNAME'])
+RPC_PASSWORD = str(os.environ['KOMODO_SMARTCHAIN_NODE_PASSWORD'])
+RPC_PORT = str(os.environ['KOMODO_SMARTCHAIN_NODE_RPC_PORT'])
+KOMODO_NODE = str(os.environ['KOMODO_SMARTCHAIN_NODE_IPV4_ADDR'])
 
 # test wallet
 TEST_GEN_WALLET_PASSPHRASE = "testing123"
@@ -36,8 +36,8 @@ TEST_GEN_WALLET_WIF = "UriaaZ1hEftNZFM8pw9TXLF3iMqn2usCJDqeSnfAVkaPEwZXstLK"
 TEST_GEN_WALLET_RADDRESS = "RDLtn5usEfoukyL2XqbcuoAg1sohU3m1F1"
 
 # import api
-IMPORT_API_HOST = str(os.getenv("IMPORT_API_HOST"))
-IMPORT_API_PORT = str(os.getenv("IMPORT_API_PORT"))
+IMPORT_API_HOST = str(os.environ['IMPORT_API_HOST'])
+IMPORT_API_PORT = str(os.environ['IMPORT_API_PORT'])
 IMPORT_API_BASE_URL = "http://" + IMPORT_API_HOST + ":" + IMPORT_API_PORT + "/"
 
 # tweakable changes
@@ -58,9 +58,9 @@ DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH = "raw/refresco-tstx/"
 DEV_IMPORT_API_RAW_REFRESCO_PATH = "raw/refresco/"
 
 # LOAD openfood ENV
-openfood_API_HOST = str(os.getenv("openfood_API_HOST"))
-openfood_API_PORT = str(os.getenv("openfood_API_PORT"))
-openfood_API_VERSION_PATH = str(os.getenv("openfood_API_VERSION_PATH"))
+openfood_API_HOST = str(os.environ['openfood_API_HOST'])
+openfood_API_PORT = str(os.environ['openfood_API_PORT'])
+openfood_API_VERSION_PATH = str(os.environ['openfood_API_VERSION_PATH'])
 openfood_API_BASE_URL = "http://" + openfood_API_HOST + \
     ":" + openfood_API_PORT + "/" + openfood_API_VERSION_PATH
 
