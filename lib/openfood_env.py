@@ -9,13 +9,13 @@ MULTI_4X = 4
 MULTI_5X = 5
 
 # explorer
-openfood_EXPLORER_MAINNET_UNCHAIN = str(os.environ['openfood_EXPLORER_MAINNET_UNCHAIN_HOST'])
+openfood_EXPLORER_MAINNET_UNCHAIN = os.environ['openfood_EXPLORER_MAINNET_UNCHAIN']
 openfood_EXPLORER_MAINNET_UNCHAIN_PORT = str(os.environ['openfood_EXPLORER_MAINNET_UNCHAIN_PORT'])
 EXPLORER_URL = "http://" + openfood_EXPLORER_MAINNET_UNCHAIN + ":" + openfood_EXPLORER_MAINNET_UNCHAIN_PORT + "/"
 
 # this node wallet
 THIS_NODE_WALLET = str(os.environ['THIS_NODE_WALLET'])
-THIS_NODE_RADDRESS = str(os.environ['THIS_NODE_RADDRESS'])
+THIS_NODE_RADDRESS = str(os.environ['THIS_NODE_WALLET'])
 THIS_NODE_WIF = str(os.environ['THIS_NODE_WIF'])
 THIS_NODE_PUBKEY = str(os.environ['THIS_NODE_PUBKEY'])
 
