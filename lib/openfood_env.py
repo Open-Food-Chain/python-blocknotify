@@ -14,8 +14,10 @@ openfood_EXPLORER_MAINNET_UNCHAIN_PORT = str(os.environ['JUICYCHAIN_EXPLORER_MAI
 EXPLORER_URL = "http://" + openfood_EXPLORER_MAINNET_UNCHAIN + ":" + openfood_EXPLORER_MAINNET_UNCHAIN_PORT + "/"
 
 # this node wallet
-THIS_NODE_WALLET = str(os.environ['THIS_NODE_WALLET'])
-THIS_NODE_RADDRESS = str(os.environ['THIS_NODE_WALLET'])
+# TODO remove use of deprecated THIS_NODE_WALLET was used during development
+# THIS_NODE_RADDRESS is the better name to use
+THIS_NODE_WALLET = str(os.environ['THIS_NODE_RADDRESS'])
+THIS_NODE_RADDRESS = str(os.environ['THIS_NODE_RADDRESS'])
 THIS_NODE_WIF = str(os.environ['THIS_NODE_WIF'])
 THIS_NODE_PUBKEY = str(os.environ['THIS_NODE_PUBKEY'])
 
