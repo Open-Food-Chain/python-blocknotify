@@ -9,8 +9,8 @@ MULTI_4X = 4
 MULTI_5X = 5
 
 # explorer
-openfood_EXPLORER_MAINNET_UNCHAIN = os.environ['openfood_EXPLORER_MAINNET_UNCHAIN']
-openfood_EXPLORER_MAINNET_UNCHAIN_PORT = str(os.environ['openfood_EXPLORER_MAINNET_UNCHAIN_PORT'])
+openfood_EXPLORER_MAINNET_UNCHAIN = os.environ['JUICYCHAIN_EXPLORER_MAINNET_UNCHAIN']
+openfood_EXPLORER_MAINNET_UNCHAIN_PORT = str(os.environ['JUICYCHAIN_EXPLORER_MAINNET_UNCHAIN_PORT'])
 EXPLORER_URL = "http://" + openfood_EXPLORER_MAINNET_UNCHAIN + ":" + openfood_EXPLORER_MAINNET_UNCHAIN_PORT + "/"
 
 # this node wallet
@@ -58,7 +58,7 @@ DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH = "raw/refresco-tstx/"
 DEV_IMPORT_API_RAW_REFRESCO_PATH = "raw/refresco/"
 
 # LOAD openfood ENV
-openfood_API_HOST = str(os.environ['openfood_API_HOST'])
+openfood_API_HOST = str(os.environ['JUICYCHAIN_API_HOST'])
 openfood_API_PORT = str(os.environ['openfood_API_PORT'])
 openfood_API_VERSION_PATH = str(os.environ['openfood_API_VERSION_PATH'])
 openfood_API_BASE_URL = "http://" + openfood_API_HOST + \
