@@ -61,8 +61,8 @@ DEV_IMPORT_API_RAW_REFRESCO_PATH = "raw/refresco/"
 
 # LOAD openfood ENV
 openfood_API_HOST = str(os.environ['JUICYCHAIN_API_HOST'])
-openfood_API_PORT = str(os.environ['openfood_API_PORT'])
-openfood_API_VERSION_PATH = str(os.environ['openfood_API_VERSION_PATH'])
+openfood_API_PORT = str(os.environ['JUICYCHAIN_API_PORT'])
+openfood_API_VERSION_PATH = str(os.environ['JUICYCHAIN_API_VERSION_PATH'])
 openfood_API_BASE_URL = "http://" + openfood_API_HOST + \
     ":" + openfood_API_PORT + "/" + openfood_API_VERSION_PATH
 
