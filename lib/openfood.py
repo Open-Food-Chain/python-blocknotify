@@ -25,6 +25,10 @@ from lib.openfood_env import FUNDING_AMOUNT_CERTIFICATE
 from lib.openfood_env import FUNDING_AMOUNT_TIMESTAMPING_START
 from lib.openfood_env import FUNDING_AMOUNT_TIMESTAMPING_END
 from lib.openfood_env import DEV_IMPORT_API_RAW_REFRESCO_PATH
+from lib.openfood_env import WALLET_DELIVERY_DATE
+from lib.openfood_env import WALLET_DELIVERY_DATE_THRESHOLD_BALANCE
+from lib.openfood_env import WALLET_DELIVERY_DATE_THRESHOLD_UTXO
+from lib.openfood_env import WALLET_DELIVERY_DATE_THRESHOLD_UTXO_VALUE
 from dotenv import load_dotenv
 from lib import transaction, bitcoin
 from lib import rpclib
@@ -148,6 +152,33 @@ def check_node_wallet():
         exit()
 
 
+def fund_offline_wallet(offline_wallet_raddress):
+    json_object = {
+     offline_wallet_raddress: 11.2109
+     }
+    sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
+    return sendmany_txid
+
+
+def check_offline_wallets():
+    wallet_delivery_date = getOfflineWalletDeliveryDate()
+
+    print("Checking delivery date wallet: " + wallet_delivery_date['address'])
+    # check balance
+    wallet_delivery_date_balance = int(explorer_get_balance(wallet_delivery_date['address']))
+    print(wallet_delivery_date_balance)
+    if( wallet_delivery_date_balance < WALLET_DELIVERY_DATE_THRESHOLD_BALANCE * 100000000):
+        print("FUND the wallet because balance low")
+        funding_txid = fund_offline_wallet(wallet_delivery_date['address'])
+        print(funding_txid)
+    # check utxo count
+    utxo_count = explorer_get_utxos(wallet_delivery_date['address'])
+    print(utxo_count)
+    # if low, fund with sendmany by adding threshold balance x3 utxo threshold
+    # if( len(utxo_count) < WALLET_DELIVERY_DATE_THRESHOLD_UTXO):
+        # print("FUND the wallet because low utxo count")
+        # fund_offline_wallet(wallet_delivery_date['address'])
+
 def organization_certificate_noraddress(url, org_id, THIS_NODE_RADDRESS):
     try:
         res = requests.get(url)
@@ -189,6 +220,16 @@ def explorer_get_utxos(querywallet):
     # vouts = json.loads(res.text)
     # for vout in vouts:
         # print(vout['txid'] + " " + str(vout['vout']) + " " + str(vout['amount']) + " " + str(vout['satoshis']))
+    return res.text
+
+
+def explorer_get_balance(querywallet):
+    print("Get balance for wallet: " + querywallet)
+    INSIGHT_API_KOMODO_ADDRESS_BALANCE = "insight-api-komodo/addr/" + querywallet + "/balance"
+    try:
+        res = requests.get(EXPLORER_URL + INSIGHT_API_KOMODO_ADDRESS_BALANCE)
+    except Exception as e:
+        raise Exception(e)
     return res.text
 
 
@@ -363,6 +404,32 @@ def gen_wallet(data, label='NoLabelOK'):
     new_wallet = json.loads(new_wallet_json)
 
     return new_wallet
+
+
+def getOfflineWalletDeliveryDate():
+    obj = {
+        "name": WALLET_DELIVERY_DATE
+    }
+    raw_json = json.dumps(obj)
+    print("libopenfood->getOfflineWalletDeliveryDate json: " + raw_json)
+    log_label = "DELIVERY_DATE"
+    offline_wallet = gen_wallet(raw_json, log_label)
+
+    return offline_wallet
+
+
+def dateToSatoshi(date):
+    return int(date.replace('-', ''))
+
+
+def sendToBatchDeliveryDate(batch_raddress, delivery_date):
+    # delivery date
+    date_as_satoshi = dateToSatoshi(delivery_date)
+    print(date_as_satoshi)
+    delivery_date_wallet = getOfflineWalletDeliveryDate()
+    raddress = delivery_date_wallet['address']
+    txid = sendtoaddressWrapper(batch_raddress, date_as_satoshi/100000000, 1)
+    return txid
 
 
 # test done
