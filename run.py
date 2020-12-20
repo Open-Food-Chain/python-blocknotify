@@ -50,7 +50,9 @@ for batch in batches_no_timestamp:
         sendmany_txid = openfood.organization_send_batch_links(batch_wallets_integrity)
         openfood.timestamping_save_batch_links(id, sendmany_txid)
         txid_delivery_date = openfood.sendToBatchDeliveryDate(tofix_bnfp_wallet['address'], batch['bbd'])
-        print("(tmp Full Node Send) Delivery Date Sent: " + txid_delivery_date)
+        print("** txid ** (Satoshi as Date): " + txid_delivery_date)
+        print("***** Certificates for batch")
+        # this can all be put into an openfood lib function like sendToBatchDeliveryDate
         certificate = openfood.get_certificate_for_batch()
         offline_wallet = openfood.offlineWalletGenerator_fromObjectData_certificate(certificate)
         utxos_json = openfood.explorer_get_utxos(offline_wallet['address'])

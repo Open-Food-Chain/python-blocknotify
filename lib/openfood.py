@@ -460,11 +460,11 @@ def gen_wallet(data, label='NoLabelOK'):
 
 def getOfflineWalletDeliveryDate():
     obj = {
-        "name": DELIVERY_DATE
+        "name": WALLET_DELIVERY_DATE
     }
     raw_json = json.dumps(obj)
     # print("libopenfood->getOfflineWalletDeliveryDate json: " + raw_json)
-    log_label = "DELIVERY_DATE"
+    log_label = WALLET_DELIVERY_DATE
     offline_wallet = gen_wallet(raw_json, log_label)
 
     return offline_wallet
