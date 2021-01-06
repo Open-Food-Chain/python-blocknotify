@@ -25,6 +25,10 @@ from lib.openfood_env import FUNDING_AMOUNT_CERTIFICATE
 from lib.openfood_env import FUNDING_AMOUNT_TIMESTAMPING_START
 from lib.openfood_env import FUNDING_AMOUNT_TIMESTAMPING_END
 from lib.openfood_env import DEV_IMPORT_API_RAW_REFRESCO_PATH
+from lib.openfood_env import WALLET_DELIVERY_DATE
+from lib.openfood_env import WALLET_DELIVERY_DATE_THRESHOLD_BALANCE
+from lib.openfood_env import WALLET_DELIVERY_DATE_THRESHOLD_UTXO
+from lib.openfood_env import WALLET_DELIVERY_DATE_THRESHOLD_UTXO_VALUE
 from dotenv import load_dotenv
 from lib import transaction, bitcoin
 from lib import rpclib
@@ -148,6 +152,34 @@ def check_node_wallet():
         exit()
 
 
+def fund_offline_wallet(offline_wallet_raddress):
+    json_object = {
+     offline_wallet_raddress: 11.2109
+     }
+    sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
+    return sendmany_txid
+
+
+def check_offline_wallets():
+    wallet_delivery_date = getOfflineWalletDeliveryDate()
+
+    # print("Checking delivery date wallet: " + wallet_delivery_date['address'])
+    # check balance
+    wallet_delivery_date_balance = int(explorer_get_balance(wallet_delivery_date['address']))
+    print(wallet_delivery_date_balance)
+    if( wallet_delivery_date_balance < WALLET_DELIVERY_DATE_THRESHOLD_BALANCE * 100000000):
+        print("FUND the wallet because balance low")
+        funding_txid = fund_offline_wallet(wallet_delivery_date['address'])
+        print(funding_txid)
+    # check utxo count
+    utxo_count = explorer_get_utxos(wallet_delivery_date['address'])
+    print(utxo_count)
+    # next needs to be manual tx, sendmany does not function like this
+    # if low, fund with sendmany by adding threshold balance x3 utxo threshold
+    # if( len(utxo_count) < WALLET_DELIVERY_DATE_THRESHOLD_UTXO):
+        # print("FUND the wallet because low utxo count")
+        # fund_offline_wallet(wallet_delivery_date['address'])
+
 def organization_certificate_noraddress(url, org_id, THIS_NODE_RADDRESS):
     try:
         res = requests.get(url)
@@ -192,6 +224,16 @@ def explorer_get_utxos(querywallet):
     return res.text
 
 
+def explorer_get_balance(querywallet):
+    print("Get balance for wallet: " + querywallet)
+    INSIGHT_API_KOMODO_ADDRESS_BALANCE = "insight-api-komodo/addr/" + querywallet + "/balance"
+    try:
+        res = requests.get(EXPLORER_URL + INSIGHT_API_KOMODO_ADDRESS_BALANCE)
+    except Exception as e:
+        raise Exception(e)
+    return res.text
+
+
 # test done
 def createrawtx_wrapper(txids, vouts, to_address, amount):
     return rpclib.createrawtransaction(RPC, txids, vouts, to_address, amount)
@@ -199,6 +241,11 @@ def createrawtx_wrapper(txids, vouts, to_address, amount):
 
 # test done
 def createrawtxwithchange(txids, vouts, to_address, amount, change_address, change_amount):
+    print("Create raw tx with change")
+    print(to_address)
+    print(amount)
+    print(change_address)
+    print(change_amount)
     return rpclib.createrawtransactionwithchange(RPC, txids, vouts, to_address, amount, change_address, change_amount)
 
 
@@ -206,6 +253,52 @@ def createrawtxwithchange(txids, vouts, to_address, amount, change_address, chan
 def createrawtx(txids, vouts, to_address, amount):
     print("Deprecated: use createrawtx_wrapper")
     return rpclib.createrawtransaction(RPC, txids, vouts, to_address, amount)
+
+
+def createrawtx6(utxos_json, num_utxo, to_address, to_amount, fee, change_address):
+    print(to_amount)
+    rawtx_info = []  # return this with rawtx & amounts
+    utxos = json.loads(utxos_json)
+    # utxos.reverse()
+    count = 0
+
+    txids = []
+    vouts = []
+    amounts = []
+    amount = 0
+
+    for objects in utxos:
+        if (objects['amount'] > 0.2 and objects['confirmations'] > 2) and count < num_utxo:
+            count = count + 1
+            easy_typeing2 = [objects['vout']]
+            easy_typeing = [objects['txid']]
+            txids.extend(easy_typeing)
+            vouts.extend(easy_typeing2)
+            amount = amount + objects['amount']
+            amounts.extend([objects['satoshis']])
+
+    # check this file in commit https://github.com/The-New-Fork/blocknotify-python/commit/f91a148b18840aaf08d7c7736045a8c924bd236b
+    # for to_amount.  When a wallet had no utxos, the resulting change was -0.00123, some sort of mis-naming maybe?
+    #to_amount = 0.00123
+    # change_tmp = 0
+    change_amount = round(amount - fee - to_amount, 10)
+    print("AMOUNTS: amount, #to_amount, change_amount, fee")
+    print(amount)
+    print(to_amount)
+    print(float(change_amount))
+    print(fee)
+    rawtx = ""
+    if( change_amount < 0.01 ):
+        print("Change too low, sending as miner fee " + str(change_amount))
+        change_amount = 0
+        rawtx = createrawtx(txids, vouts, to_address, round(amount - fee, 10))
+
+    else:
+        rawtx = createrawtxwithchange(txids, vouts, to_address, to_amount, change_address, float(change_amount))
+
+    rawtx_info.append({'rawtx': rawtx})
+    rawtx_info.append({'amounts': amounts})
+    return rawtx_info
 
 
 # test done
@@ -356,13 +449,48 @@ def broadcast_via_explorer(explorer_url, signedtx):
 def gen_wallet(data, label='NoLabelOK'):
     print("Creating a %s address signing with %s and data %s" % (label, THIS_NODE_RADDRESS, data))
     signed_data = rpclib.signmessage(RPC, THIS_NODE_RADDRESS, data)
-    print("Signed data is %s" % (signed_data))
+    # print("Signed data is %s" % (signed_data))
     new_wallet_json = subprocess.getoutput("php genwallet.php " + signed_data)
     print("Created wallet %s" % (new_wallet_json))
 
     new_wallet = json.loads(new_wallet_json)
 
     return new_wallet
+
+
+def getOfflineWalletDeliveryDate():
+    obj = {
+        "name": WALLET_DELIVERY_DATE
+    }
+    raw_json = json.dumps(obj)
+    # print("libopenfood->getOfflineWalletDeliveryDate json: " + raw_json)
+    log_label = WALLET_DELIVERY_DATE
+    offline_wallet = gen_wallet(raw_json, log_label)
+
+    return offline_wallet
+
+
+def dateToSatoshi(date):
+    return int(date.replace('-', ''))
+
+
+def sendToBatchDeliveryDate(batch_raddress, delivery_date):
+    # delivery date
+    print("SEND DELIVERY DATE")
+    date_as_satoshi = dateToSatoshi(delivery_date)
+    print(date_as_satoshi)
+    delivery_date_wallet = getOfflineWalletDeliveryDate()
+    utxos_json = explorer_get_utxos(delivery_date_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx6(utxos_json, 1, batch_raddress, round(date_as_satoshi/100000000, 10), 0, delivery_date_wallet['address'])
+    print("DELIVERY DATE RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], delivery_date_wallet['wif'])
+    deliverydate_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    raddress = delivery_date_wallet['address']
+    # txid = sendtoaddressWrapper(batch_raddress, date_as_satoshi/100000000, 1)
+    return deliverydate_txid
 
 
 # test done
@@ -407,7 +535,7 @@ def utxo_bundle_amount(utxos_obj):
 
 # test done
 def get_batches_no_timestamp():
-    print("10009 start import api - raw/refresco/require_integrity/")
+    print("***** start import api timestamping integrity - raw/refresco/require_integrity/")
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
     print("Trying: " + url)
 
@@ -427,7 +555,7 @@ def get_batches_no_timestamp():
     except Exception as e:
         print("10009 failed to parse to json because of", e)
 
-    print("New batch requires timestamping: " + str(len(batches_no_timestamp)))
+    print("***** New batch requires timestamping: " + str(len(batches_no_timestamp)))
     return batches_no_timestamp
 
 
@@ -630,6 +758,7 @@ def get_certificate_for_test(url):
 
 # test done
 def get_certificate_for_batch():
+    # TODO this is hardcoded, which is bad - needs to fetch by cert rules
     test_url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + "8/"
     certificate = json.loads(get_certificate_for_test(test_url))
     return certificate

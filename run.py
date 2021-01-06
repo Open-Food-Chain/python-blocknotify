@@ -31,6 +31,7 @@ URL_openfood_API_ORGANIZATION_BATCH = openfood_API_BASE_URL + openfood_API_ORGAN
 
 openfood.connect_node()
 openfood.check_node_wallet()
+openfood.check_offline_wallets()
 openfood.check_sync()
 hk_txid = openfood.housekeeping_tx()
 print(hk_txid)
@@ -38,7 +39,9 @@ print(hk_txid)
 batches_no_timestamp = openfood.get_batches_no_timestamp()
 for batch in batches_no_timestamp:
     try:
+        # batch_wallets_integrity holds integrity address, batch by import_id, batch_lot_raddress
         batch_wallets_integrity = openfood.batch_wallets_generate_timestamping(batch, batch['id'])
+        # not sure why this tofix is here dec2020
         tofix_bnfp_wallet = openfood.gen_wallet(batch['bnfp'], "bnfp")
         id = batch_wallets_integrity['id']
         integrity_start_txid = openfood.batch_wallets_fund_integrity_start(batch_wallets_integrity['integrity_address'])
@@ -46,6 +49,10 @@ for batch in batches_no_timestamp:
         openfood.batch_wallets_timestamping_start(batch_wallets_integrity, integrity_start_txid)
         sendmany_txid = openfood.organization_send_batch_links(batch_wallets_integrity)
         openfood.timestamping_save_batch_links(id, sendmany_txid)
+        txid_delivery_date = openfood.sendToBatchDeliveryDate(tofix_bnfp_wallet['address'], batch['bbd'])
+        print("** txid ** (Satoshi as Date): " + txid_delivery_date)
+        print("***** Certificates for batch")
+        # this can all be put into an openfood lib function like sendToBatchDeliveryDate
         certificate = openfood.get_certificate_for_batch()
         offline_wallet = openfood.offlineWalletGenerator_fromObjectData_certificate(certificate)
         utxos_json = openfood.explorer_get_utxos(offline_wallet['address'])
