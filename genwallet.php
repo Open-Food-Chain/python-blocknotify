@@ -1,7 +1,7 @@
 <?php
 
 // https://github.com/BitcoinPHP/BitcoinECDSA.php
-require_once 'BitcoinECDSA.php/src/BitcoinPHP/BitcoinECDSA/BitcoinECDSA.php';
+require_once './BitcoinECDSA.php';
 use BitcoinPHP\BitcoinECDSA\BitcoinECDSA;
 
 class BitcoinECDSADecker extends BitcoinECDSA {

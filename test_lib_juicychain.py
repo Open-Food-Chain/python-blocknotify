@@ -1,6 +1,10 @@
 from lib.openfood_env import EXPLORER_URL
 from lib.openfood_env import THIS_NODE_WALLET
 from lib.openfood_env import THIS_NODE_WIF
+from lib.openfood_env import IMPORT_API_BASE_URL
+from lib.openfood_env import DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
+from lib.openfood_env import DEV_IMPORT_API_RAW_REFRESCO_PATH
+
 #from lib.openfood_env import TEST_GEN_WALLET_PASSPHRASE
 #from lib.openfood_env import TEST_GEN_WALLET_ADDRESS
 #from lib.openfood_env import TEST_GEN_WALLET_WIF
@@ -24,16 +28,143 @@ def execute_before_any_test():
     openfood.connect_node()
     print("here we go")
 
+
+import string
+import random
+import time
+import requests
+import json
+import sys
+import os
+import binascii
+from datetime import datetime
+from dotenv import load_dotenv
+load_dotenv(verbose=True)
+
+def str_time_prop(start, end, format, prop):
+    """Get a time at a proportion of a range of two formatted times.
+
+    start and end should be strings specifying times formated in the
+    given format (strftime-style), giving an interval [start, end].
+    prop specifies how a proportion of the interval to be taken after
+    start.  The returned time will be in the specified format.
+    """
+
+    stime = time.mktime(time.strptime(start, format))
+    etime = time.mktime(time.strptime(end, format))
+
+    ptime = stime + prop * (etime - stime)
+
+    res = time.strftime(format, time.localtime(ptime))
+    print(res)
+    return res
+
+
+def generate_random_hex(size):
+	return binascii.b2a_hex(os.urandom(size))
+
+def random_date(start, end, prop):
+	return str_time_prop(start, end, '%Y-%m-%d', prop)
+
+def random_date_cert(start, end, prop):
+        return str_time_prop(start, end, '%d-%m-%Y', prop)
+
+def make_random_string(length):
+	str = ""
+	for x in range(0,length):
+		str = str + random.choice(string.ascii_letters)
+	
+	return str
+
+def get_random_number(length):
+	number = random.randint(10 ** (length-1), 10 ** (length))
+	return number
+
+def days(date):
+	ret = ""
+	for a in date:
+		if a == '-':
+			ret = ""
+		else:
+			ret = ret + a 
+	return int(ret)
+def create_random_batch():
+	RANDOM_VAL_ANFP=get_random_number(5)
+	RANDOM_VAL_DFP="100EP PA Apfelsaft naturtrüb NF"
+	RANDOM_VAL_BNFP=make_random_string(10)
+	RANDOM_VAL_PC="DE"
+	RANDOM_VAL_PL="Herrath"
+	RANDOM_VAL_RMN=11200100520
+	RANDOM_VAL_PON=get_random_number(8)
+	RANDOM_VAL_POP=get_random_number(2)
+
+	PDS=random_date("2020-1-1", "2020-11-15", random.random())
+	PDE=random_date(PDS, "2020-11-15", random.random())
+	BBD=PDE
+
+	JDS=days(PDS)
+	JDE=days(PDE)
+
+	params = { "anfp": RANDOM_VAL_ANFP, "dfp": RANDOM_VAL_DFP, "bnfp": RANDOM_VAL_BNFP, "pds":PDS , "pde":PDE, "jds":JDS, "jde":JDE , "bbd":BBD , "pc": RANDOM_VAL_PC, "pl": RANDOM_VAL_PL, "rmn":RANDOM_VAL_RMN, "pon":RANDOM_VAL_PON, "pop":RANDOM_VAL_POP }
+	print(params)
+	return params
+
+def properties_test(tests):
+	for test in tests:
+		print(test)
+		assert test['anfp']
+		assert test['dfp']
+		assert test['bnfp']
+		assert test['pds']
+		assert test['pde']
+		assert test['jds']
+		assert test['jde']
+		assert test['bbd']
+		assert test['pc']
+		assert test['pl']
+		assert test['rmn']
+		assert test['pon']
+		assert test['pop']
+
+def properties_test_cert(tests):
+	for test in tests:
+		print(test)
+		assert test['id']
+		assert test['name']
+		assert test['date_issue']
+		assert test['date_expiry']
+		assert test['issuer']
+		assert test['identifier']
+		assert not test['pubkey']
+		assert not test['raddress']
+		assert test['organization']
+
+
+def properties_test_cert_with_addie(tests):
+        for test in tests:
+                print(test)
+                assert test['id']
+                assert test['name']
+                assert test['date_issue']
+                assert test['date_expiry']
+                assert test['issuer']
+                assert test['identifier']
+                assert test['pubkey']
+                assert test['raddress']
+                assert test['organization']
+
+
 # TEST FUNCTIONS
 def test_postWrapperr():
-    url = EXPLORER_URL
-    data = {'sender_raddress': THIS_NODE_WALLET,
-            'tsintegrity': "1", 'sender_name': 'ORG WALLET', 'txid': "testtest"}
-
+    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_PATH
+    data = create_random_batch()
     test = openfood.postWrapper(url, data)
-    assert is_json(test) is True
+    test = json.loads(test)
+    properties_test( [ test] )
 
 
+#put is no longer used
+@pytest.mark.skip
 def test_putWrapperr():
     url = EXPLORER_URL
     data = {'sender_raddress': THIS_NODE_WALLET,
@@ -43,32 +174,33 @@ def test_putWrapperr():
     assert is_json(test) is True
 
 def test_getWrapperr():
-    url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + "18/"
+    url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_PATH
 
     test = openfood.getWrapper(url)
+    test = json.loads(test)
 
-    assert is_json(test) is True
+    properties_test( test )
 
 
 def test_certificates_no_addy():
     test = openfood.get_certificates_no_timestamp()
-    test = json.dumps(test)
-    assert is_json(test) is True
+    properties_test_cert(test)
 
 def test_batchess_no_addy():
     test = openfood.get_batches_no_timestamp()
-    test = json.dumps(test)
     if test == []:
         print("if this is empty the rest of the import api is not testable. Run the scripts in the import api in the docker compose to fill it back up (the austria juice script)")
         assert False == True
-    assert is_json(test) is True
+    properties_test(test)
+
 
 def test_get_batches():
     test = openfood.get_batches()
-    test = json.dumps(test)
 
-    assert is_json(test) is True
+    properties_test(test)
 
+#it seems like this is no longer a possible call
+@pytest.mark.skip
 def test_patchWrapperr():
     url = EXPLORER_URL
     data = {'sender_raddress': THIS_NODE_WALLET,
@@ -90,6 +222,8 @@ def test_signmessage_wrapper():
     assert test == deterministic
 
 
+@pytest.mark.skip
+#php seems broken
 def test_offlineWalletGenerator_fromObjectData_certificate():
     obj = {
         "issuer": "chris",
@@ -102,21 +236,24 @@ def test_offlineWalletGenerator_fromObjectData_certificate():
 
     print(test['address'])
 
-    assert test['address'][0] == 'R'
+    assert True == False
 
+
+def properties_jcapi_test(test):
+	assert test['id']
+	assert test['name']
+	assert test['pubkey']
+	assert test['raddress']
 
 def test_get_jcapi_organization():
     test = openfood.get_jcapi_organization()
-
-    test = json.dumps(test)
-
-    assert is_json(test) == True
+    properties_jcapi_test(test)
+    
 
 
 def test_get_certificate_for_batch():
     test = openfood.get_certificate_for_batch()
-    test = json.dumps(test)
-    assert is_json(test) == True
+    properties_test_cert_with_addie([ test ])
 
 def test_utxo_bundle_amount():
     utxos_obj = [
@@ -182,9 +319,44 @@ def test_createrawtx_wrapper():
 
     test = openfood.createrawtx_wrapper(txids, vouts, to_address, amount)
     test = openfood.decoderawtx_wrapper(test)
-    test = json.dumps(test)
 
-    assert is_json(test) == True
+    print(test)
+    transactions_properties(test)
+
+
+def transactions_properties( tx ):
+	assert tx['txid']
+	assert tx['overwintered']
+	assert tx['version']
+	assert tx['versiongroupid']
+	assert type(tx['locktime']) == type(0)
+	assert tx['expiryheight']
+	assert tx['vin']
+	for input in tx['vin']:
+		assert input['txid']
+		assert input['vout']
+		assert input['scriptSig']
+		assert input['scriptSig']['asm'] or input['scriptSig']['asm'] == ''
+		assert input['scriptSig']['hex'] or input['scriptSig']['hex'] == ''
+		assert input['sequence']
+	assert tx['vout']
+	for input in tx['vout']:
+		assert input['value']
+		assert input['valueZat']
+		assert type(input['n']) == type(0)
+		assert input['scriptPubKey']
+		assert input['scriptPubKey']['asm']
+		assert input['scriptPubKey']['hex']
+		assert input['scriptPubKey']['reqSigs']
+		assert input['scriptPubKey']['type']
+		assert input['scriptPubKey']['addresses']
+		for addie in input['scriptPubKey']['addresses']:
+			assert addie[0] == 'R'
+			assert len(addie) == 34 
+	assert type(tx['vjoinsplit']) == type([])
+	assert type(tx['valueBalance']) == type(0.0)
+	assert type(tx['vShieldedSpend']) == type([])
+	assert type(tx['vShieldedOutput']) == type([])
 
 
 #@pytest.mark.skip
@@ -231,6 +403,10 @@ def test_createrawtxwithchange():
     assert is_json(test) == True
 
 
+def sign_properties( tx ):
+	assert tx[0]['rawtx']
+	assert tx[1]['amounts']
+
 def test_createrawtx5():
     utxos_obj = [
       {
@@ -263,8 +439,10 @@ def test_createrawtx5():
     utxos = json.dumps(utxos_obj)
 
     test = openfood.createrawtx5(utxos, len(utxos_obj), to_address, fee, change_address)
-    test = json.dumps(test)
-    assert is_json(test) == True
+    print(test)
+    sign_properties(test)
+
+
 # @pytest.mark.skip
 @pytest.mark.skip
 def test_signtx():
@@ -341,9 +519,8 @@ def test_createrawtx4():
     utxos = json.dumps(utxos_obj)
 
     test = openfood.createrawtx4(utxos, len(utxos_obj), to_address, fee)
-    test = json.dumps(test)
 
-    assert is_json(test) == True
+    sign_properties(test)
 
 
 def test_decoderawtx_wrapper():
@@ -381,37 +558,40 @@ def test_explorer_get_utxos():
         assert e is True
 
 
-#def test_gen_wallet():
-  #  test_wallet = openfood.gen_wallet(TEST_GEN_WALLET_PASSPHRASE)
-    #assert TEST_GEN_WALLET_ADDRESS == test_wallet['address']
-    #assert TEST_GEN_WALLET_PUBKEY == test_wallet['pubkey']
-    #assert TEST_GEN_WALLET_WIF == test_wallet['wif']
-   # assert test_wallet['address'][0] == 'R'
+def test_gen_wallet():
+    test_wallet = openfood.gen_wallet("TEST_GEN_WALLET_PASSPHRASE")
+    assert TEST_GEN_WALLET_ADDRESS == test_wallet['address']
+    assert TEST_GEN_WALLET_PUBKEY == test_wallet['pubkey']
+    assert TEST_GEN_WALLET_WIF == test_wallet['wif']
+    assert test_wallet['address'][0] == 'R'
 
 
 def test_get_batches_no_timestamp():
     test = openfood.get_batches_no_timestamp()
-    assert type(test) == type(['this', 'is', 'an', 'test', 'array'])
+    properties_test(test)
 
 
 def test_sendtoaddress_wrapper():
     test = openfood.sendtoaddress_wrapper(THIS_NODE_WALLET, 0.1)
-    assert not (" " in test)
+    print(test)
+    assert not(" " in test)
 
 
-
+#function no longer in lib
+@pytest.mark.skip
 def test_batch_wallets_generate_timestamping():
-    test = openfood.get_batches_no_timestamp()
+    test = openfood.get_wbatches_no_timestamp()
     test = openfood.batch_wallets_generate_timestamping(test[0], test[0]['id'])
     test = json.dumps(test)
-    assert is_json(test) == True
+    print(test)
+    assert True == False
 
 
 def test_batch_wallets_timestamping_update():
     test = openfood.get_batches()
     test = openfood.batch_wallets_timestamping_update(test[0])
-    test = json.dumps(test)
-    assert is_json(test) == True
+    test = json.loads(test)
+    properties_test( [ test ] )
 
 
 def test_start_stop():
@@ -420,7 +600,7 @@ def test_start_stop():
     batch_wallets_timestamping_end(test)
 
 
-
+#we are here
 def batch_wallets_timestamping_start(testObj):
 
     utxos_obj = [
@@ -462,6 +642,7 @@ def batch_wallets_timestamping_start(testObj):
     #test = openfood.batch_wallets_generate_timestamping(test[0], test[0]['id'])
     test = json.dumps(test)
 
+    print(test)
     assert is_json(test) == True
 
 def batch_wallets_timestamping_end(testObj):

@@ -373,10 +373,13 @@ def offlineWalletGenerator_fromObjectData_certificate(objectData):
         "expiry_date": objectData['date_expiry'],
         "identfier": objectData['identifier']
     }
+	
+    print(obj)
+    log_label = objectData['identifier']
     raw_json = json.dumps(obj)
+    
     print("libopenfood->offlineWalletGenerator object data as json: " + raw_json)
 
-    log_label = objectData['identifier']
     offline_wallet = gen_wallet(raw_json, log_label)
 
     return offline_wallet
