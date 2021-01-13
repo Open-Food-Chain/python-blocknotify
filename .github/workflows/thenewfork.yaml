@@ -1,0 +1,29 @@
+name: Python package
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    env:
+      REGISTRY: registry.digitalocean.com
+      PROJECT: juicychain
+      REPOSITORY: blocknotify-python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - run: git pull
+      - name: create docker tag
+        run: echo $(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h) > IMAGE_TAG
+      - name: Build docker image
+        run: docker build -t  $REGISTRY/$PROJECT/$REPOSITORY:$(cat IMAGE_TAG) .
+      - name: Docker login
+        run: docker login -u ${{ secrets.TNF_DOCKER_REGISTRY_TOKEN }} -p ${{ secrets.TNF_DOCKER_REGISTRY_TOKEN }} $REGISTRY
+      - name: Push to thenewfork registry
+        run: docker push $REGISTRY/$PROJECT/$REPOSITORY:$(cat IMAGE_TAG)
