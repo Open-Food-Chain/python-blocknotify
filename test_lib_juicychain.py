@@ -163,6 +163,11 @@ def test_postWrapperr():
     properties_test( [ test] )
 
 
+# ORACLE TEST STUFF
+def test_oracle_create():
+	response = openfood.oracle_create("chris", "this is a test", "S")
+	assert response['result'] == "sucsess"
+
 #put is no longer used
 @pytest.mark.skip
 def test_putWrapperr():
