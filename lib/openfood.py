@@ -63,18 +63,58 @@ def connect_node():
     RPC = Proxy("http://" + RPC_USER + ":" + RPC_PASSWORD + "@" + KOMODO_NODE + ":" + RPC_PORT)
     return True
 
-
+#no test
 def kvupdate_wrapper(kv_key, kv_value, kv_days, kv_passphrase):
     if(type(kv_value) == type({"this": "is", "a": "json"})):
         kv_value = json.dumps(kv_value)
     txid = rpclib.kvupdate(RPC, kv_key, kv_value, kv_days, kv_passphrase)
     return txid
 
-
+#no test
 def kvsearch_wrapper(kv_key):
     kv_response = rpclib.kvsearch(RPC, kv_key)
     return kv_response
 
+
+#no test
+def oracle_create(name, description, data_type):
+    or_responce = rpclib.oracles_create(RPC, name, description, data_type)
+    return or_repsonce
+
+#no test
+def oracle_fund(or_id):
+    or_responce = rpclib.oracles_fund(RPC, or_id)
+    return or_repsonce
+
+#no test
+def oracle_register(or_id, data_fee):
+    or_responce = rpclib.oracles_register(RPC, or_id, data_fee)
+    return or_repsonce
+
+#no test
+def oracle_subscribe(or_id, publisher_id, data_fee):
+    or_responce = rpclib.oracles_subscribe(RPC, or_id, publisher_id, data_fee)
+    return or_repsonce
+
+#no test
+def oracle_info(or_id):
+    or_responce = rpclib.oracles_info(RPC, or_id)
+    return or_repsonce
+
+#no test
+def oracle_data(or_id, hex_string):
+    or_responce = rpclib.oracles_data(RPC, or_id, hex_string)
+    return or_repsonce
+
+#no test
+def oracle_list():
+    or_responce = rpclib.oracles_list(RPC)
+    return or_repsonce
+
+#no test
+def oracle_samples(oracletxid, batonutxo, num):
+    or_responce = rpclib.oracles_samples(RPC, oracletxid, batonutxo, num)
+    return or_repsonce
 
 # test done
 def sendtoaddress_wrapper(to_address, amount):
