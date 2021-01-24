@@ -116,6 +116,13 @@ def oracle_samples(oracletxid, batonutxo, num):
     or_responce = rpclib.oracles_samples(RPC, oracletxid, batonutxo, num)
     return or_responce
 
+def find_oracleid_with_pubkey(pubkey):
+	or_responce = oracle_list()
+	for oracle in or_responce:
+		oracle = oracle_info(oracle)
+		for registered in oracle['registered']:
+			if registered['publisher'] == pubkey:
+				return oracle['txid']
 # test done
 def sendtoaddress_wrapper(to_address, amount):
     send_amount = round(amount, 10)

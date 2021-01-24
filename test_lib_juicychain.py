@@ -230,6 +230,16 @@ def test_oracle_sample():
 		response = openfood.oracle_samples(oracle, response['registered'][0]['baton'], "1")
 		assert response['result'] == "success"
 
+def test_find_oracleid_with_pubkey():
+	response = openfood.oracle_list()
+	assert response[0]
+	for oracle in response:
+		response = openfood.oracle_info(oracle)
+		print(response)
+		orc_res = openfood.find_oracleid_with_pubkey(response['registered'][0]['publisher'])
+		assert orc_res == oracle
+
+#02f2cdd772ab57eae35996c0d39ad34fe06304c4d3981ffe71a596634fa26f8744
 #put is no longer used
 @pytest.mark.skip
 def test_putWrapperr():
