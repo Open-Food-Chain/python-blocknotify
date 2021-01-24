@@ -165,8 +165,70 @@ def test_postWrapperr():
 
 # ORACLE TEST STUFF
 def test_oracle_create():
-	response = openfood.oracle_create("chris", "this is a test", "S")
-	assert response['result'] == "sucsess"
+	response = openfood.oracle_create("NYWTHR","Weather in NYC","L")
+	print(response)
+	assert response['result'] == "success"
+
+
+def test_oracle_fund():
+	hex = openfood.oracle_create("chris", "this is a test", "S")
+	if hex['result'] == "success":
+        	response = openfood.oracle_fund(hex['hex'])
+        	assert response['result']['result'] == "success"
+	else:
+		assert True == hex['result']
+
+#def oracle register, first create and fund need to work...
+
+def test_oracle_list():
+	response = openfood.oracle_list()
+	print(response)
+	assert type(response) == type([])
+	for oracle in response:
+		assert oracle
+		assert len(oracle) == 64
+
+
+def oracle_properties(oracle):
+	print(oracle)
+	assert oracle['result'] == "success"
+	assert oracle['txid']
+	assert oracle['name']
+	assert oracle['description']
+	assert oracle['format']
+	assert oracle['marker']
+	for registered in oracle['registered']:
+		assert registered['publisher']
+		assert registered['baton']
+		assert registered['batontxid']
+		assert registered['lifetime']
+		assert registered['funds']
+		assert registered['datafee']
+
+def test_oracle_info():
+	response = openfood.oracle_list()
+	assert response[0]
+	for oracle in response:
+		response = openfood.oracle_info(oracle)
+		oracle_properties(response)
+
+def test_oracle_sub():
+	response = openfood.oracle_list()
+	assert response[0]
+	for oracle in response:
+		response = openfood.oracle_info(oracle)
+		oracle_properties(response)
+		response = openfood.oracle_subscribe(oracle, response['registered'][0]['publisher'], "0")
+		print(response)
+		assert response['result'] == "success"
+
+def test_oracle_sample():
+	response = openfood.oracle_list()
+	assert response[0]
+	for oracle in response:
+		response = openfood.oracle_info(oracle)
+		response = openfood.oracle_samples(oracle, response['registered'][0]['baton'], "1")
+		assert response['result'] == "success"
 
 #put is no longer used
 @pytest.mark.skip
