@@ -33,6 +33,7 @@ COPY new_org_wallet /code
 #COPY lib/openfood_env.py /code/lib
 COPY lib/* /code/lib/
 COPY run.py /code
+COPY .env /code
 WORKDIR /code
 
 #COPY ./ /code/
