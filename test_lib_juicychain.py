@@ -643,6 +643,11 @@ def test_gen_wallet():
     assert test_wallet['address'][0] == 'R'
 
 
+def test_get_wallet_by_name():
+    test_wallet = openfood.getOfflineWalletByName("Anything")
+    assert test_wallet['address'][0] == 'R'
+
+
 def test_get_batches_no_timestamp():
     test = openfood.get_batches_no_timestamp()
     properties_test(test)
