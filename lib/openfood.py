@@ -613,7 +613,7 @@ def sendToBatchDeliveryDate(batch_raddress, delivery_date):
     print("SEND DELIVERY DATE")
     date_as_satoshi = dateToSatoshi(delivery_date)
     print(date_as_satoshi)
-    delivery_date_wallet = getOfflineWalletDeliveryDate()
+    delivery_date_wallet = getOfflineWalletByName(WALLET_DELIVERY_DATE)
     utxos_json = explorer_get_utxos(delivery_date_wallet['address'])
     print(utxos_json)
     # works sending 0
@@ -632,7 +632,7 @@ def sendToBatchPON(batch_raddress, pon):
     print("SEND PON, check PON is accurate")
     pon_as_satoshi = dateToSatoshi(pon)
     print(pon_as_satoshi)
-    pon_wallet = getOfflineWalletPON()
+    pon_wallet = getOfflineWalletByName(WALLET_PON)
     utxos_json = explorer_get_utxos(pon_wallet['address'])
     print(utxos_json)
     # works sending 0
