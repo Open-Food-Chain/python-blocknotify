@@ -239,14 +239,14 @@ def fund_offline_wallet(offline_wallet_raddress):
 
 def check_offline_wallets():
     print("Check offline wallets: getXXXWallet, getBalance (if low then fund), getUTXOCount")
-    wallet_delivery_date = getOfflineWalletDeliveryDate()
-    wallet_pon = getOfflineWalletPON()
-    wallet_tin = getOfflineWalletTIN()
-    wallet_prod_date = getOfflineWalletProdDate()
-    wallet_julian_start = getOfflineWalletJulianStart()
-    wallet_julian_stop = getOfflineWalletJulianStop()
-    wallet_origin_country = getOfflineWalletOriginCountry()
-    wallet_bb_date = getOfflineWalletBBDate()
+    wallet_delivery_date = getOfflineWalletByName(WALLET_DELIVERY_DATE)
+    wallet_pon = getOfflineWalletByName(WALLET_PON)
+    wallet_tin = getOfflineWalletByName(WALLET_TIN)
+    wallet_prod_date = getOfflineWalletByName(WALLET_PROD_DATE)
+    wallet_julian_start = getOfflineWalletByName(WALLET_JULIAN_START)
+    wallet_julian_stop = getOfflineWalletByName(WALLET_JULIAN_STOP)
+    wallet_origin_country = getOfflineWalletByName(WALLET_ORIGIN_COUNTRY)
+    wallet_bb_date = getOfflineWalletByName(WALLET_BB_DATE)
 
     # print("Checking delivery date wallet: " + wallet_delivery_date['address'])
     # check balance
@@ -593,91 +593,13 @@ def gen_wallet(data, label='NoLabelOK'):
     return new_wallet
 
 
-def getOfflineWalletDeliveryDate():
+def getOfflineWalletByName(name):
     obj = {
-        "name": WALLET_DELIVERY_DATE
+        "name": name
     }
     raw_json = json.dumps(obj)
-    log_label = WALLET_DELIVERY_DATE
+    log_label = name
     offline_wallet = gen_wallet(raw_json, log_label)
-
-    return offline_wallet
-
-
-def getOfflineWalletPON():
-    obj = {
-        "name": WALLET_PON
-    }
-    raw_json = json.dumps(obj)
-    log_label = WALLET_PON
-    offline_wallet = gen_wallet(raw_json, log_label)
-
-    return offline_wallet
-
-
-def getOfflineWalletTIN():
-    obj = {
-        "name": WALLET_TIN
-    }
-    raw_json = json.dumps(obj)
-    log_label = WALLET_TIN
-    offline_wallet = gen_wallet(raw_json, log_label)
-
-    return offline_wallet
-
-
-def getOfflineWalletProdDate():
-    obj = {
-        "name": WALLET_PROD_DATE
-    }
-    raw_json = json.dumps(obj)
-    log_label = WALLET_PROD_DATE
-    offline_wallet = gen_wallet(raw_json, log_label)
-
-    return offline_wallet
-
-
-def getOfflineWalletJulianStart():
-    obj = {
-        "name": WALLET_JULIAN_START
-    }
-    raw_json = json.dumps(obj)
-    log_label = WALLET_JULIAN_START
-    offline_wallet = gen_wallet(raw_json, log_label)
-
-    return offline_wallet
-
-
-def getOfflineWalletJulianStop():
-    obj = {
-        "name": WALLET_JULIAN_STOP
-    }
-    raw_json = json.dumps(obj)
-    log_label = WALLET_JULIAN_STOP
-    offline_wallet = gen_wallet(raw_json, log_label)
-
-    return offline_wallet
-
-
-def getOfflineWalletOriginCountry():
-    obj = {
-        "name": WALLET_ORIGIN_COUNTRY
-    }
-    raw_json = json.dumps(obj)
-    log_label = WALLET_ORIGIN_COUNTRY
-    offline_wallet = gen_wallet(raw_json, log_label)
-
-    return offline_wallet
-
-
-def getOfflineWalletBBDate():
-    obj = {
-        "name": WALLET_BB_DATE
-    }
-    raw_json = json.dumps(obj)
-    log_label = WALLET_BB_DATE
-    offline_wallet = gen_wallet(raw_json, log_label)
-
     return offline_wallet
 
 
