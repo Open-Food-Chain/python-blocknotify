@@ -39,6 +39,7 @@ print(hk_txid)
 batches_no_timestamp = openfood.get_batches_no_timestamp()
 for batch in batches_no_timestamp:
     try:
+        print("=====>>>>> STAGE: Batch processing start")
         # batch_wallets_integrity holds integrity address, batch by import_id, batch_lot_raddress
         batch_wallets_integrity = openfood.batch_wallets_generate_timestamping(batch, batch['id'])
         # not sure why this tofix is here dec2020
@@ -49,9 +50,25 @@ for batch in batches_no_timestamp:
         openfood.batch_wallets_timestamping_start(batch_wallets_integrity, integrity_start_txid)
         sendmany_txid = openfood.organization_send_batch_links(batch_wallets_integrity)
         openfood.timestamping_save_batch_links(id, sendmany_txid)
+        # Offline wallets
+        print("=====>>>>> STAGE: Send offline wallets into batch")
         txid_delivery_date = openfood.sendToBatchDeliveryDate(tofix_bnfp_wallet['address'], batch['bbd'])
         print("** txid ** (Satoshi as Date): " + txid_delivery_date)
-        print("***** Certificates for batch")
+        txid_pon = openfood.sendToBatchPON(tofix_bnfp_wallet['address'], batch['pon'])
+        print("** txid ** (PON): " + txid_pon)
+        txid_julian_start = ""
+        print("** txid ** (JULIAN START): " + txid_julian_start)
+        txid_julian_stop = ""
+        print("** txid ** (JULIAN STOP): " + txid_julian_stop)
+        txid_origin_country = ""
+        print("** txid ** (ORIGIN COUNTRY): " + txid_origin_country)
+        txid_bb_date = ""
+        print("** txid ** (BB DATE): " + txid_bb_date)
+        txid_prod_date = ""
+        print("** txid ** (PROD DATE): " + txid_prod_date)
+        txid_tin = ""
+        print("** txid ** (TIN): " + txid_tin)
+        print("=====>>>>> STAGE: Certificates for batch")
         # this can all be put into an openfood lib function like sendToBatchDeliveryDate
         certificate = openfood.get_certificate_for_batch()
         offline_wallet = openfood.offlineWalletGenerator_fromObjectData_certificate(certificate)
