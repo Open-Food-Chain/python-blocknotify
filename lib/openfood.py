@@ -593,6 +593,7 @@ def gen_wallet(data, label='NoLabelOK'):
     return new_wallet
 
 
+# test done
 def getOfflineWalletByName(name):
     obj = {
         "name": name
