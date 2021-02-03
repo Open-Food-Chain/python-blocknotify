@@ -416,7 +416,12 @@ def createrawtx6(utxos_json, num_utxo, to_address, to_amount, fee, change_addres
     # for to_amount.  When a wallet had no utxos, the resulting change was -0.00123, some sort of mis-naming maybe?
     #to_amount = 0.00123
     # change_tmp = 0
-    change_amount = round(amount - fee - to_amount, 10)
+    if( amount > to_amount ):
+        change_amount = round(amount - fee - to_amount, 10)
+    else:
+        # TODO
+        print("### ERROR ### Needs to be caught, the to_amount is larger than the utxo amount, need more utxos")
+        change_amount = round(to_amount - amount - fee, 10)
     print("AMOUNTS: amount, #to_amount, change_amount, fee")
     print(amount)
     print(to_amount)
@@ -529,19 +534,19 @@ def signtx(kmd_unsigned_tx_serialized, amounts, wif):
     outputs = jsontx.get('outputs')
     locktime = jsontx.get('lockTime', 0)
     outputs_formatted = []
-    print("\n###### IN SIGNTX FUNCTION #####\n")
-    print(jsontx)
-    print(inputs)
-    print(outputs)
-    print(locktime)
+    # print("\n###### IN SIGNTX FUNCTION #####\n")
+    # print(jsontx)
+    # print(inputs)
+    # print(outputs)
+    # print(locktime)
 
     for txout in outputs:
         outputs_formatted.append([txout['type'], txout['address'], (txout['value'])])
         print("Value of out before miner fee: " + str(txout['value']))
         print("Value of out: " + str(txout['value']))
 
-    print("\nOutputs formatted:\n")
-    print(outputs_formatted)
+    # print("\nOutputs formatted:\n")
+    # print(outputs_formatted)
 
     for txin in inputs:
         txin['type'] = txin_type
@@ -553,14 +558,14 @@ def signtx(kmd_unsigned_tx_serialized, amounts, wif):
         txin['value'] = amounts[inputs.index(txin)]  # required for preimage calc
 
     tx = Transaction.from_io(inputs, outputs_formatted, locktime=locktime)
-    print("### TX before signing###")
-    print(tx)
-    print("### END TX ###")
+    # print("### TX before signing###")
+    # print(tx)
+    # print("### END TX ###")
     tx.sign({pubkey: (privkey, compressed)})
 
-    print("\nSigned tx:\n")
-    print(tx.serialize())
-    print("Return from signtx")
+    # print("\nSigned tx:\n")
+    # print(tx.serialize())
+    # print("Return from signtx")
     return tx.serialize()
 
 
