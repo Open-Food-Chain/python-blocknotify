@@ -34,12 +34,17 @@ openfood.check_node_wallet()
 openfood.check_offline_wallets()
 openfood.check_sync()
 hk_txid = openfood.housekeeping_tx()
-print(hk_txid)
+print("House keeping tx:", hk_txid, sep="\n")
 
 batches_no_timestamp = openfood.get_batches_no_timestamp()
 for batch in batches_no_timestamp:
     try:
-        print("=====>>>>> STAGE: Batch processing start")
+        print("""
+        
+        =====>>>>> STAGE: Batch processing start
+        
+        """)
+        print(batch)
         # batch_wallets_integrity holds integrity address, batch by import_id, batch_lot_raddress
         batch_wallets_integrity = openfood.batch_wallets_generate_timestamping(batch, batch['id'])
         # not sure why this tofix is here dec2020
@@ -51,12 +56,16 @@ for batch in batches_no_timestamp:
         sendmany_txid = openfood.organization_send_batch_links(batch_wallets_integrity)
         openfood.timestamping_save_batch_links(id, sendmany_txid)
         # Offline wallets
-        print("=====>>>>> STAGE: Send offline wallets into batch")
+        print("""
+        
+        =====>>>>> STAGE: Send offline wallets into batch
+        
+        """)
         txid_delivery_date = openfood.sendToBatchDeliveryDate(tofix_bnfp_wallet['address'], batch['bbd'])
-        print("** txid ** (Satoshi as Date): " + txid_delivery_date)
+        print("** txid ** (DELIVERY_DATE): " + txid_delivery_date)
         txid_pon = openfood.sendToBatchPON(tofix_bnfp_wallet['address'], batch['pon'])
         print("** txid ** (PON): " + txid_pon)
-        txid_julian_start = ""
+        txid_julian_start = "" # openfood.sendToBatchFromOfflineWallet(tofix_bnfp_wallet['address'], batch['jds'])
         print("** txid ** (JULIAN START): " + txid_julian_start)
         txid_julian_stop = ""
         print("** txid ** (JULIAN STOP): " + txid_julian_stop)
@@ -68,7 +77,11 @@ for batch in batches_no_timestamp:
         print("** txid ** (PROD DATE): " + txid_prod_date)
         txid_tin = ""
         print("** txid ** (TIN): " + txid_tin)
-        print("=====>>>>> STAGE: Certificates for batch")
+        print("""
+        
+        =====>>>>> STAGE: Certificates for batch
+        
+        """)
         # this can all be put into an openfood lib function like sendToBatchDeliveryDate
         certificate = openfood.get_certificate_for_batch()
         offline_wallet = openfood.offlineWalletGenerator_fromObjectData_certificate(certificate)
