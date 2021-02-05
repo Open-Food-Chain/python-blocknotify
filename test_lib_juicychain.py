@@ -833,3 +833,7 @@ def test_fund_offline_wallet():
     test = openfood.fund_offline_wallet("RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW")
     print(test)
     assert not (" " in test)
+
+def test_is_below_threshold_balance():
+    test = openfood.is_below_threshold_balance(1*100000000, 2)
+    assert test is True
