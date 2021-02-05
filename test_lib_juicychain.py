@@ -635,6 +635,15 @@ def test_explorer_get_utxos():
         assert e is True
 
 
+# @pytest.mark.skip
+def test_explorer_get_balance():
+    try:
+        test = openfood.explorer_get_utxos("RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW")
+        assert is_json(test) is False # failing is acceptable for JC-367, check JC-431
+    except Exception as e:
+        assert e is True
+
+
 def test_gen_wallet():
     test_wallet = openfood.gen_wallet("TEST_GEN_WALLET_PASSPHRASE")
     assert TEST_GEN_WALLET_ADDRESS == test_wallet['address']
