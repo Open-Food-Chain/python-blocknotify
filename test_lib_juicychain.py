@@ -828,3 +828,8 @@ def test_sendmany_wrapper():
     test = openfood.sendmany_wrapper(THIS_NODE_WALLET, json_object)
     print(test)
     assert not (" " in test)
+
+def test_fund_offline_wallet():
+    test = openfood.fund_offline_wallet("RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW")
+    print(test)
+    assert not (" " in test)
