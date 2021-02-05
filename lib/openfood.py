@@ -358,7 +358,7 @@ def explorer_get_utxos(querywallet):
         # print(vout['txid'] + " " + str(vout['vout']) + " " + str(vout['amount']) + " " + str(vout['satoshis']))
     return res.text
 
-
+# test done
 def explorer_get_balance(querywallet):
     print("Get balance for wallet: " + querywallet)
     INSIGHT_API_KOMODO_ADDRESS_BALANCE = "insight-api-komodo/addr/" + querywallet + "/balance"
