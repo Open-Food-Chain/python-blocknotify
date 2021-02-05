@@ -228,7 +228,7 @@ def check_node_wallet():
         print("##")
         exit()
 
-
+# test done
 def fund_offline_wallet(offline_wallet_raddress):
     json_object = {
      offline_wallet_raddress: 11.2109
