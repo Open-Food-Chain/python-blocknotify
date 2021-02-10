@@ -236,7 +236,7 @@ def fund_offline_wallet(offline_wallet_raddress):
     sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
     return sendmany_txid
 
-
+# test done
 def is_below_threshold_balance(check_this, balance_threshold):
     if( check_this < balance_threshold * 100000000 ):
         return True
