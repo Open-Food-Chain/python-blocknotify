@@ -7,6 +7,10 @@ from lib.openfood_env import KOMODO_NODE
 from lib.openfood_env import RPC_USER
 from lib.openfood_env import RPC_PASSWORD
 from lib.openfood_env import RPC_PORT
+from lib.openfood_env import KV1_NODE
+from lib.openfood_env import KV1_RPC_USER
+from lib.openfood_env import KV1_RPC_PASSWORD
+from lib.openfood_env import KV1_RPC_PORT
 from lib.openfood_env import EXPLORER_URL
 from lib.openfood_env import THIS_NODE_RADDRESS
 from lib.openfood_env import THIS_NODE_WIF
@@ -71,6 +75,7 @@ load_dotenv(verbose=True)
 SCRIPT_VERSION = 0.00012111
 
 RPC = ""
+KV1RPC = ""
 URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH
 URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
 URL_openfood_API_ORGANIZATION = openfood_API_BASE_URL + openfood_API_ORGANIZATION
@@ -92,6 +97,14 @@ def connect_node():
     print("Connecting to: " + KOMODO_NODE + ":" + RPC_PORT)
     RPC = Proxy("http://" + RPC_USER + ":" + RPC_PASSWORD + "@" + KOMODO_NODE + ":" + RPC_PORT)
     return True
+
+
+def connect_kv1_node():
+    global KV1RPC
+    print("Connecting KV to: " + KV1_NODE + ":" + KV1_RPC_PORT)
+    KV1RPC = Proxy("http://" + KV1_RPC_USER + ":" + KV1_RPC_PASSWORD + "@" + KV1_NODE + ":" + KV1_RPC_PORT)
+    return True
+
 
 #no test
 def kvupdate_wrapper(kv_key, kv_value, kv_days, kv_passphrase):
