@@ -291,6 +291,11 @@ def test_connect_node():
     assert test == True
 
 
+def test_connect_kv1_node():
+    test = openfood.connect_kv1_node()
+    assert test == True
+
+
 def test_signmessage_wrapper():
     data = "chris"
     deterministic = "H/RhRKf1Na1ZG142wrAmheGYnZIXBYnaZO65/Z2oJeeoTASUd5oRhHnzejRAQ0yFdUlAb8zX1HNMRbqZJ1u+awY="
