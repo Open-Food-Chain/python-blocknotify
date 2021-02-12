@@ -99,6 +99,7 @@ def connect_node():
     return True
 
 
+# test done
 def connect_kv1_node():
     global KV1RPC
     print("Connecting KV to: " + KV1_NODE + ":" + KV1_RPC_PORT)
