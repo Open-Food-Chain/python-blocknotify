@@ -242,6 +242,30 @@ def check_node_wallet():
         print("##")
         exit()
 
+
+def check_kv1_wallet():
+    # check wallet management
+    try:
+        print("Validating wallet with " + THIS_NODE_RADDRESS)
+        is_mine = rpclib.validateaddress(KV1RPC, THIS_NODE_RADDRESS)['ismine']
+        print(is_mine)
+        if is_mine is False:
+            rpclib.importprivkey(KV1RPC, THIS_NODE_WIF)
+        is_mine = rpclib.validateaddress(KV1RPC, THIS_NODE_RADDRESS)['ismine']
+        return is_mine
+    except Exception as e:
+        print(e)
+        print("## CHECK KV1 WALLET ERROR ##")
+        print("# Things that could be wrong:")
+        print("# Wallet is not imported on this node or wallet mismatch to env")
+        print("# Node is not available. Check debug.log for details")
+        print("# If node is rescanning, will take a short while")
+        print("# If changing wallet & env, rescan will occur")
+        print("# Exiting.")
+        print("##")
+        exit()
+
+
 # test done
 def fund_offline_wallet(offline_wallet_raddress):
     json_object = {
