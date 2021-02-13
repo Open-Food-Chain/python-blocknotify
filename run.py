@@ -31,6 +31,7 @@ URL_openfood_API_ORGANIZATION_BATCH = openfood_API_BASE_URL + openfood_API_ORGAN
 
 openfood.connect_node()
 openfood.check_node_wallet()
+openfood.check_kv1_wallet()
 openfood.check_offline_wallets()
 openfood.check_sync()
 hk_txid = openfood.housekeeping_tx()

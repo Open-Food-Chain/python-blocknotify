@@ -626,6 +626,11 @@ def test_check_node_wallet():
     assert test is True
 
 
+def test_check_kv1_wallet():
+    test = openfood.check_kv1_wallet()
+    assert test is True
+
+
 def test_check_sync():
     test = openfood.check_sync()
     assert type(10) == type(test)
