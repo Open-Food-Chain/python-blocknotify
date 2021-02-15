@@ -223,7 +223,7 @@ def check_sync():
 def check_node_wallet():
     # check wallet management
     try:
-        print("Validating wallet with " + THIS_NODE_RADDRESS)
+        print("Validating node wallet with " + THIS_NODE_RADDRESS)
         is_mine = rpclib.validateaddress(RPC, THIS_NODE_RADDRESS)['ismine']
         print(is_mine)
         if is_mine is False:
@@ -246,7 +246,7 @@ def check_node_wallet():
 def check_kv1_wallet():
     # check wallet management
     try:
-        print("Validating wallet with " + THIS_NODE_RADDRESS)
+        print("Validating kv1 wallet with " + THIS_NODE_RADDRESS)
         is_mine = rpclib.validateaddress(KV1RPC, THIS_NODE_RADDRESS)['ismine']
         print(is_mine)
         if is_mine is False:

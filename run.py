@@ -30,6 +30,7 @@ URL_IMPORT_API_RAW_REFRESCO_TSTX_PATH = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW
 URL_openfood_API_ORGANIZATION_BATCH = openfood_API_BASE_URL + openfood_API_ORGANIZATION_BATCH
 
 openfood.connect_node()
+openfood.connect_kv1_node()
 openfood.check_node_wallet()
 openfood.check_kv1_wallet()
 openfood.check_offline_wallets()
