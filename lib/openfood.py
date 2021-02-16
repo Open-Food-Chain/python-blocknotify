@@ -63,6 +63,9 @@ from lib.openfood_env import WALLET_ORIGIN_COUNTRY_THRESHOLD_BALANCE
 from lib.openfood_env import WALLET_ORIGIN_COUNTRY_THRESHOLD_UTXO
 from lib.openfood_env import WALLET_ORIGIN_COUNTRY_THRESHOLD_UTXO_VALUE
 from lib.openfood_env import KV1_ORG_POOL_WALLETS
+from lib.openfood_env import WALLET_ALL_OUR_BATCH_LOT
+from lib.openfood_env import WALLET_ALL_OUR_PO
+from lib.openfood_env import WALLET_ALL_CUSTOMER_PO
 
 from dotenv import load_dotenv
 from lib import transaction, bitcoin
@@ -268,13 +271,13 @@ def check_kv1_wallet():
 
 
 def generate_pool_wallets():
-    wallet_all_po = getOfflineWalletByName("all_po")
-    wallet_all_batch = getOfflineWalletByName("all_batch")
-    wallet_all_certs = getOfflineWalletByName("all_certs")
+    wallet_all_our_po = getOfflineWalletByName(WALLET_ALL_OUR_PO)
+    wallet_all_our_batch = getOfflineWalletByName(WALLET_ALL_OUR_BATCH_LOT)
+    wallet_all_customer_po = getOfflineWalletByName(WALLET_ALL_CUSTOMER_PO)
     pool_wallets = {}
-    pool_wallets["all_po"] = wallet_all_po["address"]
-    pool_wallets["all_batch"] = wallet_all_batch["address"]
-    pool_wallets["all_certs"] = wallet_all_certs["address"]
+    pool_wallets["all_our_po"] = wallet_all_our_po["address"]
+    pool_wallets["all_our_batch"] = wallet_all_our_batch["address"]
+    pool_wallets["all_customer_po"] = wallet_all_customer_po["address"]
     print("pool wallets: " + json.dumps(pool_wallets))
     return pool_wallets
 
