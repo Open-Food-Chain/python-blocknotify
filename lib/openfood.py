@@ -296,8 +296,9 @@ def verify_kv_pool_wallets():
 
 
 def organization_get_pool_wallets_by_raddress(raddress):
+    print("GET POOL WALLETS BY RADDRESS: " + raddress)
     kv_response = kvsearch_wrapper(raddress + KV1_ORG_POOL_WALLETS)
-    print(kv_response)
+    return kv_response
 
 
 def get_this_node_raddress():
@@ -974,12 +975,37 @@ def batch_wallets_fund_integrity_end(integrity_address):
     return sendtoaddress_wrapper(integrity_address, FUNDING_AMOUNT_TIMESTAMPING_END)
 
 
+def organization_get_our_pool_batch_wallet():
+    kv_response = organization_get_pool_wallets_by_raddress(THIS_NODE_RADDRESS)
+    print(kv_response)
+    tmp = json.loads(kv_response['value'])
+    tmp2 = str(tmp[WALLET_ALL_OUR_BATCH_LOT])
+    return tmp2
+
+
+def organization_get_our_pool_po_wallet():
+    kv_response = organization_get_pool_wallets_by_raddress(THIS_NODE_RADDRESS)
+    print(kv_response)
+    tmp = json.loads(kv_response['value'])
+    tmp2 = str(tmp[WALLET_ALL_OUR_PO])
+    return tmp2
+
+
+def organization_get_customer_po_wallet():
+    return True
+
+
 def organization_send_batch_links(batch_integrity):
     sample_pool_po = "RWSVFtCJfRH5ErsXJCaz9YNVKx7PijxpoV"
     sample_pool_batch_lot = "R9X5CBJjmVmJe4a533hemBf6vCW2m3BAqH"
+    pool_batch_wallet = organization_get_our_pool_batch_wallet()
+    pool_po = organization_get_our_pool_po_wallet()
     print("MAIN WALLET " + THIS_NODE_RADDRESS + " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), POOL_BATCH_LOT")
-    json_object = {sample_pool_po: SCRIPT_VERSION,
-                   sample_pool_batch_lot: SCRIPT_VERSION,
+    print(pool_batch_wallet)
+
+    json_object = {
+                    pool_batch_wallet: SCRIPT_VERSION,
+                    pool_po: SCRIPT_VERSION,
                    batch_integrity['batch_lot_raddress']: SCRIPT_VERSION
                    }
     sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
