@@ -991,8 +991,20 @@ def organization_get_our_pool_po_wallet():
     return tmp2
 
 
-def organization_get_customer_po_wallet():
-    return True
+def organization_get_customer_po_wallet(CUSTOMER_RADDRESS):
+    kv_response = organization_get_pool_wallets_by_raddress(CUSTOMER_RADDRESS)
+    print(kv_response)
+    tmp = json.loads(kv_response['value'])
+    tmp2 = str(tmp[WALLET_ALL_OUR_PO])
+    return tmp2
+
+
+def organization_get_customer_batch_wallet(CUSTOMER_RADDRESS):
+    kv_response = organization_get_pool_wallets_by_raddress(CUSTOMER_RADDRESS)
+    print(kv_response)
+    tmp = json.loads(kv_response['value'])
+    tmp2 = str(tmp[WALLET_ALL_OUR_BATCH_LOT])
+    return tmp2
 
 
 def organization_send_batch_links(batch_integrity):
