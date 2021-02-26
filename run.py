@@ -33,9 +33,12 @@ openfood.connect_node()
 openfood.connect_kv1_node()
 openfood.check_node_wallet()
 openfood.check_kv1_wallet()
+openfood.verify_kv_pool_wallets()
 openfood.check_offline_wallets()
 openfood.check_sync()
 hk_txid = openfood.housekeeping_tx()
+# this works
+# openfood.organization_get_pool_wallets_by_raddress(openfood.get_this_node_raddress())
 print("House keeping tx:", hk_txid, sep="\n")
 
 batches_no_timestamp = openfood.get_batches_no_timestamp()

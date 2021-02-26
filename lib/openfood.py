@@ -62,6 +62,10 @@ from lib.openfood_env import WALLET_ORIGIN_COUNTRY
 from lib.openfood_env import WALLET_ORIGIN_COUNTRY_THRESHOLD_BALANCE
 from lib.openfood_env import WALLET_ORIGIN_COUNTRY_THRESHOLD_UTXO
 from lib.openfood_env import WALLET_ORIGIN_COUNTRY_THRESHOLD_UTXO_VALUE
+from lib.openfood_env import KV1_ORG_POOL_WALLETS
+from lib.openfood_env import WALLET_ALL_OUR_BATCH_LOT
+from lib.openfood_env import WALLET_ALL_OUR_PO
+from lib.openfood_env import WALLET_ALL_CUSTOMER_PO
 
 from dotenv import load_dotenv
 from lib import transaction, bitcoin
@@ -111,12 +115,12 @@ def connect_kv1_node():
 def kvupdate_wrapper(kv_key, kv_value, kv_days, kv_passphrase):
     if(type(kv_value) == type({"this": "is", "a": "json"})):
         kv_value = json.dumps(kv_value)
-    txid = rpclib.kvupdate(RPC, kv_key, kv_value, kv_days, kv_passphrase)
+    txid = rpclib.kvupdate(KV1RPC, kv_key, kv_value, kv_days, kv_passphrase)
     return txid
 
 #no test
 def kvsearch_wrapper(kv_key):
-    kv_response = rpclib.kvsearch(RPC, kv_key)
+    kv_response = rpclib.kvsearch(KV1RPC, kv_key)
     return kv_response
 
 
@@ -264,6 +268,56 @@ def check_kv1_wallet():
         print("# Exiting.")
         print("##")
         exit()
+
+
+def generate_pool_wallets():
+    wallet_all_our_po = getOfflineWalletByName(WALLET_ALL_OUR_PO)
+    wallet_all_our_batch = getOfflineWalletByName(WALLET_ALL_OUR_BATCH_LOT)
+    wallet_all_customer_po = getOfflineWalletByName(WALLET_ALL_CUSTOMER_PO)
+    pool_wallets = {}
+    pool_wallets["all_our_po"] = wallet_all_our_po["address"]
+    pool_wallets["all_our_batch"] = wallet_all_our_batch["address"]
+    pool_wallets["all_customer_po"] = wallet_all_customer_po["address"]
+    print("pool wallets: " + json.dumps(pool_wallets))
+    return pool_wallets
+
+
+def verify_kv_pool_wallets():
+    pool_wallets = generate_pool_wallets()
+    print("Verifying pool wallets in KV1")
+    org_kv1_key_pool_wallets = THIS_NODE_RADDRESS + KV1_ORG_POOL_WALLETS
+    kv_response = kvsearch_wrapper(org_kv1_key_pool_wallets)
+    if( kv_response.get("error")):
+        print("Updating with a value")
+        kv_response = kvupdate_wrapper(org_kv1_key_pool_wallets, json.dumps(pool_wallets), "3", "password")
+        print(kv_response)
+    else:
+        print("kv exists for pool wallets")
+
+
+def organization_get_pool_wallets_by_raddress(raddress):
+    print("GET POOL WALLETS BY RADDRESS: " + raddress)
+    kv_response = kvsearch_wrapper(raddress + KV1_ORG_POOL_WALLETS)
+    return kv_response
+
+
+def get_this_node_raddress():
+    return THIS_NODE_RADDRESS
+
+
+def kv_save_batch_to_raddress(batch, raddress):
+    kv_response = kvupdate_wrapper(batch, raddress, "100", "password")
+    return kv_response
+
+
+def kv_save_raddress_to_data(raddress, data):
+    kv_response = kvupdate_wrapper(raddress, data, "100", "password")
+    return kv_response
+
+
+def kv_get_by_raddress(raddress):
+    kv_response = kvsearch_wrapper(raddress)
+    return kv_response
 
 
 # test done
@@ -921,12 +975,37 @@ def batch_wallets_fund_integrity_end(integrity_address):
     return sendtoaddress_wrapper(integrity_address, FUNDING_AMOUNT_TIMESTAMPING_END)
 
 
+def organization_get_our_pool_batch_wallet():
+    kv_response = organization_get_pool_wallets_by_raddress(THIS_NODE_RADDRESS)
+    print(kv_response)
+    tmp = json.loads(kv_response['value'])
+    tmp2 = str(tmp[WALLET_ALL_OUR_BATCH_LOT])
+    return tmp2
+
+
+def organization_get_our_pool_po_wallet():
+    kv_response = organization_get_pool_wallets_by_raddress(THIS_NODE_RADDRESS)
+    print(kv_response)
+    tmp = json.loads(kv_response['value'])
+    tmp2 = str(tmp[WALLET_ALL_OUR_PO])
+    return tmp2
+
+
+def organization_get_customer_po_wallet():
+    return True
+
+
 def organization_send_batch_links(batch_integrity):
     sample_pool_po = "RWSVFtCJfRH5ErsXJCaz9YNVKx7PijxpoV"
     sample_pool_batch_lot = "R9X5CBJjmVmJe4a533hemBf6vCW2m3BAqH"
+    pool_batch_wallet = organization_get_our_pool_batch_wallet()
+    pool_po = organization_get_our_pool_po_wallet()
     print("MAIN WALLET " + THIS_NODE_RADDRESS + " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), POOL_BATCH_LOT")
-    json_object = {sample_pool_po: SCRIPT_VERSION,
-                   sample_pool_batch_lot: SCRIPT_VERSION,
+    print(pool_batch_wallet)
+
+    json_object = {
+                    pool_batch_wallet: SCRIPT_VERSION,
+                    pool_po: SCRIPT_VERSION,
                    batch_integrity['batch_lot_raddress']: SCRIPT_VERSION
                    }
     sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
