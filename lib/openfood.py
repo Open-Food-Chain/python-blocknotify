@@ -275,9 +275,9 @@ def generate_pool_wallets():
     wallet_all_our_batch = getOfflineWalletByName(WALLET_ALL_OUR_BATCH_LOT)
     wallet_all_customer_po = getOfflineWalletByName(WALLET_ALL_CUSTOMER_PO)
     pool_wallets = {}
-    pool_wallets["all_our_po"] = wallet_all_our_po["address"]
-    pool_wallets["all_our_batch"] = wallet_all_our_batch["address"]
-    pool_wallets["all_customer_po"] = wallet_all_customer_po["address"]
+    pool_wallets[str(WALLET_ALL_OUR_PO)] = wallet_all_our_po["address"]
+    pool_wallets[str(WALLET_ALL_OUR_BATCH_LOT)] = wallet_all_our_batch["address"]
+    pool_wallets[str(WALLET_ALL_CUSTOMER_PO)] = wallet_all_customer_po["address"]
     print("pool wallets: " + json.dumps(pool_wallets))
     return pool_wallets
 
