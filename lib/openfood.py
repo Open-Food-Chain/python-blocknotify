@@ -275,9 +275,9 @@ def generate_pool_wallets():
     wallet_all_our_batch = getOfflineWalletByName(WALLET_ALL_OUR_BATCH_LOT)
     wallet_all_customer_po = getOfflineWalletByName(WALLET_ALL_CUSTOMER_PO)
     pool_wallets = {}
-    pool_wallets["all_our_po"] = wallet_all_our_po["address"]
-    pool_wallets["all_our_batch"] = wallet_all_our_batch["address"]
-    pool_wallets["all_customer_po"] = wallet_all_customer_po["address"]
+    pool_wallets[str(WALLET_ALL_OUR_PO)] = wallet_all_our_po["address"]
+    pool_wallets[str(WALLET_ALL_OUR_BATCH_LOT)] = wallet_all_our_batch["address"]
+    pool_wallets[str(WALLET_ALL_CUSTOMER_PO)] = wallet_all_customer_po["address"]
     print("pool wallets: " + json.dumps(pool_wallets))
     return pool_wallets
 
@@ -1014,8 +1014,10 @@ def organization_send_batch_links(batch_integrity):
     pool_po = organization_get_our_pool_po_wallet()
     print("MAIN WALLET " + THIS_NODE_RADDRESS + " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), POOL_BATCH_LOT")
     print(pool_batch_wallet)
+    customer_pool_wallet = organization_get_customer_po_wallet(CUSTOMER_RADDRESS)
 
     json_object = {
+
                     pool_batch_wallet: SCRIPT_VERSION,
                     pool_po: SCRIPT_VERSION,
                    batch_integrity['batch_lot_raddress']: SCRIPT_VERSION
