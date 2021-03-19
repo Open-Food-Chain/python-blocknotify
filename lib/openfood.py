@@ -673,6 +673,15 @@ def sendToBatchMassBalance(batch_raddress, mass_balance_value):
     return mass_balance_txid
 
 
+def sendAndPostMassBalance(batch_raddress, mass_balance_value):
+   txid = sendToBatchMassBalance(batch_raddress, mass_balance_value)
+   url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_BATCH + batch_raddress
+   data = { "mass_balance_value":mass_balance_value,
+   "mass_balance_txid":txid }
+   answere = postWrapper(url, data)
+   print("post: " + answere.res)
+   return answere
+
 def sendToBatchDeliveryDate(batch_raddress, delivery_date):
     # delivery date
     print("SEND DELIVERY DATE")
