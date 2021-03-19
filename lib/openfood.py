@@ -656,6 +656,23 @@ def dateToSatoshi(date):
     return int(date.replace('-', ''))
 
 
+def sendToBatchMassBalance(batch_raddress, mass_balance_value):
+    # delivery date
+    print("SEND MASS BALANCE")
+    mass_balance_wallet = getOfflineWalletByName(WALLET_MASS_BALANCE)
+    utxos_json = explorer_get_utxos(mass_balance_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx6(utxos_json, 1, batch_raddress, round(mass_balance_value/100000000, 10), 0, mass_balance_wallet['address'])
+    print("MASS BALANCE RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], mass_balance_wallet['wif'])
+    mass_balance_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    raddress = mass_balance_wallet['address']
+    # txid = sendtoaddressWrapper(batch_raddress, date_as_satoshi/100000000, 1)
+    return mass_balance_txid
+
+
 def sendToBatchDeliveryDate(batch_raddress, delivery_date):
     # delivery date
     print("SEND DELIVERY DATE")
