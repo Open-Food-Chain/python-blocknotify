@@ -294,6 +294,24 @@ def test_PatchMassBalance():
     print(answere.text)
     assert answere.status_code == 200
 
+
+def test_rToId():
+    url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_BATCH
+    batches = openfood.getWrapper(url)
+    batches = json.loads(batches)
+    for batch in batches:
+        id = openfood.rToId(batch['raddress'])
+        assert id == batch['id']
+   
+def test_sendToBatchMassBalance():
+    url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_BATCH
+    batches = openfood.getWrapper(url)
+    batches = json.loads(batches)
+    batch_raddress = batches[0]['raddress']
+    mass_balance_value = random.randint(0, 1000)
+    txid = openfood.sendToBatchMassBalance(batch_raddress, mass_balance_value)
+    assert len(txid) == 64
+
 #it seems like this is no longer a possible call
 @pytest.mark.skip
 def test_patchWrapperr():

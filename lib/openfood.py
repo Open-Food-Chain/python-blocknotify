@@ -37,7 +37,7 @@ from lib.openfood_env import WALLET_PON
 from lib.openfood_env import WALLET_PON_THRESHOLD_BALANCE
 from lib.openfood_env import WALLET_PON_THRESHOLD_UTXO
 from lib.openfood_env import WALLET_PON_THRESHOLD_UTXO_VALUE
-
+from lib.openfood_env import WALLET_MASS_BALANCE
 from lib.openfood_env import WALLET_TIN
 from lib.openfood_env import WALLET_TIN_THRESHOLD_BALANCE
 from lib.openfood_env import WALLET_TIN_THRESHOLD_UTXO
@@ -696,8 +696,9 @@ def massBalanceIntoApi(mass_balance_txid, mass_balance_value, id):
    print("post: " + answere.text)
    return answere
 
-def rToId(batch_raddresss):
-   batches = get_batches()
+def rToId(batch_raddress):
+   url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_BATCH
+   batches = getWrapper(url)
    batches = json.loads(batches)
    for batch in batches:
        if batch['raddress'] == batch_raddress:
