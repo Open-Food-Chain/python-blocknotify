@@ -11,6 +11,7 @@ from lib.openfood_env import DEV_IMPORT_API_RAW_REFRESCO_PATH
 #from lib.openfood_env import TEST_GEN_WALLET_PUBKEY
 from lib.openfood_env import openfood_API_BASE_URL
 from lib.openfood_env import openfood_API_ORGANIZATION_CERTIFICATE
+from lib.openfood_env import openfood_API_ORGANIZATION_BATCH
 from lib import openfood
 from dotenv import load_dotenv
 import json
@@ -61,7 +62,12 @@ def str_time_prop(start, end, format, prop):
 
 
 def generate_random_hex(size):
-	return binascii.b2a_hex(os.urandom(size))
+	size = size/2
+	size = int(size)
+	hex = binascii.b2a_hex(os.urandom(size))
+	hex = str(hex)
+	hex = hex[2:-1]
+	return hex
 
 def random_date(start, end, prop):
 	return str_time_prop(start, end, '%Y-%m-%d', prop)
@@ -250,7 +256,7 @@ def test_putWrapperr():
     test = openfood.putWrapper(url, data)
     assert is_json(test) is True
 
-def test_getWrapperr():
+def test_getWrapper():
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_PATH
 
     test = openfood.getWrapper(url)
@@ -275,6 +281,18 @@ def test_get_batches():
     test = openfood.get_batches()
 
     properties_test(test)
+
+
+def test_PatchMassBalance():
+    #url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_BATCH
+    #batches = openfood.getWrapper(url)
+    #batches = json.loads(batches)
+    #batch_raddress = batches[0]['raddress']
+    mass_balance_value = random.randint(0, 1000)
+    mass_balance_txid = generate_random_hex(64)
+    answere = openfood.massBalanceIntoApi(mass_balance_txid, mass_balance_value, 1)
+    print(answere.text)
+    assert answere.status_code == 200
 
 #it seems like this is no longer a possible call
 @pytest.mark.skip

@@ -673,42 +673,17 @@ def sendToBatchMassBalance(batch_raddress, mass_balance_value):
     return mass_balance_txid
 
 
-def massBalanceIntoApi(mass_balance_txid, mass_balance_value, id):
-   url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_BATCH + str(id) + "/"
-  # data = { "mass_balance_value":mass_balance_value,
-   #"mass_balance_txid":mass_balance_txid}
-   data = {
-    #"id": 1,
-    #"identifier": "ID-8038356",
-    #"jds": 96,
-    #"jde": 964,
-    #"date_production_start": "2020-06-09",
-    #"date_best_before": "2020-06-09",
-    #"delivery_date": None,
-    #"origin_country": "DE",
-    #"pubkey": "027e0232fe7c10751bf214206d2c03c4ae4d7ea5f1eeb5c3cd5136a19ddadd4cee",
-    #"raddress": "RTSEYsRCMzkWIpUBCLXWGHqdtQgjDDilVN",
-    "mass_balance_value": mass_balance_value,
-    "mass_balance_txid": mass_balance_txid,
-    #"organization": 1
-   }
-   answere = requests.patch(url, data=data)
-   print("post: " + answere.text)
+def massBalanceIntoApi(mass_balance_txid, mass_balance_value, batch_raddress):
+   url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_BATCH + batch_raddress
+   data = { "mass_balance_value":mass_balance_value,
+   "mass_balance_txid":txid }
+   answere = postWrapper(url, data)
+   print("post: " + answere.res)
    return answere
-
-def rToId(batch_raddresss):
-   batches = get_batches()
-   batches = json.loads(batches)
-   for batch in batches:
-       if batch['raddress'] == batch_raddress:
-            return batch['id']
- 
-   return None
 
 def sendAndPostMassBalance(batch_raddress, mass_balance_value):
    txid = sendToBatchMassBalance(batch_raddress, mass_balance_value)
-   id = rToId(batch_raddress)
-   answere = massBalanceIntoApi(txid, mass_balance_value, id)
+   answere = massBalanceIntoApi(txid, mass_balance_value, batach_raddress)
    return answere
 
 def sendToBatchDeliveryDate(batch_raddress, delivery_date):
@@ -744,6 +719,7 @@ def sendToBatchPON(batch_raddress, pon):
     print("PON RAWTX: " + str(rawtx_info))
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], pon_wallet['wif'])
     pon_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+
     raddress = pon_wallet['address']
     # txid = sendtoaddressWrapper(batch_raddress, date_as_satoshi/100000000, 1)
     return pon_txid
