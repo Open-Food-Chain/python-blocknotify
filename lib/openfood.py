@@ -706,7 +706,7 @@ def rToId(batch_raddress):
  
    return None
 
-def sendAndPostMassBalance(batch_raddress, mass_balance_value):
+def sendAndPatchMassBalance(batch_raddress, mass_balance_value):
    txid = sendToBatchMassBalance(batch_raddress, mass_balance_value)
    id = rToId(batch_raddress)
    answere = massBalanceIntoApi(txid, mass_balance_value, id)
