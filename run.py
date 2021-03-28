@@ -79,6 +79,8 @@ for batch in batches_no_timestamp:
         print("** txid ** (PROD DATE): " + txid_prod_date)
         txid_tin = ""
         print("** txid ** (TIN): " + txid_tin)
+        txid_mass = openfood.sendAndPatchMassBalance( batch_wallets_integrity, batch['mass'])
+        print("** txid  ** (MASS): " + txid_mass)
         print("""
         
         =====>>>>> STAGE: Certificates for batch
