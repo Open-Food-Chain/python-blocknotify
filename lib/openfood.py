@@ -66,6 +66,7 @@ from lib.openfood_env import KV1_ORG_POOL_WALLETS
 from lib.openfood_env import WALLET_ALL_OUR_BATCH_LOT
 from lib.openfood_env import WALLET_ALL_OUR_PO
 from lib.openfood_env import WALLET_ALL_CUSTOMER_PO
+from lib.openfood_env import CUSTOMER_RADDRESS
 
 from dotenv import load_dotenv
 from lib import transaction, bitcoin
@@ -1015,12 +1016,14 @@ def organization_send_batch_links(batch_integrity):
     print("MAIN WALLET " + THIS_NODE_RADDRESS + " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), POOL_BATCH_LOT")
     print(pool_batch_wallet)
     customer_pool_wallet = organization_get_customer_po_wallet(CUSTOMER_RADDRESS)
+    print("CUSTOMER POOL WALLET: " + customer_pool_wallet)
 
     json_object = {
 
                     pool_batch_wallet: SCRIPT_VERSION,
                     pool_po: SCRIPT_VERSION,
-                   batch_integrity['batch_lot_raddress']: SCRIPT_VERSION
+                   batch_integrity['batch_lot_raddress']: SCRIPT_VERSION,
+                   customer_pool_wallet: SCRIPT_VERSION
                    }
     sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
     return sendmany_txid
