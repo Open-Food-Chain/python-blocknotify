@@ -499,6 +499,13 @@ def createrawtx(txids, vouts, to_address, amount):
 
 
 def createrawtx6(utxos_json, num_utxo, to_address, to_amount, fee, change_address):
+    # check this file in commit https://github.com/The-New-Fork/blocknotify-python/commit/f91a148b18840aaf08d7c7736045a8c924bd236b
+    # for to_amount.  When a wallet had no utxos, the resulting change was -0.00123, some sort of mis-naming maybe?
+    #to_amount = 0.00123
+    # MITIGATE ^^
+    if( num_utxo == 0 ):
+        return
+
     print(to_amount)
     rawtx_info = []  # return this with rawtx & amounts
     utxos = json.loads(utxos_json)
