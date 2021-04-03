@@ -329,6 +329,15 @@ def fund_offline_wallet(offline_wallet_raddress):
     sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
     return sendmany_txid
 
+
+def fund_offline_wallet2(offline_wallet_raddress, send_amount):
+    json_object = {
+     offline_wallet_raddress: send_amount
+     }
+    sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
+    return sendmany_txid
+
+
 # test done
 def is_below_threshold_balance(check_this, balance_threshold):
     if( check_this < balance_threshold * 100000000 ):
@@ -352,57 +361,58 @@ def check_offline_wallets():
     print(wallet_delivery_date_balance)
     if is_below_threshold_balance(wallet_delivery_date_balance, WALLET_DELIVERY_DATE_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_DELIVERY_DATE + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_delivery_date['address'])
+        funding_txid = fund_offline_wallet2(wallet_delivery_date['address'], WALLET_DELIVERY_DATE_THRESHOLD_BALANCE)
         print(funding_txid)
 
     wallet_pon_balance = int(explorer_get_balance(wallet_pon['address']))
     print(wallet_pon_balance)
     if is_below_threshold_balance(wallet_pon_balance, WALLET_PON_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_PON + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_pon['address'])
+        funding_txid = fund_offline_wallet2(wallet_pon['address'], WALLET_PON_THRESHOLD_BALANCE)
         print(funding_txid)
 
     wallet_tin_balance = int(explorer_get_balance(wallet_tin['address']))
     print(wallet_tin_balance)
     if is_below_threshold_balance(wallet_tin_balance, WALLET_TIN_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_TIN + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_tin['address'])
+        funding_txid = fund_offline_wallet2(wallet_tin['address'], WALLET_TIN_THRESHOLD_BALANCE)
         print(funding_txid)
 
     wallet_prod_date_balance = int(explorer_get_balance(wallet_prod_date['address']))
     print(wallet_prod_date_balance)
     if is_below_threshold_balance(wallet_prod_date_balance, WALLET_PROD_DATE_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_PROD_DATE + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_prod_date['address'])
+        funding_txid = fund_offline_wallet2(wallet_prod_date['address'], WALLET_PROD_DATE_THRESHOLD_BALANCE)
         print(funding_txid)
 
     wallet_julian_start_balance = int(explorer_get_balance(wallet_julian_start['address']))
     print(wallet_julian_start_balance)
     if is_below_threshold_balance(wallet_julian_start_balance, WALLET_JULIAN_START_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_JULIAN_START + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_julian_start['address'])
+        funding_txid = fund_offline_wallet2(wallet_julian_start['address'], WALLET_JULIAN_START_THRESHOLD_BALANCE)
         print(funding_txid)
 
     wallet_julian_stop_balance = int(explorer_get_balance(wallet_julian_stop['address']))
     print(wallet_julian_stop_balance)
     if is_below_threshold_balance(wallet_julian_stop_balance, WALLET_JULIAN_STOP_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_JULIAN_STOP + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_julian_stop['address'])
+        funding_txid = fund_offline_wallet2(wallet_julian_stop['address'], WALLET_JULIAN_STOP_THRESHOLD_BALANCE)
         print(funding_txid)
 
     wallet_origin_country_balance = int(explorer_get_balance(wallet_origin_country['address']))
     print(wallet_origin_country_balance)
     if is_below_threshold_balance(wallet_origin_country_balance, WALLET_ORIGIN_COUNTRY_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_ORIGIN_COUNTRY + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_origin_country['address'])
+        funding_txid = fund_offline_wallet2(wallet_origin_country['address'], WALLET_ORIGIN_COUNTRY_THRESHOLD_BALANCE)
         print(funding_txid)
 
     wallet_bb_date_balance = int(explorer_get_balance(wallet_bb_date['address']))
     print(wallet_bb_date_balance)
     if is_below_threshold_balance(wallet_bb_date_balance, WALLET_BB_DATE_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_BB_DATE + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_bb_date['address'])
+        funding_txid = fund_offline_wallet2(wallet_bb_date['address'], WALLET_BB_DATE_THRESHOLD_BALANCE)
         print(funding_txid)
+
 
     # check utxo count
     utxo_count = explorer_get_utxos(wallet_delivery_date['address'])
