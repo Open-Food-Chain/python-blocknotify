@@ -1048,14 +1048,14 @@ def organization_send_batch_links(batch_integrity):
 
 def organization_send_batch_links2(batch_integrity, pon):
     pon_as_satoshi = dateToSatoshi(pon)
-    sample_pool_po = "RWSVFtCJfRH5ErsXJCaz9YNVKx7PijxpoV"
-    sample_pool_batch_lot = "R9X5CBJjmVmJe4a533hemBf6vCW2m3BAqH"
     pool_batch_wallet = organization_get_our_pool_batch_wallet()
     pool_po = organization_get_our_pool_po_wallet()
-    print("MAIN WALLET " + THIS_NODE_RADDRESS + " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), POOL_BATCH_LOT")
-    print(pool_batch_wallet)
     customer_pool_wallet = organization_get_customer_po_wallet(CUSTOMER_RADDRESS)
+
+    print("****** MAIN WALLET *******" + THIS_NODE_RADDRESS + " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), POOL_BATCH_LOT")
+    print(pool_batch_wallet)
     print("CUSTOMER POOL WALLET: " + customer_pool_wallet)
+    print("pon & pon as satoshi: " + pon + ":" + pon_as_satoshi)
 
     json_object = {
 
