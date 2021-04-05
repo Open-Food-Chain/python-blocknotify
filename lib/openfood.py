@@ -1062,7 +1062,7 @@ def organization_send_batch_links2(batch_integrity, pon):
                     pool_batch_wallet: SCRIPT_VERSION,
                     pool_po: SCRIPT_VERSION,
                    batch_integrity['batch_lot_raddress']: SCRIPT_VERSION,
-                   customer_pool_wallet: pon_as_satoshi
+                   customer_pool_wallet: round(pon_as_satoshi/100000000, 10)
                    }
     sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
     return sendmany_txid
