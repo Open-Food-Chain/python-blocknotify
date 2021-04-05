@@ -1060,7 +1060,7 @@ def organization_send_batch_links2(batch_integrity, pon):
     json_object = {
 
                     pool_batch_wallet: SCRIPT_VERSION,
-                    pool_po: SCRIPT_VERSION,
+                    pool_po: round(pon_as_satoshi/100000000, 10),
                    batch_integrity['batch_lot_raddress']: SCRIPT_VERSION,
                    customer_pool_wallet: round(pon_as_satoshi/100000000, 10)
                    }
