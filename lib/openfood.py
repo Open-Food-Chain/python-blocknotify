@@ -1052,10 +1052,10 @@ def organization_send_batch_links2(batch_integrity, pon):
     pool_po = organization_get_our_pool_po_wallet()
     customer_pool_wallet = organization_get_customer_po_wallet(CUSTOMER_RADDRESS)
 
-    print("****** MAIN WALLET *******" + THIS_NODE_RADDRESS + " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), POOL_BATCH_LOT")
+    print("****** MAIN WALLET batch links sendmany ******* " + THIS_NODE_RADDRESS)
     print(pool_batch_wallet)
     print("CUSTOMER POOL WALLET: " + customer_pool_wallet)
-    print("pon & pon as satoshi: " + pon + ":" + pon_as_satoshi)
+    print("pon & pon as satoshi: " + pon + ":" + str(pon_as_satoshi))
 
     json_object = {
 
