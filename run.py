@@ -59,7 +59,8 @@ for batch in batches_no_timestamp:
         print("** txid ** (Timestamp integrity start): " + integrity_start_txid)
         openfood.batch_wallets_timestamping_start(batch_wallets_integrity, integrity_start_txid)
         # sendmany_txid = openfood.organization_send_batch_links(batch_wallets_integrity)
-        sendmany_txid = openfood.organization_send_batch_links2(batch_wallets_integrity, batch['pon'])
+        # sendmany_txid = openfood.organization_send_batch_links2(batch_wallets_integrity, batch['pon'])
+        sendmany_txid = openfood.organization_send_batch_links3(batch_wallets_integrity, batch['pon'], batch['bnfp'])
         openfood.timestamping_save_batch_links(id, sendmany_txid)
         # Offline wallets
         print("""

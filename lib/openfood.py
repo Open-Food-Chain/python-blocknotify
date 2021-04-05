@@ -78,6 +78,7 @@ import requests
 import json
 load_dotenv(verbose=True)
 SCRIPT_VERSION = 0.00012111
+SATS_10K = 0.00010000
 
 RPC = ""
 KV1RPC = ""
@@ -1063,6 +1064,28 @@ def organization_send_batch_links2(batch_integrity, pon):
                     pool_po: round(pon_as_satoshi/100000000, 10),
                    batch_integrity['batch_lot_raddress']: SCRIPT_VERSION,
                    customer_pool_wallet: round(pon_as_satoshi/100000000, 10)
+                   }
+    sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
+    return sendmany_txid
+
+
+def organization_send_batch_links3(batch_integrity, pon, bnfp):
+    pon_as_satoshi = dateToSatoshi(pon)
+    bnfp_as_satoshi = dateToSatoshi(bnfp)
+    pool_batch_wallet = organization_get_our_pool_batch_wallet()
+    pool_po = organization_get_our_pool_po_wallet()
+    customer_pool_wallet = organization_get_customer_po_wallet(CUSTOMER_RADDRESS)
+
+    print("****** MAIN WALLET batch links sendmany ******* " + THIS_NODE_RADDRESS)
+    print(pool_batch_wallet)
+    print("CUSTOMER POOL WALLET: " + customer_pool_wallet)
+    print("pon & pon as satoshi: " + pon + ":" + str(pon_as_satoshi))
+
+    json_object = {
+                    pool_batch_wallet: round(bnfp_as_satoshi/100000000, 10),
+                    pool_po: round(pon_as_satoshi/100000000, 10),
+                    batch_integrity['batch_lot_raddress']: SATS_10K,
+                    customer_pool_wallet: round(pon_as_satoshi/100000000, 10)
                    }
     sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
     return sendmany_txid
