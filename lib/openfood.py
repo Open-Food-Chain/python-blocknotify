@@ -1046,6 +1046,28 @@ def organization_send_batch_links(batch_integrity):
     return sendmany_txid
 
 
+def organization_send_batch_links2(batch_integrity, pon):
+    pon_as_satoshi = dateToSatoshi(pon)
+    sample_pool_po = "RWSVFtCJfRH5ErsXJCaz9YNVKx7PijxpoV"
+    sample_pool_batch_lot = "R9X5CBJjmVmJe4a533hemBf6vCW2m3BAqH"
+    pool_batch_wallet = organization_get_our_pool_batch_wallet()
+    pool_po = organization_get_our_pool_po_wallet()
+    print("MAIN WALLET " + THIS_NODE_RADDRESS + " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), POOL_BATCH_LOT")
+    print(pool_batch_wallet)
+    customer_pool_wallet = organization_get_customer_po_wallet(CUSTOMER_RADDRESS)
+    print("CUSTOMER POOL WALLET: " + customer_pool_wallet)
+
+    json_object = {
+
+                    pool_batch_wallet: SCRIPT_VERSION,
+                    pool_po: SCRIPT_VERSION,
+                   batch_integrity['batch_lot_raddress']: SCRIPT_VERSION,
+                   customer_pool_wallet: pon_as_satoshi
+                   }
+    sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
+    return sendmany_txid
+
+
 def timestamping_save_batch_links(id, sendmany_txid):
     print("** txid ** (Main org wallet sendmany BATCH_LOT/POOL_PO/GTIN): " + sendmany_txid)
     tstx_data = {'sender_raddress': THIS_NODE_RADDRESS,
@@ -1073,7 +1095,7 @@ def get_certificate_for_test(url):
 # test done
 def get_certificate_for_batch():
     # TODO this is hardcoded, which is bad - needs to fetch by cert rules
-    test_url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + "8/"
+    test_url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + "2/"
     certificate = json.loads(get_certificate_for_test(test_url))
     return certificate
 
