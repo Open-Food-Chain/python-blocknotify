@@ -749,7 +749,7 @@ def sendToBatchDeliveryDate(batch_raddress, delivery_date):
 
 
 def sendToBatchPON(batch_raddress, pon):
-    # delivery date
+    # purchase order number
     print("SEND PON, check PON is accurate")
     pon_as_satoshi = dateToSatoshi(pon)
     print(pon_as_satoshi)
@@ -763,8 +763,23 @@ def sendToBatchPON(batch_raddress, pon):
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], pon_wallet['wif'])
     pon_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
     raddress = pon_wallet['address']
-    # txid = sendtoaddressWrapper(batch_raddress, date_as_satoshi/100000000, 1)
     return pon_txid
+
+
+def sendToBatchPL(batch_raddress, pl):
+    # product location
+    print("SEND PL, check PL is accurate")
+    pl_wallet = getOfflineWalletByName(pl)
+    utxos_json = explorer_get_utxos(pl_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx6(utxos_json, 1, batch_raddress, 0.0001, 0, pl_wallet['address'])
+    print("PL RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], pl_wallet['wif'])
+    pl_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    raddress = pl_wallet['address']
+    return pl_txid
 
 
 # test done
