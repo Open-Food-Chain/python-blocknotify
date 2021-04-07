@@ -137,17 +137,17 @@ for batch in batches_no_timestamp:
         print("# Exiting")
         print("##")
 
-print("Getting certificates requiring timestamping")
-certificates_no_timestamp = openfood.get_certificates_no_timestamp()
-
-for certificate in certificates_no_timestamp:
-    offline_wallet = openfood.offlineWalletGenerator_fromObjectData_certificate(certificate)
-    url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + str(certificate['id']) + "/"
-    data = {"raddress": offline_wallet['address'], "pubkey": offline_wallet['pubkey']}
-    openfood.patchWrapper(url, data=data)
-    # TODO try/block
-    funding_txid = openfood.fund_certificate(offline_wallet['address'])
-    print("Funding tx " + funding_txid)
-    # TODO add fundingtx, check for unfunded offline wallets
+#print("Getting certificates requiring timestamping")
+#certificates_no_timestamp = openfood.get_certificates_no_timestamp()
+#
+#for certificate in certificates_no_timestamp:
+#    offline_wallet = openfood.offlineWalletGenerator_fromObjectData_certificate(certificate)
+#    url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + str(certificate['id']) + "/"
+#    data = {"raddress": offline_wallet['address'], "pubkey": offline_wallet['pubkey']}
+#    openfood.patchWrapper(url, data=data)
+#    # TODO try/block
+#    funding_txid = openfood.fund_certificate(offline_wallet['address'])
+#    print("Funding tx " + funding_txid)
+#    # TODO add fundingtx, check for unfunded offline wallets
 
 print("End of script")
