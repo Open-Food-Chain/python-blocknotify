@@ -290,6 +290,7 @@ def check_offline_wallets():
     wallet_julian_stop = getOfflineWalletByName(WALLET_JULIAN_STOP)
     wallet_origin_country = getOfflineWalletByName(WALLET_ORIGIN_COUNTRY)
     wallet_bb_date = getOfflineWalletByName(WALLET_BB_DATE)
+    wallet_mass_balance = getOfflineWalletByName(WALLET_MASS_BALANCE)
 
     # print("Checking delivery date wallet: " + wallet_delivery_date['address'])
     # check balance
@@ -298,6 +299,13 @@ def check_offline_wallets():
     if is_below_threshold_balance(wallet_delivery_date_balance, WALLET_DELIVERY_DATE_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_DELIVERY_DATE + " wallet because balance low")
         funding_txid = fund_offline_wallet(wallet_delivery_date['address'])
+        print(funding_txid)
+
+    wallet_mass_balance_balance = int(explorer_get_balance(wallet_mass_balance['address']))
+    print(wallet_mass_balance)
+    if is_below_threshold_balance(wallet_mass_balance_balance, WALLET_MASS_BALANCE_THRESHOLD_BALANCE):
+        print("FUND the " + WALLET_MASS_BALANCE + " wallet because balance low")
+        funding_txid = fund_offline_wallet(wallet_mass_balance['address'])
         print(funding_txid)
 
     wallet_pon_balance = int(explorer_get_balance(wallet_pon['address']))
