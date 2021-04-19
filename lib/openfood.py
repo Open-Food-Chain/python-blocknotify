@@ -62,6 +62,11 @@ from lib.openfood_env import WALLET_ORIGIN_COUNTRY
 from lib.openfood_env import WALLET_ORIGIN_COUNTRY_THRESHOLD_BALANCE
 from lib.openfood_env import WALLET_ORIGIN_COUNTRY_THRESHOLD_UTXO
 from lib.openfood_env import WALLET_ORIGIN_COUNTRY_THRESHOLD_UTXO_VALUE
+from lib.openfood_env import KV1_ORG_POOL_WALLETS
+from lib.openfood_env import WALLET_ALL_OUR_BATCH_LOT
+from lib.openfood_env import WALLET_ALL_OUR_PO
+from lib.openfood_env import WALLET_ALL_CUSTOMER_PO
+from lib.openfood_env import CUSTOMER_RADDRESS
 
 from dotenv import load_dotenv
 from lib import transaction, bitcoin
@@ -73,6 +78,7 @@ import requests
 import json
 load_dotenv(verbose=True)
 SCRIPT_VERSION = 0.00012111
+SATS_10K = 0.00010000
 
 RPC = ""
 KV1RPC = ""
@@ -111,12 +117,12 @@ def connect_kv1_node():
 def kvupdate_wrapper(kv_key, kv_value, kv_days, kv_passphrase):
     if(type(kv_value) == type({"this": "is", "a": "json"})):
         kv_value = json.dumps(kv_value)
-    txid = rpclib.kvupdate(RPC, kv_key, kv_value, kv_days, kv_passphrase)
+    txid = rpclib.kvupdate(KV1RPC, kv_key, kv_value, kv_days, kv_passphrase)
     return txid
 
 #no test
 def kvsearch_wrapper(kv_key):
-    kv_response = rpclib.kvsearch(RPC, kv_key)
+    kv_response = rpclib.kvsearch(KV1RPC, kv_key)
     return kv_response
 
 
@@ -266,6 +272,56 @@ def check_kv1_wallet():
         exit()
 
 
+def generate_pool_wallets():
+    wallet_all_our_po = getOfflineWalletByName(WALLET_ALL_OUR_PO)
+    wallet_all_our_batch = getOfflineWalletByName(WALLET_ALL_OUR_BATCH_LOT)
+    wallet_all_customer_po = getOfflineWalletByName(WALLET_ALL_CUSTOMER_PO)
+    pool_wallets = {}
+    pool_wallets[str(WALLET_ALL_OUR_PO)] = wallet_all_our_po["address"]
+    pool_wallets[str(WALLET_ALL_OUR_BATCH_LOT)] = wallet_all_our_batch["address"]
+    pool_wallets[str(WALLET_ALL_CUSTOMER_PO)] = wallet_all_customer_po["address"]
+    print("pool wallets: " + json.dumps(pool_wallets))
+    return pool_wallets
+
+
+def verify_kv_pool_wallets():
+    pool_wallets = generate_pool_wallets()
+    print("Verifying pool wallets in KV1")
+    org_kv1_key_pool_wallets = THIS_NODE_RADDRESS + KV1_ORG_POOL_WALLETS
+    kv_response = kvsearch_wrapper(org_kv1_key_pool_wallets)
+    if( kv_response.get("error")):
+        print("Updating with a value")
+        kv_response = kvupdate_wrapper(org_kv1_key_pool_wallets, json.dumps(pool_wallets), "3", "password")
+        print(kv_response)
+    else:
+        print("kv exists for pool wallets")
+
+
+def organization_get_pool_wallets_by_raddress(raddress):
+    print("GET POOL WALLETS BY RADDRESS: " + raddress)
+    kv_response = kvsearch_wrapper(raddress + KV1_ORG_POOL_WALLETS)
+    return kv_response
+
+
+def get_this_node_raddress():
+    return THIS_NODE_RADDRESS
+
+
+def kv_save_batch_to_raddress(batch, raddress):
+    kv_response = kvupdate_wrapper(batch, raddress, "100", "password")
+    return kv_response
+
+
+def kv_save_raddress_to_data(raddress, data):
+    kv_response = kvupdate_wrapper(raddress, data, "100", "password")
+    return kv_response
+
+
+def kv_get_by_raddress(raddress):
+    kv_response = kvsearch_wrapper(raddress)
+    return kv_response
+
+
 # test done
 def fund_offline_wallet(offline_wallet_raddress):
     json_object = {
@@ -273,6 +329,15 @@ def fund_offline_wallet(offline_wallet_raddress):
      }
     sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
     return sendmany_txid
+
+
+def fund_offline_wallet2(offline_wallet_raddress, send_amount):
+    json_object = {
+     offline_wallet_raddress: send_amount
+     }
+    sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
+    return sendmany_txid
+
 
 # test done
 def is_below_threshold_balance(check_this, balance_threshold):
@@ -298,7 +363,7 @@ def check_offline_wallets():
     print(wallet_delivery_date_balance)
     if is_below_threshold_balance(wallet_delivery_date_balance, WALLET_DELIVERY_DATE_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_DELIVERY_DATE + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_delivery_date['address'])
+        funding_txid = fund_offline_wallet2(wallet_delivery_date['address'], WALLET_DELIVERY_DATE_THRESHOLD_BALANCE)
         print(funding_txid)
 
     wallet_mass_balance_balance = int(explorer_get_balance(wallet_mass_balance['address']))
@@ -312,50 +377,51 @@ def check_offline_wallets():
     print(wallet_pon_balance)
     if is_below_threshold_balance(wallet_pon_balance, WALLET_PON_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_PON + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_pon['address'])
+        funding_txid = fund_offline_wallet2(wallet_pon['address'], WALLET_PON_THRESHOLD_BALANCE)
         print(funding_txid)
 
     wallet_tin_balance = int(explorer_get_balance(wallet_tin['address']))
     print(wallet_tin_balance)
     if is_below_threshold_balance(wallet_tin_balance, WALLET_TIN_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_TIN + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_tin['address'])
+        funding_txid = fund_offline_wallet2(wallet_tin['address'], WALLET_TIN_THRESHOLD_BALANCE)
         print(funding_txid)
 
     wallet_prod_date_balance = int(explorer_get_balance(wallet_prod_date['address']))
     print(wallet_prod_date_balance)
     if is_below_threshold_balance(wallet_prod_date_balance, WALLET_PROD_DATE_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_PROD_DATE + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_prod_date['address'])
+        funding_txid = fund_offline_wallet2(wallet_prod_date['address'], WALLET_PROD_DATE_THRESHOLD_BALANCE)
         print(funding_txid)
 
     wallet_julian_start_balance = int(explorer_get_balance(wallet_julian_start['address']))
     print(wallet_julian_start_balance)
     if is_below_threshold_balance(wallet_julian_start_balance, WALLET_JULIAN_START_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_JULIAN_START + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_julian_start['address'])
+        funding_txid = fund_offline_wallet2(wallet_julian_start['address'], WALLET_JULIAN_START_THRESHOLD_BALANCE)
         print(funding_txid)
 
     wallet_julian_stop_balance = int(explorer_get_balance(wallet_julian_stop['address']))
     print(wallet_julian_stop_balance)
     if is_below_threshold_balance(wallet_julian_stop_balance, WALLET_JULIAN_STOP_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_JULIAN_STOP + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_julian_stop['address'])
+        funding_txid = fund_offline_wallet2(wallet_julian_stop['address'], WALLET_JULIAN_STOP_THRESHOLD_BALANCE)
         print(funding_txid)
 
     wallet_origin_country_balance = int(explorer_get_balance(wallet_origin_country['address']))
     print(wallet_origin_country_balance)
     if is_below_threshold_balance(wallet_origin_country_balance, WALLET_ORIGIN_COUNTRY_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_ORIGIN_COUNTRY + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_origin_country['address'])
+        funding_txid = fund_offline_wallet2(wallet_origin_country['address'], WALLET_ORIGIN_COUNTRY_THRESHOLD_BALANCE)
         print(funding_txid)
 
     wallet_bb_date_balance = int(explorer_get_balance(wallet_bb_date['address']))
     print(wallet_bb_date_balance)
     if is_below_threshold_balance(wallet_bb_date_balance, WALLET_BB_DATE_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_BB_DATE + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_bb_date['address'])
+        funding_txid = fund_offline_wallet2(wallet_bb_date['address'], WALLET_BB_DATE_THRESHOLD_BALANCE)
         print(funding_txid)
+
 
     # check utxo count
     utxo_count = explorer_get_utxos(wallet_delivery_date['address'])
@@ -442,6 +508,13 @@ def createrawtx(txids, vouts, to_address, amount):
 
 
 def createrawtx6(utxos_json, num_utxo, to_address, to_amount, fee, change_address):
+    # check this file in commit https://github.com/The-New-Fork/blocknotify-python/commit/f91a148b18840aaf08d7c7736045a8c924bd236b
+    # for to_amount.  When a wallet had no utxos, the resulting change was -0.00123, some sort of mis-naming maybe?
+    #to_amount = 0.00123
+    # MITIGATE ^^
+    if( num_utxo == 0 ):
+        return
+
     print(to_amount)
     rawtx_info = []  # return this with rawtx & amounts
     utxos = json.loads(utxos_json)
@@ -740,7 +813,7 @@ def sendToBatchDeliveryDate(batch_raddress, delivery_date):
 
 
 def sendToBatchPON(batch_raddress, pon):
-    # delivery date
+    # purchase order number
     print("SEND PON, check PON is accurate")
     pon_as_satoshi = dateToSatoshi(pon)
     print(pon_as_satoshi)
@@ -754,8 +827,23 @@ def sendToBatchPON(batch_raddress, pon):
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], pon_wallet['wif'])
     pon_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
     raddress = pon_wallet['address']
-    # txid = sendtoaddressWrapper(batch_raddress, date_as_satoshi/100000000, 1)
     return pon_txid
+
+
+def sendToBatchPL(batch_raddress, pl):
+    # product location
+    print("SEND PL, check PL is accurate")
+    pl_wallet = getOfflineWalletByName(pl)
+    utxos_json = explorer_get_utxos(pl_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx6(utxos_json, 1, batch_raddress, 0.0001, 0, pl_wallet['address'])
+    print("PL RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], pl_wallet['wif'])
+    pl_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    raddress = pl_wallet['address']
+    return pl_txid
 
 
 # test done
@@ -985,13 +1073,98 @@ def batch_wallets_fund_integrity_end(integrity_address):
     return sendtoaddress_wrapper(integrity_address, FUNDING_AMOUNT_TIMESTAMPING_END)
 
 
+def organization_get_our_pool_batch_wallet():
+    kv_response = organization_get_pool_wallets_by_raddress(THIS_NODE_RADDRESS)
+    print(kv_response)
+    tmp = json.loads(kv_response['value'])
+    tmp2 = str(tmp[WALLET_ALL_OUR_BATCH_LOT])
+    return tmp2
+
+
+def organization_get_our_pool_po_wallet():
+    kv_response = organization_get_pool_wallets_by_raddress(THIS_NODE_RADDRESS)
+    print(kv_response)
+    tmp = json.loads(kv_response['value'])
+    tmp2 = str(tmp[WALLET_ALL_OUR_PO])
+    return tmp2
+
+
+def organization_get_customer_po_wallet(CUSTOMER_RADDRESS):
+    kv_response = organization_get_pool_wallets_by_raddress(CUSTOMER_RADDRESS)
+    print(kv_response)
+    tmp = json.loads(kv_response['value'])
+    tmp2 = str(tmp[WALLET_ALL_OUR_PO])
+    return tmp2
+
+
+def organization_get_customer_batch_wallet(CUSTOMER_RADDRESS):
+    kv_response = organization_get_pool_wallets_by_raddress(CUSTOMER_RADDRESS)
+    print(kv_response)
+    tmp = json.loads(kv_response['value'])
+    tmp2 = str(tmp[WALLET_ALL_OUR_BATCH_LOT])
+    return tmp2
+
+
 def organization_send_batch_links(batch_integrity):
     sample_pool_po = "RWSVFtCJfRH5ErsXJCaz9YNVKx7PijxpoV"
     sample_pool_batch_lot = "R9X5CBJjmVmJe4a533hemBf6vCW2m3BAqH"
+    pool_batch_wallet = organization_get_our_pool_batch_wallet()
+    pool_po = organization_get_our_pool_po_wallet()
     print("MAIN WALLET " + THIS_NODE_RADDRESS + " SENDMANY TO BATCH_LOT (bnfp), POOL_PO (pon), POOL_BATCH_LOT")
-    json_object = {sample_pool_po: SCRIPT_VERSION,
-                   sample_pool_batch_lot: SCRIPT_VERSION,
-                   batch_integrity['batch_lot_raddress']: SCRIPT_VERSION
+    print(pool_batch_wallet)
+    customer_pool_wallet = organization_get_customer_po_wallet(CUSTOMER_RADDRESS)
+    print("CUSTOMER POOL WALLET: " + customer_pool_wallet)
+
+    json_object = {
+
+                    pool_batch_wallet: SCRIPT_VERSION,
+                    pool_po: SCRIPT_VERSION,
+                   batch_integrity['batch_lot_raddress']: SCRIPT_VERSION,
+                   customer_pool_wallet: SCRIPT_VERSION
+                   }
+    sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
+    return sendmany_txid
+
+
+def organization_send_batch_links2(batch_integrity, pon):
+    pon_as_satoshi = dateToSatoshi(pon)
+    pool_batch_wallet = organization_get_our_pool_batch_wallet()
+    pool_po = organization_get_our_pool_po_wallet()
+    customer_pool_wallet = organization_get_customer_po_wallet(CUSTOMER_RADDRESS)
+
+    print("****** MAIN WALLET batch links sendmany ******* " + THIS_NODE_RADDRESS)
+    print(pool_batch_wallet)
+    print("CUSTOMER POOL WALLET: " + customer_pool_wallet)
+    print("pon & pon as satoshi: " + pon + ":" + str(pon_as_satoshi))
+
+    json_object = {
+
+                    pool_batch_wallet: SCRIPT_VERSION,
+                    pool_po: round(pon_as_satoshi/100000000, 10),
+                   batch_integrity['batch_lot_raddress']: SCRIPT_VERSION,
+                   customer_pool_wallet: round(pon_as_satoshi/100000000, 10)
+                   }
+    sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
+    return sendmany_txid
+
+
+def organization_send_batch_links3(batch_integrity, pon, bnfp):
+    pon_as_satoshi = dateToSatoshi(pon)
+    bnfp_as_satoshi = dateToSatoshi(bnfp)
+    pool_batch_wallet = organization_get_our_pool_batch_wallet()
+    pool_po = organization_get_our_pool_po_wallet()
+    customer_pool_wallet = organization_get_customer_po_wallet(CUSTOMER_RADDRESS)
+
+    print("****** MAIN WALLET batch links sendmany ******* " + THIS_NODE_RADDRESS)
+    print(pool_batch_wallet)
+    print("CUSTOMER POOL WALLET: " + customer_pool_wallet)
+    print("pon & pon as satoshi: " + pon + ":" + str(pon_as_satoshi))
+
+    json_object = {
+                    pool_batch_wallet: round(bnfp_as_satoshi/100000000, 10),
+                    pool_po: round(pon_as_satoshi/100000000, 10),
+                    batch_integrity['batch_lot_raddress']: SATS_10K,
+                    customer_pool_wallet: round(pon_as_satoshi/100000000, 10)
                    }
     sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
     return sendmany_txid
@@ -1024,7 +1197,7 @@ def get_certificate_for_test(url):
 # test done
 def get_certificate_for_batch():
     # TODO this is hardcoded, which is bad - needs to fetch by cert rules
-    test_url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + "8/"
+    test_url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + "2/"
     certificate = json.loads(get_certificate_for_test(test_url))
     return certificate
 
