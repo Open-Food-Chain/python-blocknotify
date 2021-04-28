@@ -225,6 +225,9 @@ def check_sync():
     return sync
 
 
+def get_this_node_raddress():
+    return THIS_NODE_RADDRESS
+
 # test done
 def check_node_wallet():
     # check wallet management
@@ -492,13 +495,21 @@ def createrawtxwithchange(txids, vouts, to_address, amount, change_address, chan
     return rpclib.createrawtransactionwithchange(RPC, txids, vouts, to_address, amount, change_address, change_amount)
 
 
+def createrawtx_split_wallet(txids, vouts, to_address, amount, change_address, change_amount):
+    print(to_address)
+    print(amount)
+    print(change_address)
+    print(change_amount)
+    return rpclib.createrawtransactionsplit(RPC, txids, vouts, to_address, amount, change_address, change_amount)
+
+
 # test done
 def createrawtx(txids, vouts, to_address, amount):
     print("Deprecated: use createrawtx_wrapper")
     return rpclib.createrawtransaction(RPC, txids, vouts, to_address, amount)
 
 
-def createrawtx7(utxos_json, num_utxo, to_address, to_amount, fee, change_address):
+def createrawtx7(utxos_json, num_utxo, to_address, to_amount, fee, change_address, split=False):
     # check createrawtx6 comments
     print("createrawtx7()")
 
@@ -546,8 +557,12 @@ def createrawtx7(utxos_json, num_utxo, to_address, to_amount, fee, change_addres
         rawtx = createrawtx(txids, vouts, to_address, round(amount - fee, 10))
 
     else:
-        print("Creating raw tx with change")
-        rawtx = createrawtxwithchange(txids, vouts, to_address, to_amount, change_address, float(change_amount))
+        if(split):
+            print("Creating raw tx for split_wallet")
+            rawtx = createrawtx_split_wallet(txids, vouts, to_address, to_amount, change_address, float(change_amount))
+        else:
+            print("Creating raw tx with change")
+            rawtx = createrawtxwithchange(txids, vouts, to_address, to_amount, change_address, float(change_amount))
 
     rawtx_info.append({'rawtx': rawtx})
     rawtx_info.append({'amounts': amounts})
@@ -787,6 +802,12 @@ def dateToSatoshi(date):
     return int(date.replace('-', ''))
 
 
+def split_wallet1():
+    print("split_wallet1()")
+    delivery_date_wallet = getOfflineWalletByName(WALLET_DELIVERY_DATE)
+    utxos_json = explorer_get_utxos(delivery_date_wallet['address'])
+
+
 def sendToBatchDeliveryDate(batch_raddress, delivery_date):
     # delivery date
     print("SEND DELIVERY DATE")
@@ -825,7 +846,7 @@ def sendToBatchPON(batch_raddress, pon):
 
 
 def sendToBatchPL(batch_raddress, pl):
-    # product location
+    # product locationcreaterawtx7
     print("SEND PL, check PL is accurate")
     pl_wallet = getOfflineWalletByName(pl)
     utxos_json = explorer_get_utxos(pl_wallet['address'])
@@ -839,6 +860,18 @@ def sendToBatchPL(batch_raddress, pl):
     raddress = pl_wallet['address']
     return pl_txid
 
+
+def split_wallet_PL(THIS_NODE_RADDRESS, pl):
+    # product locationcreaterawtx7
+    print("Split PL")
+    pl_wallet = getOfflineWalletByName(pl)
+    utxos_json = explorer_get_utxos(pl_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, THIS_NODE_RADDRESS, 0.1, 0, pl_wallet['address'], True)
+    print("PL RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], pl_wallet['wif'])
+    pl_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    raddress = pl_wallet['address']
+    return pl_txid
 
 # test done
 def offlineWalletGenerator_fromObjectData_certificate(objectData):

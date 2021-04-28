@@ -100,6 +100,25 @@ def createrawtransaction(rpc_connection, txids, vouts, address, amount):
         raise Exception(e)
     return rawtransaction
 
+
+def createrawtransactionsplit(rpc_connection, txids, vouts, address, amount, change_address, change_amount):
+    try:
+        txid_vout = []
+
+        for txid, vout in zip(txids, vouts):
+            txid_vout_v1 = [{ "txid": txid, "vout":vout }]
+            txid_vout.extend(txid_vout_v1)
+
+        address_amount = {address: amount/4, address: amount/4, address: amount/4, address: amount/4, change_address: change_amount}
+
+        print(txid_vout)
+        print(address_amount)
+        rawtransaction = rpc_connection.createrawtransaction(txid_vout, address_amount)
+    except Exception as e:
+        raise Exception(e)
+    return rawtransaction
+
+
 #./komodo-cli signrawtransaction "0100000001958cb041d8369bbf6c2493accc4d949909a2c669cad883e232038d782eeb4fa40000000000ffffffff0140420f00000000001976a91456def632e67aa11c25ac16a0ee52893c2e5a2b6a88ac00000000"
 def signrawtx(rpc_connection, tx):
     try:

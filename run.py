@@ -37,6 +37,7 @@ openfood.verify_kv_pool_wallets()
 openfood.check_offline_wallets()
 openfood.check_sync()
 hk_txid = openfood.housekeeping_tx()
+
 # this works
 # openfood.organization_get_pool_wallets_by_raddress(openfood.get_this_node_raddress())
 print("House keeping tx:", hk_txid, sep="\n")
@@ -86,6 +87,9 @@ for batch in batches_no_timestamp:
         print("** txid ** (TIN): " + txid_tin)
         txid_pl = openfood.sendToBatchPL(tofix_bnfp_wallet['address'], batch['pl'])
         print("** txid ** (PL): " + txid_pl)
+
+        print("SPLIT TEST")
+        txid_split = openfood.split_wallet_PL(openfood.get_this_node_raddress(), batch['pl'])
         # print("""
         #
         # =====>>>>> STAGE: Certificates for batch
