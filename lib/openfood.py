@@ -499,6 +499,65 @@ def createrawtx(txids, vouts, to_address, amount):
     return rpclib.createrawtransaction(RPC, txids, vouts, to_address, amount)
 
 
+def createrawtx7(utxos_json, num_utxo, to_address, to_amount, fee, change_address):
+    # check createrawtx6 comments
+    print("createrawtx7()")
+
+    if( num_utxo == 0 ):
+        print("ERROR: createrawtx_error, num_utxo == 0")
+        return
+
+    print("to address: " + to_address + " , to amount: " + to_amount)
+    rawtx_info = []  # return this with rawtx & amounts
+    utxos = json.loads(utxos_json)
+    count = 0
+
+    txids = []
+    vouts = []
+    amounts = []
+    amount = 0
+
+    for utxo in utxos:
+        if (utxo['amount'] > 0.2 and utxo['confirmations'] > 2) and count < num_utxo:
+            count = count + 1
+            vout_as_array = [utxo['vout']]
+            txid_as_array = [utxo['txid']]
+            txids.extend(txid_as_array)
+            vouts.extend(vout_as_array)
+            amount = amount + utxo['amount']
+            amounts.extend([utxo['satoshis']])
+
+    if( amount > to_amount ):
+        change_amount = round(amount - fee - to_amount, 10)
+    else:
+        # TODO
+        print("### ERROR ### Needs to be caught, the to_amount is larger than the utxo amount, need more utxos")
+        return
+        # change_amount = round(to_amount - amount - fee, 10)
+    print("amount >=")
+    print(amount)
+    print("to_amount + change_amount + fee")
+    print(to_amount)
+    print(float(change_amount))
+    print(fee)
+    rawtx = ""
+    if( change_amount < 0.01 ):
+        print("Change too low, sending as miner fee " + str(change_amount))
+        change_amount = 0
+        rawtx = createrawtx(txids, vouts, to_address, round(amount - fee, 10))
+
+    else:
+        print("Creating raw tx with change")
+        rawtx = createrawtxwithchange(txids, vouts, to_address, to_amount, change_address, float(change_amount))
+
+    rawtx_info.append({'rawtx': rawtx})
+    rawtx_info.append({'amounts': amounts})
+    print("raw tx created: ")
+    print(rawtx_info)
+
+    return rawtx_info
+
+
 def createrawtx6(utxos_json, num_utxo, to_address, to_amount, fee, change_address):
     # check this file in commit https://github.com/The-New-Fork/blocknotify-python/commit/f91a148b18840aaf08d7c7736045a8c924bd236b
     # for to_amount.  When a wallet had no utxos, the resulting change was -0.00123, some sort of mis-naming maybe?
