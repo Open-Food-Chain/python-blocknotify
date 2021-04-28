@@ -798,7 +798,7 @@ def sendToBatchDeliveryDate(batch_raddress, delivery_date):
     print(utxos_json)
     # works sending 0
     # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
-    rawtx_info = createrawtx6(utxos_json, 1, batch_raddress, round(date_as_satoshi/100000000, 10), 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, round(date_as_satoshi/100000000, 10), 0, delivery_date_wallet['address'])
     print("DELIVERY DATE RAWTX: " + str(rawtx_info))
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], delivery_date_wallet['wif'])
     deliverydate_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
@@ -817,7 +817,7 @@ def sendToBatchPON(batch_raddress, pon):
     print(utxos_json)
     # works sending 0
     # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
-    rawtx_info = createrawtx6(utxos_json, 1, batch_raddress, round(pon_as_satoshi/100000000, 10), 0, pon_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, round(pon_as_satoshi/100000000, 10), 0, pon_wallet['address'])
     print("PON RAWTX: " + str(rawtx_info))
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], pon_wallet['wif'])
     pon_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
@@ -833,7 +833,7 @@ def sendToBatchPL(batch_raddress, pl):
     print(utxos_json)
     # works sending 0
     # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
-    rawtx_info = createrawtx6(utxos_json, 1, batch_raddress, 0.0001, 0, pl_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, 0.0001, 0, pl_wallet['address'])
     print("PL RAWTX: " + str(rawtx_info))
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], pl_wallet['wif'])
     pl_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
