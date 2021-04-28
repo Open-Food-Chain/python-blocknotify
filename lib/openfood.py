@@ -485,7 +485,6 @@ def createrawtx_wrapper(txids, vouts, to_address, amount):
 
 # test done
 def createrawtxwithchange(txids, vouts, to_address, amount, change_address, change_amount):
-    print("Create raw tx with change")
     print(to_address)
     print(amount)
     print(change_address)
@@ -507,7 +506,7 @@ def createrawtx7(utxos_json, num_utxo, to_address, to_amount, fee, change_addres
         print("ERROR: createrawtx_error, num_utxo == 0")
         return
 
-    print("to address: " + to_address + " , to amount: " + to_amount)
+    print("to address: " + str(to_address) + " , to amount: " + str(to_amount))
     rawtx_info = []  # return this with rawtx & amounts
     utxos = json.loads(utxos_json)
     count = 0
