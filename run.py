@@ -86,28 +86,28 @@ for batch in batches_no_timestamp:
         print("** txid ** (TIN): " + txid_tin)
         txid_pl = openfood.sendToBatchPL(tofix_bnfp_wallet['address'], batch['pl'])
         print("** txid ** (PL): " + txid_pl)
-        print("""
-        
-        =====>>>>> STAGE: Certificates for batch
-        
-        """)
-        # this can all be put into an openfood lib function like sendToBatchDeliveryDate
-        certificate = openfood.get_certificate_for_batch()
-        offline_wallet = openfood.offlineWalletGenerator_fromObjectData_certificate(certificate)
-        utxos_json = openfood.explorer_get_utxos(offline_wallet['address'])
-        utxos_obj = json.loads(utxos_json)
-        amount = openfood.utxo_bundle_amount(utxos_obj)
-        print("(Not sending this amount atm) Amount of utxo bundle: " + str(amount))
-        to_address = batch_wallets_integrity['batch_lot_raddress']
-        num_utxo = 1
-        # fee = 0.00015
-        fee = 0
-        # rawtx_info = openfood.createrawtx4(utxos_json, num_utxo, to_address, fee)
-        rawtx_info = openfood.createrawtx5(utxos_json, num_utxo, to_address, fee, offline_wallet['address'])
-        signedtx = openfood.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], offline_wallet['wif'])
-        certificate_txid = openfood.broadcast_via_explorer(EXPLORER_URL, signedtx)
-        openfood.timestamping_save_certificate(id, "CERTIFICATE WALLET", offline_wallet, certificate_txid)
-        print("** txid ** (Certificate to batch_lot): " + certificate_txid)
+        # print("""
+        #
+        # =====>>>>> STAGE: Certificates for batch
+        #
+        # """)
+        # # this can all be put into an openfood lib function like sendToBatchDeliveryDate
+        # certificate = openfood.get_certificate_for_batch()
+        # offline_wallet = openfood.offlineWalletGenerator_fromObjectData_certificate(certificate)
+        # utxos_json = openfood.explorer_get_utxos(offline_wallet['address'])
+        # utxos_obj = json.loads(utxos_json)
+        # amount = openfood.utxo_bundle_amount(utxos_obj)
+        # print("(Not sending this amount atm) Amount of utxo bundle: " + str(amount))
+        # to_address = batch_wallets_integrity['batch_lot_raddress']
+        # num_utxo = 1
+        # # fee = 0.00015
+        # fee = 0
+        # # rawtx_info = openfood.createrawtx4(utxos_json, num_utxo, to_address, fee)
+        # rawtx_info = openfood.createrawtx5(utxos_json, num_utxo, to_address, fee, offline_wallet['address'])
+        # signedtx = openfood.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], offline_wallet['wif'])
+        # certificate_txid = openfood.broadcast_via_explorer(EXPLORER_URL, signedtx)
+        # openfood.timestamping_save_certificate(id, "CERTIFICATE WALLET", offline_wallet, certificate_txid)
+        # print("** txid ** (Certificate to batch_lot): " + certificate_txid)
 
     except Exception as e:
         print(e)
@@ -137,17 +137,17 @@ for batch in batches_no_timestamp:
         print("# Exiting")
         print("##")
 
-#print("Getting certificates requiring timestamping")
-#certificates_no_timestamp = openfood.get_certificates_no_timestamp()
+# print("Getting certificates requiring timestamping")
+# certificates_no_timestamp = openfood.get_certificates_no_timestamp()
 #
-#for certificate in certificates_no_timestamp:
-#    offline_wallet = openfood.offlineWalletGenerator_fromObjectData_certificate(certificate)
-#    url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + str(certificate['id']) + "/"
-#    data = {"raddress": offline_wallet['address'], "pubkey": offline_wallet['pubkey']}
-#    openfood.patchWrapper(url, data=data)
-#    # TODO try/block
-#    funding_txid = openfood.fund_certificate(offline_wallet['address'])
-#    print("Funding tx " + funding_txid)
-#    # TODO add fundingtx, check for unfunded offline wallets
+# for certificate in certificates_no_timestamp:
+#     offline_wallet = openfood.offlineWalletGenerator_fromObjectData_certificate(certificate)
+#     url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + str(certificate['id']) + "/"
+#     data = {"raddress": offline_wallet['address'], "pubkey": offline_wallet['pubkey']}
+#     openfood.patchWrapper(url, data=data)
+#     # TODO try/block
+#     funding_txid = openfood.fund_certificate(offline_wallet['address'])
+#     print("Funding tx " + funding_txid)
+#     # TODO add fundingtx, check for unfunded offline wallets
 
-print("End of script")
+print("End of script - Done")
