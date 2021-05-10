@@ -225,6 +225,9 @@ def check_sync():
     return sync
 
 
+def get_this_node_raddress():
+    return THIS_NODE_RADDRESS
+
 # test done
 def check_node_wallet():
     # check wallet management
@@ -485,7 +488,6 @@ def createrawtx_wrapper(txids, vouts, to_address, amount):
 
 # test done
 def createrawtxwithchange(txids, vouts, to_address, amount, change_address, change_amount):
-    print("Create raw tx with change")
     print(to_address)
     print(amount)
     print(change_address)
@@ -493,10 +495,81 @@ def createrawtxwithchange(txids, vouts, to_address, amount, change_address, chan
     return rpclib.createrawtransactionwithchange(RPC, txids, vouts, to_address, amount, change_address, change_amount)
 
 
+def createrawtx_split_wallet(txids, vouts, to_address, amount, change_address, change_amount):
+    print(to_address)
+    print(amount)
+    print(change_address)
+    print(change_amount)
+    return rpclib.createrawtransactionsplit(RPC, txids, vouts, to_address, amount, change_address, change_amount)
+
+
 # test done
 def createrawtx(txids, vouts, to_address, amount):
     print("Deprecated: use createrawtx_wrapper")
     return rpclib.createrawtransaction(RPC, txids, vouts, to_address, amount)
+
+
+def createrawtx7(utxos_json, num_utxo, to_address, to_amount, fee, change_address, split=False):
+    # check createrawtx6 comments
+    print("createrawtx7()")
+
+    if( num_utxo == 0 ):
+        print("ERROR: createrawtx_error, num_utxo == 0")
+        return
+
+    print("to address: " + str(to_address) + " , to amount: " + str(to_amount))
+    rawtx_info = []  # return this with rawtx & amounts
+    utxos = json.loads(utxos_json)
+    count = 0
+
+    txids = []
+    vouts = []
+    amounts = []
+    amount = 0
+
+    for utxo in utxos:
+        if (utxo['amount'] > 0.2 and utxo['confirmations'] > 2) and count < num_utxo:
+            count = count + 1
+            vout_as_array = [utxo['vout']]
+            txid_as_array = [utxo['txid']]
+            txids.extend(txid_as_array)
+            vouts.extend(vout_as_array)
+            amount = amount + utxo['amount']
+            amounts.extend([utxo['satoshis']])
+
+    if( amount > to_amount ):
+        change_amount = round(amount - fee - to_amount, 10)
+    else:
+        # TODO
+        print("### ERROR ### Needs to be caught, the to_amount is larger than the utxo amount, need more utxos")
+        return
+        # change_amount = round(to_amount - amount - fee, 10)
+    print("amount >=")
+    print(amount)
+    print("to_amount + change_amount + fee")
+    print(to_amount)
+    print(float(change_amount))
+    print(fee)
+    rawtx = ""
+    if( change_amount < 0.01 ):
+        print("Change too low, sending as miner fee " + str(change_amount))
+        change_amount = 0
+        rawtx = createrawtx(txids, vouts, to_address, round(amount - fee, 10))
+
+    else:
+        if(split):
+            print("Creating raw tx for split_wallet")
+            rawtx = createrawtx_split_wallet(txids, vouts, to_address, to_amount, change_address, float(change_amount))
+        else:
+            print("Creating raw tx with change")
+            rawtx = createrawtxwithchange(txids, vouts, to_address, to_amount, change_address, float(change_amount))
+
+    rawtx_info.append({'rawtx': rawtx})
+    rawtx_info.append({'amounts': amounts})
+    print("raw tx created: ")
+    print(rawtx_info)
+
+    return rawtx_info
 
 
 def createrawtx6(utxos_json, num_utxo, to_address, to_amount, fee, change_address):
@@ -729,6 +802,12 @@ def dateToSatoshi(date):
     return int(date.replace('-', ''))
 
 
+def split_wallet1():
+    print("split_wallet1()")
+    delivery_date_wallet = getOfflineWalletByName(WALLET_DELIVERY_DATE)
+    utxos_json = explorer_get_utxos(delivery_date_wallet['address'])
+
+
 def sendToBatchDeliveryDate(batch_raddress, delivery_date):
     # delivery date
     print("SEND DELIVERY DATE")
@@ -739,7 +818,7 @@ def sendToBatchDeliveryDate(batch_raddress, delivery_date):
     print(utxos_json)
     # works sending 0
     # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
-    rawtx_info = createrawtx6(utxos_json, 1, batch_raddress, round(date_as_satoshi/100000000, 10), 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, round(date_as_satoshi/100000000, 10), 0, delivery_date_wallet['address'])
     print("DELIVERY DATE RAWTX: " + str(rawtx_info))
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], delivery_date_wallet['wif'])
     deliverydate_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
@@ -758,7 +837,7 @@ def sendToBatchPON(batch_raddress, pon):
     print(utxos_json)
     # works sending 0
     # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
-    rawtx_info = createrawtx6(utxos_json, 1, batch_raddress, round(pon_as_satoshi/100000000, 10), 0, pon_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, round(pon_as_satoshi/100000000, 10), 0, pon_wallet['address'])
     print("PON RAWTX: " + str(rawtx_info))
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], pon_wallet['wif'])
     pon_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
@@ -767,20 +846,32 @@ def sendToBatchPON(batch_raddress, pon):
 
 
 def sendToBatchPL(batch_raddress, pl):
-    # product location
+    # product locationcreaterawtx7
     print("SEND PL, check PL is accurate")
     pl_wallet = getOfflineWalletByName(pl)
     utxos_json = explorer_get_utxos(pl_wallet['address'])
     print(utxos_json)
     # works sending 0
     # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
-    rawtx_info = createrawtx6(utxos_json, 1, batch_raddress, 0.0001, 0, pl_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, 0.0001, 0, pl_wallet['address'])
     print("PL RAWTX: " + str(rawtx_info))
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], pl_wallet['wif'])
     pl_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
     raddress = pl_wallet['address']
     return pl_txid
 
+
+def split_wallet_PL(THIS_NODE_RADDRESS, pl):
+    # product locationcreaterawtx7
+    print("Split PL")
+    pl_wallet = getOfflineWalletByName(pl)
+    utxos_json = explorer_get_utxos(pl_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, THIS_NODE_RADDRESS, 0.1, 0, pl_wallet['address'], True)
+    print("PL RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], pl_wallet['wif'])
+    pl_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    raddress = pl_wallet['address']
+    return pl_txid
 
 # test done
 def offlineWalletGenerator_fromObjectData_certificate(objectData):
