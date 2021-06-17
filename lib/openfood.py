@@ -38,6 +38,9 @@ from lib.openfood_env import WALLET_PON_THRESHOLD_BALANCE
 from lib.openfood_env import WALLET_PON_THRESHOLD_UTXO
 from lib.openfood_env import WALLET_PON_THRESHOLD_UTXO_VALUE
 from lib.openfood_env import WALLET_MASS_BALANCE
+from lib.openfood_env import WALLET_MASS_BALANCE_THRESHOLD_BALANCE
+from lib.openfood_env import WALLET_MASS_BALANCE_THRESHOLD_UTXO
+from lib.openfood_env import WALLET_MASS_BALANCE_THRESHOLD_UTXO_VALUE
 from lib.openfood_env import WALLET_TIN
 from lib.openfood_env import WALLET_TIN_THRESHOLD_BALANCE
 from lib.openfood_env import WALLET_TIN_THRESHOLD_UTXO
@@ -370,7 +373,7 @@ def check_offline_wallets():
     print(wallet_mass_balance)
     if is_below_threshold_balance(wallet_mass_balance_balance, WALLET_MASS_BALANCE_THRESHOLD_BALANCE):
         print("FUND the " + WALLET_MASS_BALANCE + " wallet because balance low")
-        funding_txid = fund_offline_wallet(wallet_mass_balance['address'])
+        funding_txid = fund_offline_wallet2(wallet_mass_balance['address'], WALLET_MASS_BALANCE_THRESHOLD_UTXO_VALUE)
         print(funding_txid)
 
     wallet_pon_balance = int(explorer_get_balance(wallet_pon['address']))
