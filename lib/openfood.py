@@ -511,6 +511,7 @@ def createrawtx(txids, vouts, to_address, amount):
 
 
 def createrawtx6(utxos_json, num_utxo, to_address, to_amount, fee, change_address):
+    print(to_address)
     # check this file in commit https://github.com/The-New-Fork/blocknotify-python/commit/f91a148b18840aaf08d7c7736045a8c924bd236b
     # for to_amount.  When a wallet had no utxos, the resulting change was -0.00123, some sort of mis-naming maybe?
     #to_amount = 0.00123
@@ -748,7 +749,7 @@ def sendToBatchMassBalance(batch_raddress, mass_balance_value):
     print(utxos_json)
     # works sending 0
     # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
-    rawtx_info = createrawtx6(utxos_json, 1, batch_raddress, round(mass_balance_value/100000000, 10), 0, mass_balance_wallet['address'])
+    rawtx_info = createrawtx6(utxos_json, 1, batch_raddress, round(mass_balance_value/1, 10), 0, mass_balance_wallet['address'])
     print("MASS BALANCE RAWTX: " + str(rawtx_info))
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], mass_balance_wallet['wif'])
     mass_balance_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)

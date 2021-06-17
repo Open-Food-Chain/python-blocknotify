@@ -84,7 +84,7 @@ for batch in batches_no_timestamp:
         print("** txid ** (PROD DATE): " + txid_prod_date)
         txid_tin = ""
         print("** txid ** (TIN): " + txid_tin)
-        txid_mass = openfood.sendAndPatchMassBalance( batch_wallets_integrity, batch['mass'])
+        txid_mass = openfood.sendAndPatchMassBalance( tofix_bnfp_wallet['address'], batch['mass'])
         print("** txid  ** (MASS): " + txid_mass)
         txid_pl = openfood.sendToBatchPL(tofix_bnfp_wallet['address'], batch['pl'])
         print("** txid ** (PL): " + txid_pl)
