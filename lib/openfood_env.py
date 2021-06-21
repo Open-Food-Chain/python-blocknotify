@@ -57,13 +57,13 @@ DEV_IMPORT_API_JCF_BATCH_INTEGRITY_PATH = "integrity/"
 # batch/require_integrity/
 DEV_IMPORT_API_JCF_BATCH_REQUIRE_INTEGRITY_PATH = "batch/require_integrity/"
 # raw/refresco/require_integrity/
-DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH = "raw/refresco/require_integrity/"
+DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH = "batch/import/require_integrity/"
 # raw/refresco-integrity/
-DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = "raw/refresco-integrity/"
+DEV_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH = "batch/import-integrity/"
 # raw/refresco-tstx/
-DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH = "raw/refresco-tstx/"
+DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH = "batch/import-tstx/"
 # raw/refresco/
-DEV_IMPORT_API_RAW_REFRESCO_PATH = "raw/refresco/"
+DEV_IMPORT_API_RAW_REFRESCO_PATH = "batch/import/"
 
 # LOAD openfood ENV
 openfood_API_HOST = str(os.environ['JUICYCHAIN_API_HOST'])
