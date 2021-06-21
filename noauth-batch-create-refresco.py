@@ -81,7 +81,7 @@ def create_random_batch():
 	RANDOM_VAL_RMN=11200100520
 	RANDOM_VAL_PON=get_random_number(8)
 	RANDOM_VAL_POP=get_random_number(2)
-
+	RANDOM_VAL_MASS=get_random_number(3)
 	PDS=random_date("2020-1-1", "2020-11-15", random.random())
 	PDE=random_date(PDS, "2020-11-15", random.random())
 	BBD=PDE
@@ -89,7 +89,7 @@ def create_random_batch():
 	JDS=days(PDS)
 	JDE=days(PDE)
 
-	params = { "anfp": RANDOM_VAL_ANFP, "dfp": RANDOM_VAL_DFP, "bnfp": RANDOM_VAL_BNFP, "pds":PDS , "pde":PDE, "jds":JDS, "jde":JDE , "bbd":BBD , "pc": RANDOM_VAL_PC, "pl": RANDOM_VAL_PL, "rmn":RANDOM_VAL_RMN, "pon":RANDOM_VAL_PON, "pop":RANDOM_VAL_POP }
+	params = { "anfp": RANDOM_VAL_ANFP, "dfp": RANDOM_VAL_DFP, "bnfp": RANDOM_VAL_BNFP, "pds":PDS , "pde":PDE, "jds":JDS, "jde":JDE , "bbd":BBD , "pc": RANDOM_VAL_PC, "pl": RANDOM_VAL_PL, "rmn":RANDOM_VAL_RMN, "pon":RANDOM_VAL_PON, "pop":RANDOM_VAL_POP, "mass":RANDOM_VAL_MASS }
 	print(params)
 	return params
 
@@ -116,6 +116,7 @@ def properties_test(tests):
 		assert test['rmn']
 		assert test['pon']
 		assert test['pop']
+		assert test['mass']
 
 def ids_test(tests):
 	for test in tests:
