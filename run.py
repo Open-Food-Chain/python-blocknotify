@@ -84,7 +84,7 @@ for batch in batches_no_timestamp:
         print("** txid ** (PROD DATE): " + txid_prod_date)
         txid_tin = ""
         print("** txid ** (TIN): " + txid_tin)
-        txid_mass = openfood.sendAndPatchMassBalance( tofix_bnfp_wallet['address'], batch['mass'])
+        txid_mass = openfood.sendToBatchMassBalance( tofix_bnfp_wallet['address'], batch['mass'])
         print("** txid  ** (MASS): " + txid_mass)
         txid_pl = openfood.sendToBatchPL(tofix_bnfp_wallet['address'], batch['pl'])
         print("** txid ** (PL): " + txid_pl)
@@ -94,22 +94,22 @@ for batch in batches_no_timestamp:
         
         """)
         # this can all be put into an openfood lib function like sendToBatchDeliveryDate
-        certificate = openfood.get_certificate_for_batch()
-        offline_wallet = openfood.offlineWalletGenerator_fromObjectData_certificate(certificate)
-        utxos_json = openfood.explorer_get_utxos(offline_wallet['address'])
-        utxos_obj = json.loads(utxos_json)
-        amount = openfood.utxo_bundle_amount(utxos_obj)
-        print("(Not sending this amount atm) Amount of utxo bundle: " + str(amount))
-        to_address = batch_wallets_integrity['batch_lot_raddress']
-        num_utxo = 1
+#        certificate = openfood.get_certificate_for_batch()
+#        offline_wallet = openfood.offlineWalletGenerator_fromObjectData_certificate(certificate)
+#        utxos_json = openfood.explorer_get_utxos(offline_wallet['address'])
+#        utxos_obj = json.loads(utxos_json)
+#        amount = openfood.utxo_bundle_amount(utxos_obj)
+#        print("(Not sending this amount atm) Amount of utxo bundle: " + str(amount))
+#        to_address = batch_wallets_integrity['batch_lot_raddress']
+#        num_utxo = 1
         # fee = 0.00015
-        fee = 0
+#        fee = 0
         # rawtx_info = openfood.createrawtx4(utxos_json, num_utxo, to_address, fee)
-        rawtx_info = openfood.createrawtx5(utxos_json, num_utxo, to_address, fee, offline_wallet['address'])
-        signedtx = openfood.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], offline_wallet['wif'])
-        certificate_txid = openfood.broadcast_via_explorer(EXPLORER_URL, signedtx)
-        openfood.timestamping_save_certificate(id, "CERTIFICATE WALLET", offline_wallet, certificate_txid)
-        print("** txid ** (Certificate to batch_lot): " + certificate_txid)
+#        rawtx_info = openfood.createrawtx5(utxos_json, num_utxo, to_address, fee, offline_wallet['address'])
+#        signedtx = openfood.signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], offline_wallet['wif'])
+#        certificate_txid = openfood.broadcast_via_explorer(EXPLORER_URL, signedtx)
+#        openfood.timestamping_save_certificate(id, "CERTIFICATE WALLET", offline_wallet, certificate_txid)
+#        print("** txid ** (Certificate to batch_lot): " + certificate_txid)
 
     except Exception as e:
         print(e)

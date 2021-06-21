@@ -1213,6 +1213,7 @@ def push_batch_data_consumer(jcapi_org_id, batch, batch_wallet):
                 'date_production_start': batch['pds'],
                 'date_best_before': batch['bbd'],
                 'origin_country': batch['pc'],
+                'mass_balance': batch['mass'],
                 'raddress': batch_wallet['address'],
                 'pubkey': batch_wallet['pubkey'],
                 'organization': jcapi_org_id}
