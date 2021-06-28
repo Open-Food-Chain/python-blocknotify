@@ -312,6 +312,52 @@ def test_sendToBatchMassBalance():
     txid = openfood.sendToBatchMassBalance(batch_raddress, mass_balance_value)
     assert len(txid) == 64
 
+
+@pytest.mark.skip
+def test_sendToBatchDeliveryDate():
+    pass
+
+
+@pytest.mark.skip
+def test_sendToBatchPON():
+    pass
+
+
+@pytest.mark.skip
+def test_sendToBatchJulianStart():
+    pass
+
+
+@pytest.mark.skip
+def test_sendToBatchJulianStop():
+    pass
+
+
+@pytest.mark.skip
+def test_sendToBatchOriginCountry():
+    pass
+
+
+@pytest.mark.skip
+def test_sendToBatchBBDate():
+    pass
+
+
+@pytest.mark.skip
+def test_sendToBatchProductionDate():
+    pass
+
+
+@pytest.mark.skip
+def test_sendToBatchTIN():
+    pass
+
+
+@pytest.mark.skip
+def test_sendToBatchPL():
+    pass
+
+
 #it seems like this is no longer a possible call
 @pytest.mark.skip
 def test_patchWrapperr():
