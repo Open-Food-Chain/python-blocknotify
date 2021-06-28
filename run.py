@@ -73,17 +73,17 @@ for batch in batches_no_timestamp:
         print("** txid ** (DELIVERY_DATE): " + txid_delivery_date)
         txid_pon = openfood.sendToBatchPON(tofix_bnfp_wallet['address'], batch['pon'])
         print("** txid ** (PON): " + txid_pon)
-        txid_julian_start = "" # openfood.sendToBatchFromOfflineWallet(tofix_bnfp_wallet['address'], batch['jds'])
+        txid_julian_start = openfood.sendToBatchJDS(tofix_bnfp_wallet['address'], batch['jds'])
         print("** txid ** (JULIAN START): " + txid_julian_start)
-        txid_julian_stop = ""
+        txid_julian_stop = openfood.sendToBatchJDE(tofix_bnfp_wallet['address'], batch['jde'])
         print("** txid ** (JULIAN STOP): " + txid_julian_stop)
-        txid_origin_country = ""
+        txid_origin_country = openfood.sendToBatchPC(tofix_bnfp_wallet['address'], batch['pc'])
         print("** txid ** (ORIGIN COUNTRY): " + txid_origin_country)
-        txid_bb_date = ""
+        txid_bb_date = openfood.sendToBatchBBDate(tofix_bnfp_wallet['address'], batch['bb_date'])
         print("** txid ** (BB DATE): " + txid_bb_date)
-        txid_prod_date = ""
+        txid_prod_date = openfood.sendToBatchProductionDate(tofix_bnfp_wallet['address'], batch['production_date'])
         print("** txid ** (PROD DATE): " + txid_prod_date)
-        txid_tin = ""
+        txid_tin = openfood.sendToBatchTIN(tofix_bnfp_wallet['address'], batch['tin'])
         print("** txid ** (TIN): " + txid_tin)
         txid_mass = openfood.sendToBatchMassBalance( tofix_bnfp_wallet['address'], batch['mass'])
         print("** txid  ** (MASS): " + txid_mass)

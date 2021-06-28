@@ -327,12 +327,12 @@ def test_sendToBatchPON():
 
 
 @pytest.mark.skip
-def test_sendToBatchJulianStart():
+def test_sendToBatchJDS():
     pass
 
 
 @pytest.mark.skip
-def test_sendToBatchJulianStop():
+def test_sendToBatchJDE():
     pass
 
 
@@ -358,6 +358,11 @@ def test_sendToBatchTIN():
 
 @pytest.mark.skip
 def test_sendToBatchPL():
+    pass
+
+
+@pytest.mark.skip
+def test_sendToBatchPC():
     pass
 
 

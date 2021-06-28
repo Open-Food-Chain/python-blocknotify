@@ -900,9 +900,43 @@ def sendToBatchDeliveryDate(batch_raddress, delivery_date):
     print("DELIVERY DATE RAWTX: " + str(rawtx_info))
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], delivery_date_wallet['wif'])
     deliverydate_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
-    raddress = delivery_date_wallet['address']
-    # txid = sendtoaddressWrapper(batch_raddress, date_as_satoshi/100000000, 1)
     return deliverydate_txid
+
+
+# test skipped
+def sendToBatchProductionDate(batch_raddress, production_date):
+    # delivery date
+    print("SEND PRODUCTION DATE")
+    date_as_satoshi = dateToSatoshi(production_date)
+    print(date_as_satoshi)
+    production_date_wallet = getOfflineWalletByName(WALLET_PROD_DATE)
+    utxos_json = explorer_get_utxos(production_date_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, round(date_as_satoshi/100000000, 10), 0, production_date_wallet['address'])
+    print("PROD DATE RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], production_date_wallet['wif'])
+    proddate_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    return proddate_txid
+
+
+# test skipped
+def sendToBatchBBDate(batch_raddress, bb_date):
+    # delivery date
+    print("SEND BB DATE")
+    date_as_satoshi = dateToSatoshi(bb_date)
+    print(date_as_satoshi)
+    bb_date_wallet = getOfflineWalletByName(WALLET_BB_DATE)
+    utxos_json = explorer_get_utxos(bb_date_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, round(date_as_satoshi/100000000, 10), 0, bb_date_wallet['address'])
+    print("BB DATE RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], bb_date_wallet['wif'])
+    bbdate_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    return bbdate_txid
 
 
 # test skipped
@@ -925,6 +959,24 @@ def sendToBatchPON(batch_raddress, pon):
 
 
 # test skipped
+def sendToBatchTIN(batch_raddress, tin):
+    # purchase order number
+    print("SEND PON, check PON is accurate")
+    tin_as_satoshi = dateToSatoshi(tin)
+    print(tin_as_satoshi)
+    tin_wallet = getOfflineWalletByName(WALLET_TIN)
+    utxos_json = explorer_get_utxos(tin_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, round(tin_as_satoshi/100000000, 10), 0, tin_wallet['address'])
+    print("PON RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], tin_wallet['wif'])
+    tin_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    return tin_txid
+
+
+# test skipped
 def sendToBatchPL(batch_raddress, pl):
     # product locationcreaterawtx7
     print("SEND PL, check PL is accurate")
@@ -941,6 +993,54 @@ def sendToBatchPL(batch_raddress, pl):
     return pl_txid
 
 
+# test skipped
+def sendToBatchJDS(batch_raddress, jds):
+    # product locationcreaterawtx7
+    jds_wallet = getOfflineWalletByName(WALLET_JULIAN_START)
+    utxos_json = explorer_get_utxos(jds_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, 0.0001, 0, jds_wallet['address'])
+    print("JDStart RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], jds_wallet['wif'])
+    jds_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    raddress = jds_wallet['address']
+    return jds_txid
+
+
+# test skipped
+def sendToBatchJDE(batch_raddress, jds):
+    # product locationcreaterawtx7
+    jds_wallet = getOfflineWalletByName(WALLET_JULIAN_STOP)
+    utxos_json = explorer_get_utxos(jds_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, 0.0001, 0, jds_wallet['address'])
+    print("JDStop RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], jds_wallet['wif'])
+    jds_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    raddress = jds_wallet['address']
+    return jds_txid
+
+
+# test skipped
+def sendToBatchPC(batch_raddress, pc):
+    # product locationcreaterawtx7
+    pc_wallet = getOfflineWalletByName(WALLET_ORIGIN_COUNTRY)
+    utxos_json = explorer_get_utxos(pc_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, 0.0001, 0, pc_wallet['address'])
+    print("Product Country RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], pc_wallet['wif'])
+    pc_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    raddress = pc_wallet['address']
+    return pc_txid
+
+
 # no test
 def split_wallet_PL(THIS_NODE_RADDRESS, pl):
     # product locationcreaterawtx7
@@ -953,6 +1053,7 @@ def split_wallet_PL(THIS_NODE_RADDRESS, pl):
     pl_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
     raddress = pl_wallet['address']
     return pl_txid
+
 
 # test skipped, can be templated for re-use
 def offlineWalletGenerator_fromObjectData_certificate(objectData):
