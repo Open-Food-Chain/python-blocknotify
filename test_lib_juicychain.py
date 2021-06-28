@@ -571,6 +571,18 @@ def sign_properties( tx ):
 	assert tx[0]['rawtx']
 	assert tx[1]['amounts']
 
+
+@pytest.mark.skip
+def test_createrawtx7():
+    pass
+
+
+@pytest.mark.skip
+def test_createrawtx6():
+    pass
+
+
+
 def test_createrawtx5():
     utxos_obj = [
       {
@@ -647,10 +659,10 @@ def test_signtx():
 #test function not done
 @pytest.mark.skip
 def test_broadcast_via_explorer():
+    pass
+#    test = broadcast_via_explorer(explorer_url, signedtx)
 
-    test = broadcast_via_explorer(explorer_url, signedtx)
-
-
+@pytest.mark.skip
 def test_createrawtx4():
     utxos_obj = [
       {
@@ -929,3 +941,103 @@ def test_fund_offline_wallet():
 def test_is_below_threshold_balance():
     test = openfood.is_below_threshold_balance(1*100000000, 2)
     assert test is True
+
+
+@pytest.mark.skip
+def test_kvupdate_wrapper():
+    pass
+
+
+@pytest.mark.skip
+def test_kvsearch_wrapper():
+    pass
+
+
+@pytest.mark.skip
+def test_organization_certificate_noraddress():
+    pass
+
+
+@pytest.mark.skip
+def test_dateToSatoshi():
+    pass
+
+
+@pytest.mark.skip
+def test_fund_certificate():
+    pass
+
+
+@pytest.mark.skip
+def test_organization_send_batch_links():
+    pass
+
+
+@pytest.mark.skip
+def test_timestamping_save_batch_links():
+    pass
+
+
+@pytest.mark.skip
+def test_timestamping_save_certificate():
+    pass
+
+
+@pytest.mark.skip
+def test_push_batch_data_consumer():
+    pass
+
+
+@pytest.mark.skip
+def test_check_kv1_wallet():
+    pass
+
+
+@pytest.mark.skip
+def test_generate_pool_wallets():
+    pass
+
+
+@pytest.mark.skip
+def test_verify_kv_pool_wallets():
+    pass
+
+
+@pytest.mark.skip
+def test_organization_get_pool_wallets_by_raddress():
+    pass
+
+
+@pytest.mark.skip
+def test_get_this_node_raddress():
+    pass
+
+
+@pytest.mark.skip
+def test_kv_save_batch_to_raddress():
+    pass
+
+
+@pytest.mark.skip
+def test_kv_save_raddress_to_data():
+    pass
+
+
+@pytest.mark.skip
+def test_kv_get_by_raddress():
+    pass
+
+
+@pytest.mark.skip
+def test_organization_get_our_pool_batch_wallet():
+    pass
+
+
+@pytest.mark.skip
+def test_organization_get_our_pool_po_wallet():
+    pass
+
+
+@pytest.mark.skip
+def test_organization_get_our_customer_po_wallet():
+    pass
