@@ -69,8 +69,8 @@ for batch in batches_no_timestamp:
         =====>>>>> STAGE: Send offline wallets into batch
         
         """)
-        txid_delivery_date = openfood.sendToBatchDeliveryDate(tofix_bnfp_wallet['address'], batch['bbd'])
-        print("** txid ** (DELIVERY_DATE): " + txid_delivery_date)
+#        txid_delivery_date = openfood.sendToBatchDeliveryDate(tofix_bnfp_wallet['address'], batch['bbd'])
+#        print("** txid ** (DELIVERY_DATE): " + txid_delivery_date)
         txid_pon = openfood.sendToBatchPON(tofix_bnfp_wallet['address'], batch['pon'])
         print("** txid ** (PON): " + txid_pon)
         txid_julian_start = openfood.sendToBatchJDS(tofix_bnfp_wallet['address'], batch['jds'])
@@ -83,7 +83,8 @@ for batch in batches_no_timestamp:
         print("** txid ** (BB DATE): " + txid_bb_date)
         txid_prod_date = openfood.sendToBatchPDS(tofix_bnfp_wallet['address'], batch['pds'])
         print("** txid ** (PROD DATE): " + txid_prod_date)
-        txid_tin = openfood.sendToBatchTIN(tofix_bnfp_wallet['address'], batch['tin'])
+        # GS1 GTIN is anfp in this batch implementation, TIN trade id number
+        txid_tin = openfood.sendToBatchTIN(tofix_bnfp_wallet['address'], batch['anfp'])
         print("** txid ** (TIN): " + txid_tin)
         txid_mass = openfood.sendToBatchMassBalance( tofix_bnfp_wallet['address'], batch['mass'])
         print("** txid  ** (MASS): " + txid_mass)
