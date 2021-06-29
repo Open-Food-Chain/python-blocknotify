@@ -342,7 +342,7 @@ def test_sendToBatchOriginCountry():
 
 
 @pytest.mark.skip
-def test_sendToBatchBBDate():
+def test_sendToBatchBBD():
     pass
 
 
