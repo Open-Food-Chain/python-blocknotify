@@ -347,7 +347,7 @@ def test_sendToBatchBBD():
 
 
 @pytest.mark.skip
-def test_sendToBatchProductionDate():
+def test_sendToBatchPDS():
     pass
 
 

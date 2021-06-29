@@ -904,7 +904,7 @@ def sendToBatchDeliveryDate(batch_raddress, delivery_date):
 
 
 # test skipped
-def sendToBatchProductionDate(batch_raddress, production_date):
+def sendToBatchPDS(batch_raddress, production_date):
     # delivery date
     print("SEND PRODUCTION DATE")
     date_as_satoshi = dateToSatoshi(production_date)
