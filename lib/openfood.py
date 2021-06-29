@@ -91,7 +91,7 @@ URL_openfood_API_ORGANIZATION = openfood_API_BASE_URL + openfood_API_ORGANIZATIO
 URL_openfood_API_ORGANIZATION_BATCH = openfood_API_BASE_URL + openfood_API_ORGANIZATION_BATCH
 
 
-# helper mothods
+# helper methods
 def is_json(myjson):
     try:
         json_object = json.loads(myjson)
@@ -100,7 +100,6 @@ def is_json(myjson):
     return True
 
 
-# test done
 def connect_node():
     global RPC
     print("Connecting to: " + KOMODO_NODE + ":" + RPC_PORT)
@@ -108,7 +107,6 @@ def connect_node():
     return True
 
 
-# test done
 def connect_kv1_node():
     global KV1RPC
     print("Connecting KV to: " + KV1_NODE + ":" + KV1_RPC_PORT)
@@ -116,58 +114,67 @@ def connect_kv1_node():
     return True
 
 
-#no test
+# test skipped
 def kvupdate_wrapper(kv_key, kv_value, kv_days, kv_passphrase):
     if(type(kv_value) == type({"this": "is", "a": "json"})):
         kv_value = json.dumps(kv_value)
     txid = rpclib.kvupdate(KV1RPC, kv_key, kv_value, kv_days, kv_passphrase)
     return txid
 
-#no test
+
+# test skipped
 def kvsearch_wrapper(kv_key):
     kv_response = rpclib.kvsearch(KV1RPC, kv_key)
     return kv_response
 
 
-#no test
+# test skipped
 def oracle_create(name, description, data_type):
     or_responce = rpclib.oracles_create(RPC, name, description, data_type)
     return or_responce
 
-#no test
+
+# test skipped
 def oracle_fund(or_id):
     or_responce = rpclib.oracles_fund(RPC, or_id)
     return or_responce
 
-#no test
+
+# test skipped
 def oracle_register(or_id, data_fee):
     or_responce = rpclib.oracles_register(RPC, or_id, data_fee)
     return or_responce
 
-#no test
+
+# test skipped
 def oracle_subscribe(or_id, publisher_id, data_fee):
     or_responce = rpclib.oracles_subscribe(RPC, or_id, publisher_id, data_fee)
     return or_responce
 
-#no test
+
+# test skipped
 def oracle_info(or_id):
     or_responce = rpclib.oracles_info(RPC, or_id)
     return or_responce
 
-#no test
+
+# test skipped
 def oracle_data(or_id, hex_string):
     or_responce = rpclib.oracles_data(RPC, or_id, hex_string)
     return or_responce
 
-#no test
+
+# test skipped
 def oracle_list():
     or_responce = rpclib.oracles_list(RPC)
     return or_responce
 
-#no test
+
+# test skipped
 def oracle_samples(oracletxid, batonutxo, num):
     or_responce = rpclib.oracles_samples(RPC, oracletxid, batonutxo, num)
     return or_responce
+
 
 def find_oracleid_with_pubkey(pubkey):
 	or_responce = oracle_list()
@@ -176,31 +183,28 @@ def find_oracleid_with_pubkey(pubkey):
 		for registered in oracle['registered']:
 			if registered['publisher'] == pubkey:
 				return oracle['txid']
-# test done
+
+
 def sendtoaddress_wrapper(to_address, amount):
     send_amount = round(amount, 10)
     txid = rpclib.sendtoaddress(RPC, to_address, send_amount)
     return txid
 
 
-# test done
 def sendmany_wrapper(from_address, recipients_json):
     txid = rpclib.sendmany(RPC, from_address, recipients_json)
     return txid
 
 
-# test done
 def signmessage_wrapper(data):
     signed_data = rpclib.signmessage(RPC, THIS_NODE_RADDRESS, data)
     return signed_data
 
 
-# test done
 def housekeeping_tx():
     return sendtoaddress_wrapper(HOUSEKEEPING_RADDRESS, SCRIPT_VERSION)
 
 
-# test done
 def sendtoaddressWrapper(address, amount, amount_multiplier):
     print("Deprecated: use sendtoaddress_wrapper")
     send_amount = round(amount * amount_multiplier, 10)  # rounding 10??
@@ -208,7 +212,6 @@ def sendtoaddressWrapper(address, amount, amount_multiplier):
     return txid
 
 
-# test done
 def check_sync():
     general_info = rpclib.getinfo(RPC)
     sync = general_info['longestchain'] - general_info['blocks']
@@ -228,10 +231,11 @@ def check_sync():
     return sync
 
 
+# test skipped
 def get_this_node_raddress():
     return THIS_NODE_RADDRESS
 
-# test done
+
 def check_node_wallet():
     # check wallet management
     try:
@@ -278,6 +282,7 @@ def check_kv1_wallet():
         exit()
 
 
+# test skipped
 def generate_pool_wallets():
     wallet_all_our_po = getOfflineWalletByName(WALLET_ALL_OUR_PO)
     wallet_all_our_batch = getOfflineWalletByName(WALLET_ALL_OUR_BATCH_LOT)
@@ -290,6 +295,7 @@ def generate_pool_wallets():
     return pool_wallets
 
 
+# test skipped
 def verify_kv_pool_wallets():
     pool_wallets = generate_pool_wallets()
     print("Verifying pool wallets in KV1")
@@ -303,33 +309,34 @@ def verify_kv_pool_wallets():
         print("kv exists for pool wallets")
 
 
+# test skipped
 def organization_get_pool_wallets_by_raddress(raddress):
     print("GET POOL WALLETS BY RADDRESS: " + raddress)
     kv_response = kvsearch_wrapper(raddress + KV1_ORG_POOL_WALLETS)
     return kv_response
 
 
-def get_this_node_raddress():
-    return THIS_NODE_RADDRESS
-
-
+# test skipped
 def kv_save_batch_to_raddress(batch, raddress):
     kv_response = kvupdate_wrapper(batch, raddress, "100", "password")
     return kv_response
 
 
+# test skipped
 def kv_save_raddress_to_data(raddress, data):
     kv_response = kvupdate_wrapper(raddress, data, "100", "password")
     return kv_response
 
 
+# test skipped
 def kv_get_by_raddress(raddress):
     kv_response = kvsearch_wrapper(raddress)
     return kv_response
 
 
-# test done
+# deprecated
 def fund_offline_wallet(offline_wallet_raddress):
+    print("DEPRECATED WARNING: fund_offline_wallet")
     json_object = {
      offline_wallet_raddress: 11.2109
      }
@@ -345,7 +352,6 @@ def fund_offline_wallet2(offline_wallet_raddress, send_amount):
     return sendmany_txid
 
 
-# test done
 def is_below_threshold_balance(check_this, balance_threshold):
     if( check_this < balance_threshold * 100000000 ):
         return True
@@ -438,6 +444,8 @@ def check_offline_wallets():
         # print("FUND the wallet because low utxo count")
         # fund_offline_wallet(wallet_delivery_date['address'])
 
+
+# test skipped
 def organization_certificate_noraddress(url, org_id, THIS_NODE_RADDRESS):
     try:
         res = requests.get(url)
@@ -467,7 +475,6 @@ def organization_certificate_noraddress(url, org_id, THIS_NODE_RADDRESS):
             raise Exception(e)
 
 
-# test done
 def explorer_get_utxos(querywallet):
     print("Get UTXO for wallet " + querywallet)
     # INSIGHT_API_KOMODO_ADDRESS_UTXO = "insight-api-komodo/addrs/{querywallet}/utxo"
@@ -481,7 +488,7 @@ def explorer_get_utxos(querywallet):
         # print(vout['txid'] + " " + str(vout['vout']) + " " + str(vout['amount']) + " " + str(vout['satoshis']))
     return res.text
 
-# test done
+
 def explorer_get_balance(querywallet):
     print("Get balance for wallet: " + querywallet)
     INSIGHT_API_KOMODO_ADDRESS_BALANCE = "insight-api-komodo/addr/" + querywallet + "/balance"
@@ -492,12 +499,10 @@ def explorer_get_balance(querywallet):
     return res.text
 
 
-# test done
 def createrawtx_wrapper(txids, vouts, to_address, amount):
     return rpclib.createrawtransaction(RPC, txids, vouts, to_address, amount)
 
 
-# test done
 def createrawtxwithchange(txids, vouts, to_address, amount, change_address, change_amount):
     print(to_address)
     print(amount)
@@ -514,12 +519,12 @@ def createrawtx_split_wallet(txids, vouts, to_address, amount, change_address, c
     return rpclib.createrawtransactionsplit(RPC, txids, vouts, to_address, amount, change_address, change_amount)
 
 
-# test done
 def createrawtx(txids, vouts, to_address, amount):
     print("Deprecated: use createrawtx_wrapper")
     return rpclib.createrawtransaction(RPC, txids, vouts, to_address, amount)
 
 
+# test skipped
 def createrawtx7(utxos_json, num_utxo, to_address, to_amount, fee, change_address, split=False):
     # check createrawtx6 comments
     print("createrawtx7()")
@@ -582,7 +587,7 @@ def createrawtx7(utxos_json, num_utxo, to_address, to_amount, fee, change_addres
 
     return rawtx_info
 
-
+# test skipped
 def createrawtx6(utxos_json, num_utxo, to_address, to_amount, fee, change_address):
     print(to_address)
     # check this file in commit https://github.com/The-New-Fork/blocknotify-python/commit/f91a148b18840aaf08d7c7736045a8c924bd236b
@@ -641,9 +646,9 @@ def createrawtx6(utxos_json, num_utxo, to_address, to_amount, fee, change_addres
     rawtx_info.append({'amounts': amounts})
     return rawtx_info
 
-
-# test done
+# deprecated
 def createrawtx5(utxos_json, num_utxo, to_address, fee, change_address):
+    print("DEPRECATED WARNING: createrawtx5")
     rawtx_info = []  # return this with rawtx & amounts
     utxos = json.loads(utxos_json)
     # utxos.reverse()
@@ -681,9 +686,9 @@ def createrawtx5(utxos_json, num_utxo, to_address, fee, change_address):
     rawtx_info.append({'amounts': amounts})
     return rawtx_info
 
-
-# test done
+# deprecated
 def createrawtx4(utxos_json, num_utxo, to_address, fee):
+    print("DEPRECATED WARNING: createrawtx4")
     rawtx_info = []  # return this with rawtx & amounts
     utxos = json.loads(utxos_json)
     utxos.reverse()
@@ -714,18 +719,15 @@ def createrawtx4(utxos_json, num_utxo, to_address, fee):
     return rawtx_info
 
 
-# test done
 def decoderawtx_wrapper(tx):
     return rpclib.decoderawtransaction(RPC, tx)
 
 
-# test done
 def decoderawtx(tx):
     print("Deprecated: use decoderawtx_wrapper(tx)")
     return rpclib.decoderawtransaction(RPC, tx)
 
 
-# test done
 def signtx(kmd_unsigned_tx_serialized, amounts, wif):
     txin_type, privkey, compressed = bitcoin.deserialize_privkey(wif)
     pubkey = bitcoin.public_key_from_private_key(privkey, compressed)
@@ -770,6 +772,7 @@ def signtx(kmd_unsigned_tx_serialized, amounts, wif):
     return tx.serialize()
 
 
+# test skipped
 def broadcast_via_explorer(explorer_url, signedtx):
     INSIGHT_API_BROADCAST_TX = "insight-api-komodo/tx/send"
     params = {'rawtx': signedtx}
@@ -786,7 +789,6 @@ def broadcast_via_explorer(explorer_url, signedtx):
     return broadcast_res['txid']
 
 
-# test done
 def gen_wallet(data, label='NoLabelOK'):
     print("Creating a %s address signing with %s and data %s" % (label, THIS_NODE_RADDRESS, data))
     signed_data = rpclib.signmessage(RPC, THIS_NODE_RADDRESS, data)
@@ -799,7 +801,6 @@ def gen_wallet(data, label='NoLabelOK'):
     return new_wallet
 
 
-# test done
 def getOfflineWalletByName(name):
     obj = {
         "name": name
@@ -810,6 +811,7 @@ def getOfflineWalletByName(name):
     return offline_wallet
 
 
+# test skipped
 def dateToSatoshi(date):
     return int(date.replace('-', ''))
 
@@ -831,6 +833,7 @@ def sendToBatchMassBalance(batch_raddress, mass_balance_value):
     return mass_balance_txid
 
 
+# deprecated
 def massBalanceIntoApi(mass_balance_txid, mass_balance_value, id):
    url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_BATCH + str(id) + "/"
   # data = { "mass_balance_value":mass_balance_value,
@@ -866,6 +869,8 @@ def rToId(batch_raddress):
    return None
 
 
+# deprecated
+# no test
 def sendAndPatchMassBalance(batch_raddress, mass_balance_value):
    txid = sendToBatchMassBalance(batch_raddress, mass_balance_value)
    id = rToId(batch_raddress)
@@ -873,12 +878,14 @@ def sendAndPatchMassBalance(batch_raddress, mass_balance_value):
    return answere
 
 
+# no test
 def split_wallet1():
     print("split_wallet1()")
     delivery_date_wallet = getOfflineWalletByName(WALLET_DELIVERY_DATE)
     utxos_json = explorer_get_utxos(delivery_date_wallet['address'])
 
 
+# test skipped
 def sendToBatchDeliveryDate(batch_raddress, delivery_date):
     # delivery date
     print("SEND DELIVERY DATE")
@@ -893,11 +900,46 @@ def sendToBatchDeliveryDate(batch_raddress, delivery_date):
     print("DELIVERY DATE RAWTX: " + str(rawtx_info))
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], delivery_date_wallet['wif'])
     deliverydate_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
-    raddress = delivery_date_wallet['address']
-    # txid = sendtoaddressWrapper(batch_raddress, date_as_satoshi/100000000, 1)
     return deliverydate_txid
 
 
+# test skipped
+def sendToBatchPDS(batch_raddress, production_date):
+    # delivery date
+    print("SEND PRODUCTION DATE")
+    date_as_satoshi = dateToSatoshi(production_date)
+    print(date_as_satoshi)
+    production_date_wallet = getOfflineWalletByName(WALLET_PROD_DATE)
+    utxos_json = explorer_get_utxos(production_date_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, round(date_as_satoshi/100000000, 10), 0, production_date_wallet['address'])
+    print("PROD DATE RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], production_date_wallet['wif'])
+    proddate_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    return proddate_txid
+
+
+# test skipped
+def sendToBatchBBD(batch_raddress, bb_date):
+    # delivery date
+    print("SEND BB DATE")
+    date_as_satoshi = dateToSatoshi(bb_date)
+    print(date_as_satoshi)
+    bb_date_wallet = getOfflineWalletByName(WALLET_BB_DATE)
+    utxos_json = explorer_get_utxos(bb_date_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, round(date_as_satoshi/100000000, 10), 0, bb_date_wallet['address'])
+    print("BB DATE RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], bb_date_wallet['wif'])
+    bbdate_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    return bbdate_txid
+
+
+# test skipped
 def sendToBatchPON(batch_raddress, pon):
     # purchase order number
     print("SEND PON, check PON is accurate")
@@ -916,6 +958,25 @@ def sendToBatchPON(batch_raddress, pon):
     return pon_txid
 
 
+# test skipped
+def sendToBatchTIN(batch_raddress, tin):
+    # purchase order number
+    print("SEND PON, check PON is accurate")
+    tin_as_satoshi = dateToSatoshi(tin)
+    print(tin_as_satoshi)
+    tin_wallet = getOfflineWalletByName(WALLET_TIN)
+    utxos_json = explorer_get_utxos(tin_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, round(tin_as_satoshi/100000000, 10), 0, tin_wallet['address'])
+    print("PON RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], tin_wallet['wif'])
+    tin_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    return tin_txid
+
+
+# test skipped
 def sendToBatchPL(batch_raddress, pl):
     # product locationcreaterawtx7
     print("SEND PL, check PL is accurate")
@@ -932,6 +993,55 @@ def sendToBatchPL(batch_raddress, pl):
     return pl_txid
 
 
+# test skipped
+def sendToBatchJDS(batch_raddress, jds):
+    # product locationcreaterawtx7
+    jds_wallet = getOfflineWalletByName(WALLET_JULIAN_START)
+    utxos_json = explorer_get_utxos(jds_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, 0.0001, 0, jds_wallet['address'])
+    print("JDStart RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], jds_wallet['wif'])
+    jds_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    raddress = jds_wallet['address']
+    return jds_txid
+
+
+# test skipped
+def sendToBatchJDE(batch_raddress, jds):
+    # product locationcreaterawtx7
+    jds_wallet = getOfflineWalletByName(WALLET_JULIAN_STOP)
+    utxos_json = explorer_get_utxos(jds_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, 0.0001, 0, jds_wallet['address'])
+    print("JDStop RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], jds_wallet['wif'])
+    jds_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    raddress = jds_wallet['address']
+    return jds_txid
+
+
+# test skipped
+def sendToBatchPC(batch_raddress, pc):
+    # product locationcreaterawtx7
+    pc_wallet = getOfflineWalletByName(WALLET_ORIGIN_COUNTRY)
+    utxos_json = explorer_get_utxos(pc_wallet['address'])
+    print(utxos_json)
+    # works sending 0
+    # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, 0.0001, 0, pc_wallet['address'])
+    print("Product Country RAWTX: " + str(rawtx_info))
+    signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], pc_wallet['wif'])
+    pc_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
+    raddress = pc_wallet['address']
+    return pc_txid
+
+
+# no test
 def split_wallet_PL(THIS_NODE_RADDRESS, pl):
     # product locationcreaterawtx7
     print("Split PL")
@@ -944,7 +1054,8 @@ def split_wallet_PL(THIS_NODE_RADDRESS, pl):
     raddress = pl_wallet['address']
     return pl_txid
 
-# test done
+
+# test skipped, can be templated for re-use
 def offlineWalletGenerator_fromObjectData_certificate(objectData):
     obj = {
         "issuer": objectData['issuer'],
@@ -964,7 +1075,6 @@ def offlineWalletGenerator_fromObjectData_certificate(objectData):
     return offline_wallet
 
 
-# test done
 def utxo_bundle_amount(utxos_obj):
     count = 0
     list_of_ids = []
@@ -984,7 +1094,6 @@ def utxo_bundle_amount(utxos_obj):
     return amount
 
 
-# test done
 def get_batches_no_timestamp():
     print("***** start import api timestamping integrity - raw/refresco/require_integrity/")
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_REQUIRE_INTEGRITY_PATH
@@ -1010,7 +1119,6 @@ def get_batches_no_timestamp():
     return batches_no_timestamp
 
 
-# has test
 def get_batches():
     print("10009 start import api - raw/refresco")
     url = IMPORT_API_BASE_URL + DEV_IMPORT_API_RAW_REFRESCO_PATH
@@ -1036,7 +1144,6 @@ def get_batches():
     return batches
 
 
-# has test function
 def get_certificates_no_timestamp():
     url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE_NORADDRESS
     try:
@@ -1048,12 +1155,12 @@ def get_certificates_no_timestamp():
     return certs_no_addy
 
 
+# test skipped
 def fund_certificate(certificate_address):
     txid = sendtoaddress_wrapper(certificate_address, FUNDING_AMOUNT_CERTIFICATE)
     return txid
 
 
-# test done
 def postWrapper(url, data):
     res = requests.post(url, data=data)
     if(res.status_code == 200 | res.status_code == 201):
@@ -1063,7 +1170,6 @@ def postWrapper(url, data):
         return obj
 
 
-# test done
 def putWrapper(url, data):
     res = requests.put(url, data=data)
 
@@ -1074,7 +1180,6 @@ def putWrapper(url, data):
         return obj
 
 
-# has test function
 def patchWrapper(url, data):
     res = requests.patch(url, data=data)
 
@@ -1085,7 +1190,6 @@ def patchWrapper(url, data):
         return obj
 
 
-# has test function
 def getWrapper(url):
     res = requests.get(url)
 
@@ -1096,7 +1200,6 @@ def getWrapper(url):
         return obj
 
 
-# test done
 def get_jcapi_organization():
     print("GET openfood-api organization query: " + URL_openfood_API_ORGANIZATION + "?raddress=" + THIS_NODE_RADDRESS)
     res = getWrapper(URL_openfood_API_ORGANIZATION + "?raddress=" + THIS_NODE_RADDRESS)
@@ -1108,7 +1211,7 @@ def get_jcapi_organization():
     return organizations
 
 
-# test done
+# test skipped
 def batch_wallets_generate_timestamping(batchObj, import_id):
     json_batch = json.dumps(batchObj)
     # anfp_wallet = gen_wallet(json_batch['anfp'], "anfp")
@@ -1132,7 +1235,6 @@ def batch_wallets_generate_timestamping(batchObj, import_id):
     return json.loads(batch_wallets_update_response)
 
 
-# test done
 def batch_wallets_timestamping_update(batch_integrity):
     batch_integrity_url = URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + batch_integrity['id'] + "/"
     print(batch_integrity)
@@ -1140,7 +1242,6 @@ def batch_wallets_timestamping_update(batch_integrity):
     return batch_integrity_response
 
 
-# test done
 def batch_wallets_timestamping_start(batch_integrity, start_txid):
     batch_integrity_url = URL_IMPORT_API_RAW_REFRESCO_INTEGRITY_PATH + batch_integrity['id'] + "/"
     print(batch_integrity)
@@ -1153,7 +1254,6 @@ def batch_wallets_timestamping_start(batch_integrity, start_txid):
     return batch_integrity_start_response
 
 
-# test done
 def batch_wallets_timestamping_end(batch_integrity, end_txid):
     batch_integrity['integrity_post_tx'] = end_txid
     print(batch_integrity)
@@ -1161,16 +1261,15 @@ def batch_wallets_timestamping_end(batch_integrity, end_txid):
     return batch_integrity_end_response
 
 
-# test done
 def batch_wallets_fund_integrity_start(integrity_address):
     return sendtoaddress_wrapper(integrity_address, FUNDING_AMOUNT_TIMESTAMPING_START)
 
 
-# test done
 def batch_wallets_fund_integrity_end(integrity_address):
     return sendtoaddress_wrapper(integrity_address, FUNDING_AMOUNT_TIMESTAMPING_END)
 
 
+# test skipped
 def organization_get_our_pool_batch_wallet():
     kv_response = organization_get_pool_wallets_by_raddress(THIS_NODE_RADDRESS)
     print(kv_response)
@@ -1179,6 +1278,7 @@ def organization_get_our_pool_batch_wallet():
     return tmp2
 
 
+# test skipped
 def organization_get_our_pool_po_wallet():
     kv_response = organization_get_pool_wallets_by_raddress(THIS_NODE_RADDRESS)
     print(kv_response)
@@ -1187,6 +1287,7 @@ def organization_get_our_pool_po_wallet():
     return tmp2
 
 
+# test skipped
 def organization_get_customer_po_wallet(CUSTOMER_RADDRESS):
     kv_response = organization_get_pool_wallets_by_raddress(CUSTOMER_RADDRESS)
     print(kv_response)
@@ -1195,6 +1296,7 @@ def organization_get_customer_po_wallet(CUSTOMER_RADDRESS):
     return tmp2
 
 
+# test skipped
 def organization_get_customer_batch_wallet(CUSTOMER_RADDRESS):
     kv_response = organization_get_pool_wallets_by_raddress(CUSTOMER_RADDRESS)
     print(kv_response)
@@ -1203,6 +1305,7 @@ def organization_get_customer_batch_wallet(CUSTOMER_RADDRESS):
     return tmp2
 
 
+# test skipped
 def organization_send_batch_links(batch_integrity):
     sample_pool_po = "RWSVFtCJfRH5ErsXJCaz9YNVKx7PijxpoV"
     sample_pool_batch_lot = "R9X5CBJjmVmJe4a533hemBf6vCW2m3BAqH"
@@ -1224,6 +1327,7 @@ def organization_send_batch_links(batch_integrity):
     return sendmany_txid
 
 
+# test skipped
 def organization_send_batch_links2(batch_integrity, pon):
     pon_as_satoshi = dateToSatoshi(pon)
     pool_batch_wallet = organization_get_our_pool_batch_wallet()
@@ -1246,6 +1350,7 @@ def organization_send_batch_links2(batch_integrity, pon):
     return sendmany_txid
 
 
+# test skipped
 def organization_send_batch_links3(batch_integrity, pon, bnfp):
     pon_as_satoshi = dateToSatoshi(pon)
     bnfp_as_satoshi = dateToSatoshi(bnfp)
@@ -1277,6 +1382,7 @@ def timestamping_save_batch_links(id, sendmany_txid):
     return ts_response
 
 
+# test skipped
 def timestamping_save_certificate(id, sender_name, sender_wallet, certificate_txid):
     print("** txid ** (Certificate to batch_lot): " + certificate_txid)
     tstx_data = {'sender_raddress': sender_wallet['address'],
@@ -1287,12 +1393,11 @@ def timestamping_save_certificate(id, sender_name, sender_wallet, certificate_tx
     return ts_response
 
 
-# test done
+# no test
 def get_certificate_for_test(url):
     return getWrapper(url)
 
 
-# test done
 def get_certificate_for_batch():
     # TODO this is hardcoded, which is bad - needs to fetch by cert rules
     test_url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_CERTIFICATE + "2/"
@@ -1300,6 +1405,7 @@ def get_certificate_for_batch():
     return certificate
 
 
+# test skipped
 def push_batch_data_consumer(jcapi_org_id, batch, batch_wallet):
         data = {'identifier': batch['bnfp'],
                 'jds': batch['jds'],

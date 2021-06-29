@@ -115,6 +115,7 @@ def create_random_batch():
 	print(params)
 	return params
 
+
 def properties_test(tests):
 	for test in tests:
 		print(test)
@@ -131,6 +132,7 @@ def properties_test(tests):
 		assert test['rmn']
 		assert test['pon']
 		assert test['pop']
+
 
 def properties_test_cert(tests):
 	for test in tests:
@@ -283,6 +285,7 @@ def test_get_batches():
     properties_test(test)
 
 
+# deprecated
 def test_PatchMassBalance():
     #url = openfood_API_BASE_URL + openfood_API_ORGANIZATION_BATCH
     #batches = openfood.getWrapper(url)
@@ -324,12 +327,12 @@ def test_sendToBatchPON():
 
 
 @pytest.mark.skip
-def test_sendToBatchJulianStart():
+def test_sendToBatchJDS():
     pass
 
 
 @pytest.mark.skip
-def test_sendToBatchJulianStop():
+def test_sendToBatchJDE():
     pass
 
 
@@ -339,12 +342,12 @@ def test_sendToBatchOriginCountry():
 
 
 @pytest.mark.skip
-def test_sendToBatchBBDate():
+def test_sendToBatchBBD():
     pass
 
 
 @pytest.mark.skip
-def test_sendToBatchProductionDate():
+def test_sendToBatchPDS():
     pass
 
 
@@ -355,6 +358,11 @@ def test_sendToBatchTIN():
 
 @pytest.mark.skip
 def test_sendToBatchPL():
+    pass
+
+
+@pytest.mark.skip
+def test_sendToBatchPC():
     pass
 
 
@@ -408,6 +416,7 @@ def properties_jcapi_test(test):
 	assert test['name']
 	assert test['pubkey']
 	assert test['raddress']
+
 
 def test_get_jcapi_organization():
     test = openfood.get_jcapi_organization()
@@ -772,7 +781,6 @@ def test_sendtoaddress_wrapper():
     assert not(" " in test)
 
 
-#function no longer in lib
 @pytest.mark.skip
 def test_batch_wallets_generate_timestamping():
     test = openfood.get_wbatches_no_timestamp()
@@ -882,13 +890,16 @@ def batch_wallets_timestamping_end(testObj):
 
     assert is_json(test) == True
 
+
 def test_batch_wallets_fund_integrity_start():
     test = openfood.batch_wallets_fund_integrity_start(THIS_NODE_WALLET)
     assert type(int(test, 16)) == type(10)
 
+
 def test_batch_wallets_fund_integrity_end():
     test = openfood.batch_wallets_fund_integrity_end(THIS_NODE_WALLET)
     assert type(int(test, 16)) == type(10)
+
 
 def test_timestamping_save_batch_links():
     test = openfood.get_batches()
@@ -927,11 +938,19 @@ def test_timestamping_save_batch_links():
     test = openfood.timestamping_save_batch_links(test[0]['id'], rawtx_info['txid'])
     assert test == True
 
+
 def test_sendmany_wrapper():
     json_object = {THIS_NODE_WALLET: SCRIPT_VERSION}
     test = openfood.sendmany_wrapper(THIS_NODE_WALLET, json_object)
     print(test)
     assert not (" " in test)
+
+
+def test_fund_offline_wallet2():
+    test = openfood.fund_offline_wallet("RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW")
+    print(test)
+    assert not (" " in test)
+
 
 def test_fund_offline_wallet():
     test = openfood.fund_offline_wallet("RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW")
@@ -974,7 +993,12 @@ def test_organization_send_batch_links():
 
 
 @pytest.mark.skip
-def test_timestamping_save_batch_links():
+def test_organization_send_batch_links2():
+    pass
+
+
+@pytest.mark.skip
+def test_organization_send_batch_links3():
     pass
 
 
@@ -1040,4 +1064,54 @@ def test_organization_get_our_pool_po_wallet():
 
 @pytest.mark.skip
 def test_organization_get_our_customer_po_wallet():
+    pass
+
+
+@pytest.mark.skip
+def test_oracle_create():
+    pass
+
+
+@pytest.mark.skip
+def test_oracle_fund():
+    pass
+
+
+@pytest.mark.skip
+def test_oracle_register():
+    pass
+
+
+@pytest.mark.skip
+def test_oracle_subscribe():
+    pass
+
+
+@pytest.mark.skip
+def test_oracle_info():
+    pass
+
+
+@pytest.mark.skip
+def test_oracle_data():
+    pass
+
+
+@pytest.mark.skip
+def test_oracle_list():
+    pass
+
+
+@pytest.mark.skip
+def test_oracle_samples():
+    pass
+
+
+@pytest.mark.skip
+def test_check_offline_wallets():
+    pass
+
+
+@pytest.mark.skip
+def test_createrawtx_split_wallet():
     pass
