@@ -79,7 +79,7 @@ for batch in batches_no_timestamp:
         print("** txid ** (JULIAN STOP): " + txid_julian_stop)
         txid_origin_country = openfood.sendToBatchPC(tofix_bnfp_wallet['address'], batch['pc'])
         print("** txid ** (ORIGIN COUNTRY): " + txid_origin_country)
-        txid_bb_date = openfood.sendToBatchBBDate(tofix_bnfp_wallet['address'], batch['bbd'])
+        txid_bb_date = openfood.sendToBatchBBD(tofix_bnfp_wallet['address'], batch['bbd'])
         print("** txid ** (BB DATE): " + txid_bb_date)
         txid_prod_date = openfood.sendToBatchProductionDate(tofix_bnfp_wallet['address'], batch['production_date'])
         print("** txid ** (PROD DATE): " + txid_prod_date)
