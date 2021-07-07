@@ -977,9 +977,10 @@ def test_organization_certificate_noraddress():
     pass
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_dateToSatoshi():
-    pass
+    test = openfood.dateToSatoshi('2021-09-01')
+    assert test == 0.20210901
 
 
 @pytest.mark.skip
@@ -1017,9 +1018,16 @@ def test_check_kv1_wallet():
     pass
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_generate_pool_wallets():
-    pass
+    test = openfood.generate_pool_wallets()
+    if {
+        "_ALL_OUR_PO",
+        "_ALL_OUR_BATCH",
+        "_ALL_CUSTOMER_PO"
+    } <= set(test):
+        assert True
+    else: assert False
 
 
 @pytest.mark.skip
