@@ -114,15 +114,11 @@ def connect_kv1_node():
     return True
 
 
-# test skipped
 def kvupdate_wrapper(kv_key, kv_value, kv_days, kv_passphrase):
-    if(type(kv_value) == type({"this": "is", "a": "json"})):
-        kv_value = json.dumps(kv_value)
     txid = rpclib.kvupdate(KV1RPC, kv_key, kv_value, kv_days, kv_passphrase)
     return txid
 
 
-# test skipped
 def kvsearch_wrapper(kv_key):
     kv_response = rpclib.kvsearch(KV1RPC, kv_key)
     return kv_response
@@ -356,7 +352,6 @@ def is_below_threshold_balance(check_this, balance_threshold):
     if( check_this < balance_threshold * 100000000 ):
         return True
 
-
 def check_offline_wallets():
     print("Check offline wallets: getXXXWallet, getBalance (if low then fund), getUTXOCount")
     wallet_delivery_date = getOfflineWalletByName(WALLET_DELIVERY_DATE)
@@ -438,6 +433,7 @@ def check_offline_wallets():
     # check utxo count
     utxo_count = explorer_get_utxos(wallet_delivery_date['address'])
     print(utxo_count)
+    return utxo_count
     # next needs to be manual tx, sendmany does not function like this
     # if low, fund with sendmany by adding threshold balance x3 utxo threshold
     # if( len(utxo_count) < WALLET_DELIVERY_DATE_THRESHOLD_UTXO):
@@ -1306,7 +1302,6 @@ def organization_get_customer_batch_wallet(CUSTOMER_RADDRESS):
     return tmp2
 
 
-# test skipped
 def organization_send_batch_links(batch_integrity):
     sample_pool_po = "RWSVFtCJfRH5ErsXJCaz9YNVKx7PijxpoV"
     sample_pool_batch_lot = "R9X5CBJjmVmJe4a533hemBf6vCW2m3BAqH"

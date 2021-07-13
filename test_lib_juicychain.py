@@ -1,6 +1,8 @@
 from lib.openfood_env import EXPLORER_URL
 from lib.openfood_env import THIS_NODE_WALLET
 from lib.openfood_env import THIS_NODE_WIF
+from lib.openfood_env import THIS_NODE_RADDRESS
+from lib.openfood_env import KV1_ORG_POOL_WALLETS
 from lib.openfood_env import IMPORT_API_BASE_URL
 from lib.openfood_env import DEV_IMPORT_API_RAW_REFRESCO_TSTX_PATH
 from lib.openfood_env import DEV_IMPORT_API_RAW_REFRESCO_PATH
@@ -799,8 +801,8 @@ def test_batch_wallets_timestamping_update():
 
 def test_start_stop():
     test = openfood.get_batches_no_timestamp()
-    batch_wallets_timestamping_start(test)
-    batch_wallets_timestamping_end(test)
+    openfood.batch_wallets_timestamping_start(test)
+    openfood.batch_wallets_timestamping_end(test)
 
 
 #we are here
@@ -962,14 +964,27 @@ def test_is_below_threshold_balance():
     assert test is True
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_kvupdate_wrapper():
-    pass
+    # rpclib gives Insufficient funds
+    pool_wallets = openfood.generate_pool_wallets()
+    org_kv1_key_pool_wallets = THIS_NODE_RADDRESS + KV1_ORG_POOL_WALLETS
+    kv_response = openfood.kvupdate_wrapper(org_kv1_key_pool_wallets, json.dumps(pool_wallets), "3", "password")
+    assert len(kv_response['txid']) == 64
 
-
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_kvsearch_wrapper():
-    pass
+    org_kv1_key_pool_wallets = THIS_NODE_RADDRESS + KV1_ORG_POOL_WALLETS
+    test = openfood.kvsearch_wrapper(org_kv1_key_pool_wallets)
+    if {
+        "coin",
+        "currentheight",
+        "key",
+        "keylen",
+        "error"
+    } <= set(test):
+        assert True
+    else: assert False
 
 
 @pytest.mark.skip
@@ -988,9 +1003,12 @@ def test_fund_certificate():
     pass
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_organization_send_batch_links():
-    pass
+    batch = openfood.get_batches()[0]
+    print(batch)
+    test = openfood.organization_send_batch_links(batch)
+    assert len(test) == 64
 
 
 @pytest.mark.skip
@@ -1013,11 +1031,6 @@ def test_push_batch_data_consumer():
     pass
 
 
-@pytest.mark.skip
-def test_check_kv1_wallet():
-    pass
-
-
 # @pytest.mark.skip
 def test_generate_pool_wallets():
     test = openfood.generate_pool_wallets()
@@ -1030,9 +1043,10 @@ def test_generate_pool_wallets():
     else: assert False
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_verify_kv_pool_wallets():
-    pass
+    test = openfood.verify_kv_pool_wallets()
+    assert test is None
 
 
 @pytest.mark.skip
@@ -1115,9 +1129,22 @@ def test_oracle_samples():
     pass
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_check_offline_wallets():
-    pass
+    test = openfood.check_offline_wallets()
+    test = json.loads(test)
+    if {
+        "address",
+        "txid",
+        "vout",
+        "scriptPubKey",
+        "amount",
+        "satoshis",
+        "height",
+        "confirmations"
+    } <= set(test[0]):
+        assert True
+    else: assert False
 
 
 @pytest.mark.skip
