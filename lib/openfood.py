@@ -114,15 +114,11 @@ def connect_kv1_node():
     return True
 
 
-# test skipped
 def kvupdate_wrapper(kv_key, kv_value, kv_days, kv_passphrase):
-    if(type(kv_value) == type({"this": "is", "a": "json"})):
-        kv_value = json.dumps(kv_value)
     txid = rpclib.kvupdate(KV1RPC, kv_key, kv_value, kv_days, kv_passphrase)
     return txid
 
 
-# test skipped
 def kvsearch_wrapper(kv_key):
     kv_response = rpclib.kvsearch(KV1RPC, kv_key)
     return kv_response
@@ -356,7 +352,6 @@ def is_below_threshold_balance(check_this, balance_threshold):
     if( check_this < balance_threshold * 100000000 ):
         return True
 
-
 def check_offline_wallets():
     print("Check offline wallets: getXXXWallet, getBalance (if low then fund), getUTXOCount")
     wallet_delivery_date = getOfflineWalletByName(WALLET_DELIVERY_DATE)
@@ -438,6 +433,7 @@ def check_offline_wallets():
     # check utxo count
     utxo_count = explorer_get_utxos(wallet_delivery_date['address'])
     print(utxo_count)
+    return utxo_count
     # next needs to be manual tx, sendmany does not function like this
     # if low, fund with sendmany by adding threshold balance x3 utxo threshold
     # if( len(utxo_count) < WALLET_DELIVERY_DATE_THRESHOLD_UTXO):
@@ -813,7 +809,8 @@ def getOfflineWalletByName(name):
 
 # test skipped
 def dateToSatoshi(date):
-    return int(date.replace('-', ''))
+    formatDate = int(date.replace('-', ''))
+    return round(formatDate/100000000, 10)
 
   
 def sendToBatchMassBalance(batch_raddress, mass_balance_value):
@@ -896,7 +893,7 @@ def sendToBatchDeliveryDate(batch_raddress, delivery_date):
     print(utxos_json)
     # works sending 0
     # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
-    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, round(date_as_satoshi/100000000, 10), 0, delivery_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, date_as_satoshi, 0, delivery_date_wallet['address'])
     print("DELIVERY DATE RAWTX: " + str(rawtx_info))
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], delivery_date_wallet['wif'])
     deliverydate_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
@@ -914,7 +911,7 @@ def sendToBatchPDS(batch_raddress, production_date):
     print(utxos_json)
     # works sending 0
     # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
-    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, round(date_as_satoshi/100000000, 10), 0, production_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, date_as_satoshi, 0, production_date_wallet['address'])
     print("PROD DATE RAWTX: " + str(rawtx_info))
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], production_date_wallet['wif'])
     proddate_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
@@ -932,7 +929,7 @@ def sendToBatchBBD(batch_raddress, bb_date):
     print(utxos_json)
     # works sending 0
     # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
-    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, round(date_as_satoshi/100000000, 10), 0, bb_date_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, date_as_satoshi, 0, bb_date_wallet['address'])
     print("BB DATE RAWTX: " + str(rawtx_info))
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], bb_date_wallet['wif'])
     bbdate_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
@@ -950,7 +947,7 @@ def sendToBatchPON(batch_raddress, pon):
     print(utxos_json)
     # works sending 0
     # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
-    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, round(pon_as_satoshi/100000000, 10), 0, pon_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, pon_as_satoshi, 0, pon_wallet['address'])
     print("PON RAWTX: " + str(rawtx_info))
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], pon_wallet['wif'])
     pon_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
@@ -969,7 +966,7 @@ def sendToBatchTIN(batch_raddress, tin):
     print(utxos_json)
     # works sending 0
     # rawtx_info = createrawtx5(utxos_json, 1, batch_raddress, 0, delivery_date_wallet['address'])
-    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, round(tin_as_satoshi/100000000, 10), 0, tin_wallet['address'])
+    rawtx_info = createrawtx7(utxos_json, 1, batch_raddress, tin_as_satoshi, 0, tin_wallet['address'])
     print("PON RAWTX: " + str(rawtx_info))
     signedtx = signtx(rawtx_info[0]['rawtx'], rawtx_info[1]['amounts'], tin_wallet['wif'])
     tin_txid = broadcast_via_explorer(EXPLORER_URL, signedtx)
@@ -1305,7 +1302,6 @@ def organization_get_customer_batch_wallet(CUSTOMER_RADDRESS):
     return tmp2
 
 
-# test skipped
 def organization_send_batch_links(batch_integrity):
     sample_pool_po = "RWSVFtCJfRH5ErsXJCaz9YNVKx7PijxpoV"
     sample_pool_batch_lot = "R9X5CBJjmVmJe4a533hemBf6vCW2m3BAqH"
@@ -1342,9 +1338,9 @@ def organization_send_batch_links2(batch_integrity, pon):
     json_object = {
 
                     pool_batch_wallet: SCRIPT_VERSION,
-                    pool_po: round(pon_as_satoshi/100000000, 10),
+                    pool_po: pon_as_satoshi,
                    batch_integrity['batch_lot_raddress']: SCRIPT_VERSION,
-                   customer_pool_wallet: round(pon_as_satoshi/100000000, 10)
+                   customer_pool_wallet: pon_as_satoshi
                    }
     sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
     return sendmany_txid
@@ -1364,10 +1360,10 @@ def organization_send_batch_links3(batch_integrity, pon, bnfp):
     print("pon & pon as satoshi: " + pon + ":" + str(pon_as_satoshi))
 
     json_object = {
-                    pool_batch_wallet: round(bnfp_as_satoshi/100000000, 10),
-                    pool_po: round(pon_as_satoshi/100000000, 10),
+                    pool_batch_wallet: bnfp_as_satoshi,
+                    pool_po: pon_as_satoshi,
                     batch_integrity['batch_lot_raddress']: SATS_10K,
-                    customer_pool_wallet: round(pon_as_satoshi/100000000, 10)
+                    customer_pool_wallet: pon_as_satoshi
                    }
     sendmany_txid = sendmany_wrapper(THIS_NODE_RADDRESS, json_object)
     return sendmany_txid
