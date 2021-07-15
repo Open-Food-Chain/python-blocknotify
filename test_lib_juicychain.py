@@ -534,7 +534,6 @@ def transactions_properties( tx ):
 	assert type(tx['vShieldedOutput']) == type([])
 
 
-#@pytest.mark.skip
 def test_createrawtxwithchange():
     utxos_obj = [
       {
@@ -630,7 +629,6 @@ def test_createrawtx5():
     sign_properties(test)
 
 
-# @pytest.mark.skip
 @pytest.mark.skip
 def test_signtx():
     kmd_unsigned_tx_serialized = "0400008085202f8902b8be1dbe757519f6ce972e1f62a4eca1d6bed2cc5817fbb151fbc32ed95579270a00000000ffffffffb8be1dbe757519f6ce972e1f62a4eca1d6bed2cc5817fbb151fbc32ed95579270b00000000ffffffff01002d3101000000001976a914cbeb5be30aaede02316436da368ee57cfcd8187988ac000000008fea01000000000000000000000000"
@@ -741,7 +739,6 @@ def test_check_sync():
     assert type(10) == type(test)
 
 
-# @pytest.mark.skip
 def test_explorer_get_utxos():
     try:
         test = openfood.explorer_get_utxos("RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW")
@@ -750,7 +747,6 @@ def test_explorer_get_utxos():
         assert e is True
 
 
-# @pytest.mark.skip
 def test_explorer_get_balance():
     try:
         test = openfood.explorer_get_utxos("RLw3bxciVDqY31qSZh8L4EuM2uo3GJEVEW")
@@ -964,7 +960,6 @@ def test_is_below_threshold_balance():
     assert test is True
 
 
-# @pytest.mark.skip
 def test_kvupdate_wrapper():
     # rpclib gives Insufficient funds
     pool_wallets = openfood.generate_pool_wallets()
@@ -972,7 +967,6 @@ def test_kvupdate_wrapper():
     kv_response = openfood.kvupdate_wrapper(org_kv1_key_pool_wallets, json.dumps(pool_wallets), "3", "password")
     assert len(kv_response['txid']) == 64
 
-# @pytest.mark.skip
 def test_kvsearch_wrapper():
     org_kv1_key_pool_wallets = THIS_NODE_RADDRESS + KV1_ORG_POOL_WALLETS
     test = openfood.kvsearch_wrapper(org_kv1_key_pool_wallets)
@@ -992,7 +986,6 @@ def test_organization_certificate_noraddress():
     pass
 
 
-# @pytest.mark.skip
 def test_dateToSatoshi():
     test = openfood.dateToSatoshi('2021-09-01')
     assert test == 0.20210901
@@ -1003,7 +996,6 @@ def test_fund_certificate():
     pass
 
 
-# @pytest.mark.skip
 def test_organization_send_batch_links():
     batch = openfood.get_batches()[0]
     print(batch)
@@ -1031,7 +1023,6 @@ def test_push_batch_data_consumer():
     pass
 
 
-# @pytest.mark.skip
 def test_generate_pool_wallets():
     test = openfood.generate_pool_wallets()
     if {
@@ -1043,7 +1034,6 @@ def test_generate_pool_wallets():
     else: assert False
 
 
-# @pytest.mark.skip
 def test_verify_kv_pool_wallets():
     test = openfood.verify_kv_pool_wallets()
     assert test is None
@@ -1129,7 +1119,6 @@ def test_oracle_samples():
     pass
 
 
-# @pytest.mark.skip
 def test_check_offline_wallets():
     test = openfood.check_offline_wallets()
     test = json.loads(test)
