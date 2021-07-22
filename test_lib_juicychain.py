@@ -591,7 +591,34 @@ def test_createrawtx7():
 def test_createrawtx6():
     pass
 
-
+def test_createrawtx_dev():
+    utxos_obj = [
+        {
+            "address": "RJt3kSRU3XxikWoixmyoA8CFT8kMaSs72M",
+            "txid": "20cbbb4273fef7978e349a4e8fc9dcd03cadd6f4551909adae0e4aa05171691a",
+            "vout": 1,
+            "scriptPubKey": "21032833aadbf22a7ab67f6623a3a840a288d305e09915dc83c81fce6af0e31aa3b0ac",
+            "amount": 1.99885,
+            "satoshis": 199885000,
+            "height": 70509,
+            "confirmations": 8623
+        },
+        {
+            "address": "RJt3kSRU3XxikWoixmyoA8CFT8kMaSs72M",
+            "txid": "29154ac1ea3024bdef07698659c83fada1e78b445b40e76dc280fd0a6896b4fa",
+            "vout": 1,
+            "scriptPubKey": "76a9146950bcf37e3e92533a8502c3a783a568eba4122c88ac",
+            "amount": 26,
+            "satoshis": 2600000000,
+            "height": 70499,
+            "confirmations": 8633
+        }
+    ]
+    fee = 0
+    to_address = change_address = THIS_NODE_WALLET
+    test = openfood.createrawtx_dev(utxos_obj, to_address, 20, fee, change_address)
+    print('result:', test)
+    assert True == False
 
 def test_createrawtx5():
     utxos_obj = [
@@ -974,8 +1001,7 @@ def test_kvsearch_wrapper():
         "coin",
         "currentheight",
         "key",
-        "keylen",
-        "error"
+        "keylen"
     } <= set(test):
         assert True
     else: assert False
