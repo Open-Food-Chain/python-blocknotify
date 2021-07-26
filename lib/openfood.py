@@ -583,6 +583,51 @@ def createrawtx7(utxos_json, num_utxo, to_address, to_amount, fee, change_addres
 
     return rawtx_info
 
+def createrawtx_dev(utxos_json, to_address, to_amount, fee, change_address):
+    # check if utxos_json list is not empty
+    num_utxo = len(utxos_json)
+    if( num_utxo == 0 ):
+        print("utxos are required (list)")
+        return
+
+    # The limitations of the current createrawtx code are:
+    # 1. if value needing to send is more than the selected utxo value, then we cannot send.
+    # 2. if failure to send, no retry currently.
+
+    # calculate utxos amount
+    amount = utxo_bundle_amount(utxos_json)
+
+    # amount after fee
+    change_amount = round(amount - fee, 10)
+
+    # stop if utxos amount (after fee) < to_amount
+    if change_amount < to_amount:
+        print(
+            'insufficient amount',
+            f'total amount: {amount}',
+            f'send amount: {to_amount}',
+            f'fee: {fee}'
+        )
+        return
+
+    # get all txid utxos and convert to list
+    txids = [d['txid'] for d in utxos_json]
+
+    # get all vout utxos and convert to list
+    vouts = [d['vout'] for d in utxos_json]
+
+    # satoshis
+    satoshis = [d['satoshis'] for d in utxos_json]
+
+    # change amount (reduced by to_amount)
+    change_amount = round(change_amount - to_amount, 10)
+
+    # rawtx = createrawtxwithchange(txids, vouts, to_address, to_amount, change_address, change_amount)
+    rawtx = createrawtxwithchange(txids, vouts, to_address, to_amount, change_address, float(change_amount))
+
+    # return rawtx and satoshis (append to list)
+    return [{"rawtx": rawtx}, {"satoshis": satoshis}]
+
 # test skipped
 def createrawtx6(utxos_json, num_utxo, to_address, to_amount, fee, change_address):
     print(to_address)
